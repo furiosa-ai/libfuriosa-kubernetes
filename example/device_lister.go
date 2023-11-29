@@ -18,6 +18,12 @@ func main() {
 
 	for _, device := range devices {
 		println(fmt.Sprintf("%v", device))
+		coreStatus, err := device.GetStatusAll()
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+		println(fmt.Sprintf("%v", coreStatus))
 		for _, deviceFile := range device.DevFiles() {
 			println(fmt.Sprintf("%v", deviceFile))
 		}

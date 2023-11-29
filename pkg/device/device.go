@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"syscall"
 )
 
 const (
@@ -389,9 +390,7 @@ func getDeviceStatus(filePath string) (DeviceStatus, error) {
 	//NOTE(@bg): the perm argument is not used unless a file is being created.
 	_, err := os.OpenFile(filePath, os.O_RDWR, 0666)
 	if err != nil {
-		//TODO(@bg) make it sure, maybe need to use string check
-		errBusy := errors.New("device or resource busy")
-		if errors.Is(err, errBusy) {
+		if errors.Is(err, syscall.EBUSY) {
 			return DeviceStatusOccupied, nil
 		} else {
 			return "", NewUnexpectedValue(err.Error())

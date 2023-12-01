@@ -10,12 +10,16 @@ import (
 )
 
 const (
-	DeviceFilePattern  = "^npu(?P<device_id>\\d+)((?:pe)(?P<start_core>\\d+)(-(?P<end_core>\\d+))?)?$"
-	SubExpKeyDeviceId  = "device_id"
-	SubExpKeyStartCore = "start_core"
-	SubExpKeyEndCore   = "end_core"
-	DefaultPlatform    = "FuriosaAI"
-	NonDefaultPlatform = "VITIS"
+	deviceFilePattern  = `^npu(?P<device_id>\d+)((?:pe)(?P<start_core>\d+)(-(?P<end_core>\d+))?)?$`
+	subExpKeyDeviceId  = "device_id"
+	subExpKeyStartCore = "start_core"
+	subExpKeyEndCore   = "end_core"
+	defaultPlatform    = "FuriosaAI"
+	nonDefaultPlatform = "VITIS"
+)
+
+var (
+	deviceFileRegExp = regexp.MustCompile(deviceFilePattern)
 )
 
 type deviceValidateFunc func(dev DevFile) bool
@@ -48,13 +52,12 @@ func ListDevFs(devFs string) ([]DevFile, error) {
 
 // ParseIndices parse device id and core range from the given file.
 func ParseIndices(filename string) (uint8, []uint8, error) {
-	pattern := regexp.MustCompile(DeviceFilePattern)
-	if !pattern.MatchString(filename) {
+	if !deviceFileRegExp.MatchString(filename) {
 		return 0, nil, NewUnrecognizedFileError(filename)
 	}
 
-	matches := pattern.FindStringSubmatch(filename)
-	subExps := pattern.SubexpNames()
+	matches := deviceFileRegExp.FindStringSubmatch(filename)
+	subExps := deviceFileRegExp.SubexpNames()
 
 	namedMatches := map[string]string{}
 	for i, match := range matches {
@@ -66,21 +69,21 @@ func ParseIndices(filename string) (uint8, []uint8, error) {
 	}
 
 	// parse device_id
-	deviceIdStr := namedMatches[SubExpKeyDeviceId]
+	deviceIdStr := namedMatches[subExpKeyDeviceId]
 	deviceId, err := strconv.ParseUint(deviceIdStr, 10, 8)
 	if err != nil {
 		return 0, nil, NewUnrecognizedFileError(filename)
 	}
 
 	// parse start_core
-	coreStartStr := namedMatches[SubExpKeyStartCore]
+	coreStartStr := namedMatches[subExpKeyStartCore]
 	coreStart, err := strconv.ParseUint(coreStartStr, 10, 8)
 	if err != nil {
 		return uint8(deviceId), nil, nil
 	}
 
 	// parse end_core
-	endCoreStr := namedMatches[SubExpKeyEndCore]
+	endCoreStr := namedMatches[subExpKeyEndCore]
 	endCore, err := strconv.ParseUint(endCoreStr, 10, 8)
 	if err != nil {
 		return uint8(deviceId), []uint8{uint8(coreStart)}, nil
@@ -123,7 +126,7 @@ func isFuiosaPlatform(contents string) bool {
 	examine := strings.Trim(contents, TrimEmptySpace)
 	examine = strings.Trim(examine, TrimNewLine)
 
-	return examine == DefaultPlatform || examine == NonDefaultPlatform
+	return examine == defaultPlatform || examine == nonDefaultPlatform
 }
 
 func IsFuriosaDevice(idx uint8, sysFs string) bool {

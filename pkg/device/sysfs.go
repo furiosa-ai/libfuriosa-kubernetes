@@ -95,10 +95,10 @@ func ReadNumaNode(sysFs string, bdfIdentifier string) (int, error) {
 		return -1, err
 	}
 
-	numaNode, err := strconv.ParseInt(strings.TrimSpace(string(bytes)), 10, 0)
+	numaNode, err := strconv.Atoi(strings.TrimSpace(string(bytes)))
 	if err != nil {
 		return -1, err
 	}
 
-	return int(numaNode), nil
+	return numaNode, nil
 }

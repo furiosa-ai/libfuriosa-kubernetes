@@ -273,54 +273,46 @@ func (d device) AtrErr() (map[string]uint32, error) {
 }
 
 // BusName returns PCI bus number of the device.
-func (d device) Busname() (string, error) {
-	var err error = nil
-	busname := d.meta[Busname.Filename()]
-
-	if busname == "" {
+func (d device) Busname() (ret string, err error) {
+	ret = d.meta[Busname.Filename()]
+	if ret == "" {
 		err = NewUnexpectedValue("could not retrieve busname")
 	}
 
-	return busname, err
+	return
 }
 
 // PCIDev returns PCI device ID of the device.
-func (d device) PCIDev() (string, error) {
-	var err error = nil
-	pciDev := d.meta[Dev.Filename()]
-
-	if pciDev == "" {
-		err = NewUnexpectedValue("could not retrieve pci devvice id")
+func (d device) PCIDev() (ret string, err error) {
+	ret = d.meta[Dev.Filename()]
+	if ret == "" {
+		err = NewUnexpectedValue("could not retrieve pci device id")
 	}
 
-	return pciDev, err
+	return
 }
 
 // DeviceSn returns serial number of the device.
-func (d device) DeviceSn() (string, error) {
-	var err error = nil
-	deviceSn := d.meta[DeviceSn.Filename()]
-
-	if deviceSn == "" {
+func (d device) DeviceSn() (ret string, err error) {
+	ret = d.meta[DeviceSn.Filename()]
+	if ret == "" {
 		err = NewUnexpectedValue("could not retrieve device sn")
 	}
 
-	return deviceSn, err
-
+	return
 }
 
 // DeviceUUID returns UUID of the device
-func (d device) DeviceUUID() (string, error) {
-	var err error = nil
-	deviceUUID := d.meta[DeviceUuid.Filename()]
-	if deviceUUID == "" {
+func (d device) DeviceUUID() (ret string, err error) {
+	ret = d.meta[DeviceUuid.Filename()]
+	if ret == "" {
 		err = NewUnexpectedValue("could not retrieve device uuid")
 	}
 
-	return deviceUUID, err
+	return
 }
 
-func (d device) FirmwareVersion() (string, error) {
+func (d device) FirmwareVersion() (ret string, err error) {
 	firmwareVersion, err := ReadMgmtFile(d.sysRoot, FwVersion.Filename(), d.deviceIndex)
 	if err != nil {
 		return "", NewUnexpectedValue(err.Error())
@@ -359,15 +351,14 @@ func (d device) HeartBeat() (uint32, error) {
 	return uint32(heartBeat), nil
 }
 
-func (d device) NumaNode() (uint8, error) {
-	var err error = nil
-	numaNode := uint8(d.numaNode)
+func (d device) NumaNode() (ret uint8, err error) {
+	ret = uint8(d.numaNode)
 	if d.numaNode < 0 {
-		numaNode = 0
+		ret = 0
 		err = NewUnexpectedValue(strconv.Itoa(d.numaNode))
 	}
 
-	return numaNode, err
+	return
 }
 
 func (d device) CoreNum() uint8 {

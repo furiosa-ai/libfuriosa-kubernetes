@@ -3,10 +3,7 @@ package device
 import "path/filepath"
 
 const (
-	TrimEmptySpace = " "
-	TrimNewLine    = "\n"
-	TrimUnderBar   = "_"
-	TrimColon      = ":"
+	SepColon = ":"
 )
 
 func safeDerefUint8(ptr *uint8) uint8 {

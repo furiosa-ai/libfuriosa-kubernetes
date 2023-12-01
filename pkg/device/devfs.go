@@ -123,8 +123,7 @@ func filterDevFiles(devFiles []DevFile, validator deviceValidateFunc) map[uint8]
 }
 
 func isFuiosaPlatform(contents string) bool {
-	examine := strings.Trim(contents, TrimEmptySpace)
-	examine = strings.Trim(examine, TrimNewLine)
+	examine := strings.TrimSpace(contents)
 
 	return examine == defaultPlatform || examine == nonDefaultPlatform
 }

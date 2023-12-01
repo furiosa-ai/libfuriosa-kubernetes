@@ -255,15 +255,15 @@ func (d device) AtrErr() (map[string]uint32, error) {
 		return nil, NewUnexpectedValue(err.Error())
 	}
 
-	atrErrStr = strings.Trim(atrErrStr, TrimEmptySpace)
+	atrErrStr = strings.TrimSpace(atrErrStr)
 	scanner := bufio.NewScanner(strings.NewReader(atrErrStr))
 	for scanner.Scan() {
-		keyValuePair := strings.SplitN(strings.Trim(scanner.Text(), TrimEmptySpace), TrimColon, 2)
+		keyValuePair := strings.SplitN(strings.TrimSpace(scanner.Text()), SepColon, 2)
 		if len(keyValuePair) == 2 {
 			rawKey := keyValuePair[0]
 			rawValue := keyValuePair[1]
 
-			key := strings.ReplaceAll(strings.ToLower(strings.Trim(rawKey, TrimEmptySpace)), TrimEmptySpace, TrimUnderBar)
+			key := strings.ToLower(strings.TrimSpace(rawKey))
 			value, parseErr := strconv.ParseUint(rawValue, 10, 32)
 			if parseErr != nil {
 				continue

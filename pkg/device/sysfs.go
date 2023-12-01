@@ -80,11 +80,7 @@ func ReadMgmtFile(sysFs string, mgmtFile string, deviceIndex uint8) (string, err
 		return "", err
 	}
 
-	value := string(bytes)
-	value = strings.Trim(value, TrimEmptySpace)
-	value = strings.Trim(value, TrimNewLine)
-
-	return value, nil
+	return strings.TrimSpace(string(bytes)), nil
 }
 
 func BuildMgmtFilePath(baseDir string, file string, idx uint8) string {
@@ -99,9 +95,7 @@ func ReadNumaNode(sysFs string, bdfIdentifier string) (int, error) {
 		return -1, err
 	}
 
-	numaNodeStr := strings.Trim(string(bytes), TrimEmptySpace)
-	numaNodeStr = strings.Trim(numaNodeStr, TrimNewLine)
-	numaNode, err := strconv.ParseInt(numaNodeStr, 10, 0)
+	numaNode, err := strconv.ParseInt(strings.TrimSpace(string(bytes)), 10, 0)
 	if err != nil {
 		return -1, err
 	}

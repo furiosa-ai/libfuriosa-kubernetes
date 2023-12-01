@@ -258,11 +258,7 @@ func (d device) AtrErr() (map[string]uint32, error) {
 	atrErrStr = strings.TrimSpace(atrErrStr)
 	scanner := bufio.NewScanner(strings.NewReader(atrErrStr))
 	for scanner.Scan() {
-		keyValuePair := strings.SplitN(strings.TrimSpace(scanner.Text()), SepColon, 2)
-		if len(keyValuePair) == 2 {
-			rawKey := keyValuePair[0]
-			rawValue := keyValuePair[1]
-
+		if rawKey, rawValue, success := strings.Cut(strings.TrimSpace(scanner.Text()), SepColon); success {
 			key := strings.ToLower(strings.TrimSpace(rawKey))
 			value, parseErr := strconv.ParseUint(rawValue, 10, 32)
 			if parseErr != nil {

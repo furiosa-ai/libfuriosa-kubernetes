@@ -11,7 +11,7 @@ const (
 
 func archFromStr(archStr string, revStr string) (arch Arch, error error) {
 	switch archStr + revStr {
-	case "WarboyA0", "WarboyB0":
+	case "WarboyB0":
 		arch = ArchWarboy
 		error = nil
 	case "Renegade":

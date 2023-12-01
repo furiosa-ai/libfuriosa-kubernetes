@@ -14,13 +14,6 @@ func TestArchFromStr(t *testing.T) {
 		expectedErr  error
 	}{
 		{
-			description:  "WarboyA0",
-			arch:         "Warboy",
-			rev:          "A0",
-			expectedArch: ArchWarboy,
-			expectedErr:  nil,
-		},
-		{
 			description:  "WarboyB0",
 			arch:         "Warboy",
 			rev:          "B0",

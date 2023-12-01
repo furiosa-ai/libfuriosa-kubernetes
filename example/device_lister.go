@@ -10,22 +10,22 @@ import (
 func main() {
 	devices, err := furiosaDevice.NewDeviceLister().ListDevices()
 	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Printf("%s\n", err.Error())
 		os.Exit(1)
 	}
 
-	println("found ", len(devices))
+	fmt.Printf("found %d\n", len(devices))
 
 	for _, device := range devices {
-		println(fmt.Sprintf("%v", device))
+		fmt.Printf("%v\n", device)
 		coreStatus, err := device.GetStatusAll()
 		if err != nil {
 			fmt.Println(err.Error())
 			os.Exit(1)
 		}
-		println(fmt.Sprintf("%v", coreStatus))
+		fmt.Printf("%v\n", coreStatus)
 		for _, deviceFile := range device.DevFiles() {
-			println(fmt.Sprintf("%v", deviceFile))
+			fmt.Printf("%v\n", deviceFile)
 		}
 	}
 }

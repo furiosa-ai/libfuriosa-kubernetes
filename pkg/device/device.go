@@ -412,7 +412,7 @@ func (d device) GetStatusAll() (map[uint8]CoreStatus, error) {
 	statusMap := map[uint8]CoreStatus{}
 
 	for _, core := range d.cores {
-		//Note(@bg): error is ignored as same as GetStatusCore
+		//Note(@bg): error is never returned as same as GetStatusCore
 		statusMap[core], _ = d.GetStatusCore(core)
 	}
 

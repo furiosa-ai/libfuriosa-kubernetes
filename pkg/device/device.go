@@ -375,7 +375,7 @@ func (d device) DevFiles() []DeviceFile {
 
 func getDeviceStatus(filePath string) (DeviceStatus, error) {
 	//NOTE(@bg): the perm argument is not used unless a file is being created.
-	_, err := os.OpenFile(filePath, os.O_RDWR, 0666)
+	file, err := os.OpenFile(filePath, os.O_RDWR, 0666)
 	if err != nil {
 		if errors.Is(err, syscall.EBUSY) {
 			return DeviceStatusOccupied, nil
@@ -383,7 +383,7 @@ func getDeviceStatus(filePath string) (DeviceStatus, error) {
 			return "", NewUnexpectedValue(err.Error())
 		}
 	}
-
+	defer file.Close()
 	return DeviceStatusAvailable, nil
 }
 

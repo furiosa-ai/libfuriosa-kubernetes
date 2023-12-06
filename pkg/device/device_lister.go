@@ -1,5 +1,7 @@
 package device
 
+import "sort"
+
 const (
 	defaultDevFsPath = "/dev"
 	defaultSysFsPath = "/sys"
@@ -53,8 +55,9 @@ func (d *deviceLister) ListDevices() ([]Device, error) {
 		devices = append(devices, device)
 	}
 
-	// TODO(@bg) sort device
+	sort.SliceStable(devices, func(i, j int) bool {
+		return devices[i].DeviceIndex() < devices[j].DeviceIndex()
+	})
 
-	// return device
 	return devices, nil
 }

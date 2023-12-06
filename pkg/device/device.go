@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"syscall"
@@ -213,7 +214,26 @@ func collectDevices(paths []string) ([]uint8, []DeviceFile) {
 		cores = append(cores, coreIdx)
 	}
 
-	//TODO(bg) sort dev files based on core CoreRangeTypeRange in ascending order
+	sort.SliceStable(devFiles, func(i, j int) bool {
+		if devFiles[i].DeviceIndex() != devFiles[j].DeviceIndex() {
+			return devFiles[i].DeviceIndex() < devFiles[j].DeviceIndex()
+		}
+
+		typeI, typeJ := devFiles[i].CoreRange().Type(), devFiles[j].CoreRange().Type()
+
+		if typeI != typeJ {
+			return typeI == CoreRangeTypeAll
+		}
+
+		if typeI == CoreRangeTypeRange {
+			effectiveRangeI := devFiles[i].CoreRange().End() - devFiles[i].CoreRange().Start()
+			effectiveRangeJ := devFiles[j].CoreRange().End() - devFiles[j].CoreRange().Start()
+			return effectiveRangeI < effectiveRangeJ
+		}
+
+		return false
+	})
+
 	return cores, devFiles
 }
 

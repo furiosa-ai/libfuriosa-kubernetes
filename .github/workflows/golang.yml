@@ -1,0 +1,29 @@
+name: Golang
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [ '1.21.3' ]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Display Go version
+        run: go version
+      - name: lint
+        run: make lint
+      - name: build
+        run: make build
+      - name: test
+        run: make test

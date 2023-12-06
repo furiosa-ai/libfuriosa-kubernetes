@@ -93,8 +93,8 @@ func TestNewDevice(t *testing.T) {
 						index: 0,
 						coreRange: coreRange{
 							coreRangeType: CoreRangeTypeAll,
-							start:         nil,
-							end:           nil,
+							start:         0,
+							end:           0,
 						},
 						path:       Abs("../../test/device/testdata/test-0/dev/npu0"),
 						deviceMode: DeviceModeMultiCore,
@@ -103,8 +103,8 @@ func TestNewDevice(t *testing.T) {
 						index: 0,
 						coreRange: coreRange{
 							coreRangeType: CoreRangeTypeRange,
-							start:         newUint8Pointer(0),
-							end:           newUint8Pointer(0),
+							start:         0,
+							end:           0,
 						},
 						path:       Abs("../../test/device/testdata/test-0/dev/npu0pe0"),
 						deviceMode: DeviceModeSingle,
@@ -113,8 +113,8 @@ func TestNewDevice(t *testing.T) {
 						index: 0,
 						coreRange: coreRange{
 							coreRangeType: CoreRangeTypeRange,
-							start:         newUint8Pointer(1),
-							end:           newUint8Pointer(1),
+							start:         1,
+							end:           1,
 						},
 						path:       Abs("../../test/device/testdata/test-0/dev/npu0pe1"),
 						deviceMode: DeviceModeSingle,
@@ -123,8 +123,8 @@ func TestNewDevice(t *testing.T) {
 						index: 0,
 						coreRange: coreRange{
 							coreRangeType: CoreRangeTypeRange,
-							start:         newUint8Pointer(0),
-							end:           newUint8Pointer(1),
+							start:         0,
+							end:           1,
 						},
 						path:       Abs("../../test/device/testdata/test-0/dev/npu0pe0-1"),
 						deviceMode: DeviceModeFusion,
@@ -166,8 +166,8 @@ func TestNewDevice(t *testing.T) {
 						index: 1,
 						coreRange: coreRange{
 							coreRangeType: CoreRangeTypeAll,
-							start:         nil,
-							end:           nil,
+							start:         0,
+							end:           0,
 						},
 						path:       Abs("../../test/device/testdata/test-0/dev/npu1"),
 						deviceMode: DeviceModeMultiCore,
@@ -176,8 +176,8 @@ func TestNewDevice(t *testing.T) {
 						index: 1,
 						coreRange: coreRange{
 							coreRangeType: CoreRangeTypeRange,
-							start:         newUint8Pointer(0),
-							end:           newUint8Pointer(0),
+							start:         0,
+							end:           0,
 						},
 						path:       Abs("../../test/device/testdata/test-0/dev/npu1pe0"),
 						deviceMode: DeviceModeSingle,
@@ -186,8 +186,8 @@ func TestNewDevice(t *testing.T) {
 						index: 1,
 						coreRange: coreRange{
 							coreRangeType: CoreRangeTypeRange,
-							start:         newUint8Pointer(1),
-							end:           newUint8Pointer(1),
+							start:         1,
+							end:           1,
 						},
 						path:       Abs("../../test/device/testdata/test-0/dev/npu1pe1"),
 						deviceMode: DeviceModeSingle,
@@ -196,8 +196,8 @@ func TestNewDevice(t *testing.T) {
 						index: 1,
 						coreRange: coreRange{
 							coreRangeType: CoreRangeTypeRange,
-							start:         newUint8Pointer(0),
-							end:           newUint8Pointer(1),
+							start:         0,
+							end:           1,
 						},
 						path:       Abs("../../test/device/testdata/test-0/dev/npu1pe0-1"),
 						deviceMode: DeviceModeFusion,
@@ -441,15 +441,15 @@ func TestNewDevice(t *testing.T) {
 					continue
 				}
 
-				expected := safeDerefUint8(expectedDeviceFile.CoreRange().Start())
-				actual := safeDerefUint8(actualDeviceFile.CoreRange().Start())
+				expected := expectedDeviceFile.CoreRange().Start()
+				actual := actualDeviceFile.CoreRange().Start()
 				if expected != actual {
 					t.Errorf("expected %d but got %d", expected, actual)
 					continue
 				}
 
-				expected = safeDerefUint8(expectedDeviceFile.CoreRange().End())
-				actual = safeDerefUint8(actualDeviceFile.CoreRange().End())
+				expected = expectedDeviceFile.CoreRange().End()
+				actual = actualDeviceFile.CoreRange().End()
 				if expected != actual {
 					t.Errorf("expected %d but got %d", expected, actual)
 					continue

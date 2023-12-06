@@ -5,10 +5,6 @@ import (
 	"testing"
 )
 
-func newUint8Pointer(value uint8) *uint8 {
-	return &value
-}
-
 func TestNewDeviceFile(t *testing.T) {
 	tests := []struct {
 		description    string
@@ -29,8 +25,8 @@ func TestNewDeviceFile(t *testing.T) {
 				index: 0,
 				coreRange: coreRange{
 					coreRangeType: CoreRangeTypeAll,
-					start:         nil,
-					end:           nil,
+					start:         0,
+					end:           0,
 				},
 				path:       "/ASSUME_VALID_DEV_FS_PATH/npu0",
 				deviceMode: DeviceModeMultiCore,
@@ -50,8 +46,8 @@ func TestNewDeviceFile(t *testing.T) {
 				index: 0,
 				coreRange: coreRange{
 					coreRangeType: CoreRangeTypeRange,
-					start:         newUint8Pointer(0),
-					end:           newUint8Pointer(0),
+					start:         0,
+					end:           0,
 				},
 				path:       "/ASSUME_VALID_DEV_FS_PATH/npu0pe0",
 				deviceMode: DeviceModeSingle,
@@ -65,8 +61,8 @@ func TestNewDeviceFile(t *testing.T) {
 				index: 0,
 				coreRange: coreRange{
 					coreRangeType: CoreRangeTypeRange,
-					start:         newUint8Pointer(1),
-					end:           newUint8Pointer(1),
+					start:         1,
+					end:           1,
 				},
 				path:       "/ASSUME_VALID_DEV_FS_PATH/npu0pe1",
 				deviceMode: DeviceModeSingle,
@@ -80,8 +76,8 @@ func TestNewDeviceFile(t *testing.T) {
 				index: 0,
 				coreRange: coreRange{
 					coreRangeType: CoreRangeTypeRange,
-					start:         newUint8Pointer(0),
-					end:           newUint8Pointer(1),
+					start:         0,
+					end:           1,
 				},
 				path:       "/ASSUME_VALID_DEV_FS_PATH/npu0pe0-1",
 				deviceMode: DeviceModeFusion,
@@ -133,15 +129,15 @@ func TestNewDeviceFile(t *testing.T) {
 		}
 
 		if tc.expectedResult.CoreRange().Type() != CoreRangeTypeAll {
-			expected := safeDerefUint8(actualResult.CoreRange().Start())
-			actual := safeDerefUint8(tc.expectedResult.CoreRange().Start())
+			expected := actualResult.CoreRange().Start()
+			actual := tc.expectedResult.CoreRange().Start()
 			if expected != actual {
 				t.Errorf("expected %d but got %d", expected, actual)
 				continue
 			}
 
-			expected = safeDerefUint8(actualResult.CoreRange().End())
-			actual = safeDerefUint8(tc.expectedResult.CoreRange().End())
+			expected = actualResult.CoreRange().End()
+			actual = tc.expectedResult.CoreRange().End()
 			if expected != actual {
 				t.Errorf("expected %d but got %d", expected, actual)
 				continue

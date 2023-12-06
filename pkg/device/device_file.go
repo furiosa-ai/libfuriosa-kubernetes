@@ -43,24 +43,22 @@ func NewDeviceFile(path string) (DeviceFile, error) {
 	case 0:
 		devFile.deviceMode = DeviceModeMultiCore
 		devFile.coreRange.coreRangeType = CoreRangeTypeAll
-		devFile.coreRange.start = nil
-		devFile.coreRange.end = nil
+		devFile.coreRange.start = 0
+		devFile.coreRange.end = 0
 	case 1:
 		devFile.deviceMode = DeviceModeSingle
 		devFile.coreRange.coreRangeType = CoreRangeTypeRange
-		devFile.coreRange.start = &coreIndices[0]
-		devFile.coreRange.end = &coreIndices[0]
+		devFile.coreRange.start = coreIndices[0]
+		devFile.coreRange.end = coreIndices[0]
 	default:
 		devFile.deviceMode = DeviceModeFusion
 		devFile.coreRange.coreRangeType = CoreRangeTypeRange
-		devFile.coreRange.start = &coreIndices[0]
-		devFile.coreRange.end = &coreIndices[len(coreIndices)-1]
+		devFile.coreRange.start = coreIndices[0]
+		devFile.coreRange.end = coreIndices[len(coreIndices)-1]
 	}
 
-	if devFile.coreRange.start != nil && devFile.coreRange.end != nil {
-		if *devFile.coreRange.start > *devFile.coreRange.end {
-			return nil, NewUnrecognizedFileError(path)
-		}
+	if devFile.coreRange.start > devFile.coreRange.end {
+		return nil, NewUnrecognizedFileError(path)
 	}
 
 	return &devFile, nil

@@ -50,8 +50,8 @@ const (
 
 type CoreRange interface {
 	Type() CoreRangeType
-	Start() *uint8
-	End() *uint8
+	Start() uint8
+	End() uint8
 	Contains(idx uint8) bool
 	//TODO has_intersection
 }
@@ -60,19 +60,19 @@ var _ CoreRange = new(coreRange)
 
 type coreRange struct {
 	coreRangeType CoreRangeType
-	start         *uint8
-	end           *uint8
+	start         uint8
+	end           uint8
 }
 
 func (c coreRange) Type() CoreRangeType {
 	return c.coreRangeType
 }
 
-func (c coreRange) Start() *uint8 {
+func (c coreRange) Start() uint8 {
 	return c.start
 }
 
-func (c coreRange) End() *uint8 {
+func (c coreRange) End() uint8 {
 	return c.end
 }
 
@@ -81,12 +81,7 @@ func (c coreRange) Contains(idx uint8) bool {
 		return true
 	}
 
-	if c.start == nil || c.end == nil {
-		//@bg this should not happen
-		return false
-	}
-
-	return idx >= *c.start && idx <= *c.end
+	return idx >= c.start && idx <= c.end
 }
 
 type Device interface {

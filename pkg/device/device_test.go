@@ -2,6 +2,7 @@ package device
 
 import (
 	"errors"
+	"slices"
 	"testing"
 )
 
@@ -388,29 +389,14 @@ func TestNewDevice(t *testing.T) {
 			continue
 		}
 
-		if tc.expectedResult.CoreNum() != actualResult.CoreNum() {
-			t.Errorf("expected %d but got %d", tc.expectedResult.CoreNum(), actualResult.CoreNum())
-			continue
-		}
+		sortedExpected := append([]uint8{}, tc.expectedResult.Cores()...)
+		slices.Sort(sortedExpected)
 
-		if len(tc.expectedResult.Cores()) != len(actualResult.Cores()) {
-			t.Errorf("expected %d but got %d", len(tc.expectedResult.Cores()), len(actualResult.Cores()))
-			continue
-		}
+		sortedActual := append([]uint8{}, actualResult.Cores()...)
+		slices.Sort(sortedActual)
 
-		for _, expectedElement := range tc.expectedResult.Cores() {
-			found := false
-			for _, actualElement := range actualResult.Cores() {
-				if expectedElement == actualElement {
-					found = true
-					break
-				}
-			}
-
-			if !found {
-				t.Errorf("expected %d but not found", expectedElement)
-				break
-			}
+		if !slices.Equal(sortedExpected, sortedActual) {
+			t.Errorf("expected %v but got %v", sortedExpected, sortedActual)
 		}
 
 		if len(tc.expectedResult.DevFiles()) != len(actualResult.DevFiles()) {

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io/fs"
 	"path/filepath"
+	"slices"
 	"testing"
 )
 
@@ -163,18 +164,13 @@ func TestParseIndices(t *testing.T) {
 			continue
 		}
 
-		if len(actualCoreRange) != len(tc.expectedCoreRange) {
-			t.Errorf("expected %d but got %d", len(tc.expectedCoreRange), len(actualCoreRange))
+		slices.Sort(actualCoreRange)
+		slices.Sort(tc.expectedCoreRange)
+
+		if !slices.Equal(actualCoreRange, tc.expectedCoreRange) {
+			t.Errorf("expected %v but got %v", tc.expectedCoreRange, actualCoreRange)
 			continue
 		}
-
-		for idx := range actualCoreRange {
-			if actualCoreRange[idx] != tc.expectedCoreRange[idx] {
-				t.Errorf("expected %d but got %d", tc.expectedCoreRange[idx], actualCoreRange[idx])
-				break
-			}
-		}
-
 	}
 }
 
@@ -311,25 +307,12 @@ func TestFilterDevFiles(t *testing.T) {
 		})
 		for key, value := range actual {
 			expected := tc.expected[key]
-			if len(expected) != len(value) {
-				t.Errorf("expected %d but got %d", len(expected), len(value))
+			slices.Sort(value)
+			slices.Sort(expected)
+
+			if !slices.Equal(value, expected) {
+				t.Errorf("expected %v but got %v", expected, value)
 				continue
-			}
-
-			for _, expectedStr := range expected {
-				found := false
-				for _, actualStr := range value {
-					if expectedStr == actualStr {
-						found = true
-						break
-					}
-				}
-
-				if !found {
-					t.Errorf("expected %s but does not exist", expectedStr)
-					break
-				}
-
 			}
 		}
 	}

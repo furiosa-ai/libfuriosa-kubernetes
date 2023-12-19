@@ -175,7 +175,7 @@ func NewDevice(deviceIndex uint8, paths []string, devFs string, sysFs string) (D
 	cores, devFiles := collectDevices(paths)
 
 	// TODO(@bg): we don't need hwmon fetcher support at this moment: Nov, 2023.
-	return device{
+	return &device{
 		deviceIndex: deviceIndex,
 		devRoot:     devFs,
 		sysRoot:     sysFs,
@@ -237,19 +237,19 @@ func collectDevices(paths []string) ([]uint8, []DeviceFile) {
 	return cores, devFiles
 }
 
-func (d device) Name() string {
+func (d *device) Name() string {
 	return fmt.Sprintf(NpuExp, d.deviceIndex)
 }
 
-func (d device) DeviceIndex() uint8 {
+func (d *device) DeviceIndex() uint8 {
 	return d.deviceIndex
 }
 
-func (d device) Arch() Arch {
+func (d *device) Arch() Arch {
 	return d.arch
 }
 
-func (d device) Alive() (bool, error) {
+func (d *device) Alive() (bool, error) {
 	aliveStr, err := ReadMgmtFile(d.sysRoot, Alive.Filename(), d.deviceIndex)
 	if err != nil {
 		return false, NewUnexpectedValue(err.Error())
@@ -263,7 +263,7 @@ func (d device) Alive() (bool, error) {
 	return alive, nil
 }
 
-func (d device) AtrErr() (map[string]uint32, error) {
+func (d *device) AtrErr() (map[string]uint32, error) {
 	atrErrMap := map[string]uint32{}
 	atrErrStr, err := ReadMgmtFile(d.sysRoot, AtrError.Filename(), d.deviceIndex)
 	if err != nil {
@@ -288,7 +288,7 @@ func (d device) AtrErr() (map[string]uint32, error) {
 }
 
 // BusName returns PCI bus number of the device.
-func (d device) Busname() (ret string, err error) {
+func (d *device) Busname() (ret string, err error) {
 	ret = d.meta[Busname.Filename()]
 	if ret == "" {
 		err = NewUnexpectedValue("could not retrieve busname")
@@ -298,7 +298,7 @@ func (d device) Busname() (ret string, err error) {
 }
 
 // PCIDev returns PCI device ID of the device.
-func (d device) PCIDev() (ret string, err error) {
+func (d *device) PCIDev() (ret string, err error) {
 	ret = d.meta[Dev.Filename()]
 	if ret == "" {
 		err = NewUnexpectedValue("could not retrieve pci device id")
@@ -308,7 +308,7 @@ func (d device) PCIDev() (ret string, err error) {
 }
 
 // DeviceSn returns serial number of the device.
-func (d device) DeviceSn() (ret string, err error) {
+func (d *device) DeviceSn() (ret string, err error) {
 	ret = d.meta[DeviceSn.Filename()]
 	if ret == "" {
 		err = NewUnexpectedValue("could not retrieve device sn")
@@ -318,7 +318,7 @@ func (d device) DeviceSn() (ret string, err error) {
 }
 
 // DeviceUUID returns UUID of the device
-func (d device) DeviceUUID() (ret string, err error) {
+func (d *device) DeviceUUID() (ret string, err error) {
 	ret = d.meta[DeviceUuid.Filename()]
 	if ret == "" {
 		err = NewUnexpectedValue("could not retrieve device uuid")
@@ -327,7 +327,7 @@ func (d device) DeviceUUID() (ret string, err error) {
 	return
 }
 
-func (d device) FirmwareVersion() (ret string, err error) {
+func (d *device) FirmwareVersion() (ret string, err error) {
 	firmwareVersion, err := ReadMgmtFile(d.sysRoot, FwVersion.Filename(), d.deviceIndex)
 	if err != nil {
 		return "", NewUnexpectedValue(err.Error())
@@ -340,7 +340,7 @@ func (d device) FirmwareVersion() (ret string, err error) {
 	return firmwareVersion, nil
 }
 
-func (d device) DriverVersion() (string, error) {
+func (d *device) DriverVersion() (string, error) {
 	driverVersion, err := ReadMgmtFile(d.sysRoot, Version.Filename(), d.deviceIndex)
 	if err != nil {
 		return "", NewUnexpectedValue(err.Error())
@@ -353,7 +353,7 @@ func (d device) DriverVersion() (string, error) {
 	return driverVersion, nil
 }
 
-func (d device) HeartBeat() (uint32, error) {
+func (d *device) HeartBeat() (uint32, error) {
 	heartBeatStr, err := ReadMgmtFile(d.sysRoot, Heartbeat.Filename(), d.deviceIndex)
 	if err != nil {
 		return 0, NewUnexpectedValue(err.Error())
@@ -366,7 +366,7 @@ func (d device) HeartBeat() (uint32, error) {
 	return uint32(heartBeat), nil
 }
 
-func (d device) NumaNode() (ret uint8, err error) {
+func (d *device) NumaNode() (ret uint8, err error) {
 	ret = uint8(d.numaNode)
 	if d.numaNode < 0 {
 		ret = 0
@@ -376,15 +376,15 @@ func (d device) NumaNode() (ret uint8, err error) {
 	return
 }
 
-func (d device) CoreNum() uint8 {
+func (d *device) CoreNum() uint8 {
 	return uint8(len(d.cores))
 }
 
-func (d device) Cores() []uint8 {
+func (d *device) Cores() []uint8 {
 	return d.cores
 }
 
-func (d device) DevFiles() []DeviceFile {
+func (d *device) DevFiles() []DeviceFile {
 	return d.devFiles
 }
 
@@ -403,7 +403,7 @@ func getDeviceStatus(filePath string) (DeviceStatus, error) {
 }
 
 // GetStatusCore examine a specific core of the device, whether it is available or not.
-func (d device) GetStatusCore(core uint8) (CoreStatus, error) {
+func (d *device) GetStatusCore(core uint8) (CoreStatus, error) {
 	for _, file := range d.devFiles {
 		if file.Mode() != DeviceModeSingle {
 			continue
@@ -423,7 +423,7 @@ func (d device) GetStatusCore(core uint8) (CoreStatus, error) {
 }
 
 // GetStatusAll examine each core of the device, whether it is available or not.
-func (d device) GetStatusAll() (map[uint8]CoreStatus, error) {
+func (d *device) GetStatusAll() (map[uint8]CoreStatus, error) {
 	statusMap := map[uint8]CoreStatus{}
 
 	for _, core := range d.cores {

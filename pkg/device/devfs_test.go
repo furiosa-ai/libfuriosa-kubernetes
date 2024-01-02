@@ -17,7 +17,7 @@ func TestListDevFs(t *testing.T) {
 	}{
 		{
 			description: "test positive case",
-			inputDevFs:  "../../test/device/testdata/test-0/dev",
+			inputDevFs:  "../../testdata/device/testdata/test-0/dev",
 			expectedResult: []DevFile{
 				{
 					fileAbsPath: "/npu0",
@@ -328,19 +328,19 @@ func TestIsFuriosaDevice(t *testing.T) {
 		{
 			description: "test npu0",
 			inputIndex:  0,
-			inputSysFs:  "../../test/device/testdata/test-0/sys",
+			inputSysFs:  "../../testdata/device/testdata/test-0/sys",
 			expected:    true,
 		},
 		{
 			description: "test npu1",
 			inputIndex:  1,
-			inputSysFs:  "../../test/device/testdata/test-0/sys",
+			inputSysFs:  "../../testdata/device/testdata/test-0/sys",
 			expected:    true,
 		},
 		{
 			description: "test npu2",
 			inputIndex:  2,
-			inputSysFs:  "../../test/device/testdata/test-0/sys",
+			inputSysFs:  "../../testdata/device/testdata/test-0/sys",
 			expected:    false,
 		},
 		{

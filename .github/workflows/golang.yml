@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]
   pull_request:
-    types: [opened, reopened]
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -21,8 +21,10 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Display Go version
         run: go version
-      - name: lint
-        run: make lint
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.55.0
       - name: build
         run: make build
       - name: test

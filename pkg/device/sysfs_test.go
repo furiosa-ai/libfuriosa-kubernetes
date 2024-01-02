@@ -18,7 +18,7 @@ func TestReadMgmtFile(t *testing.T) {
 	}{
 		{
 			description:      "test busname",
-			inputSysFs:       "../../test/device/testdata/test-0/sys",
+			inputSysFs:       "../../testdata/device/testdata/test-0/sys",
 			inputMgmtFile:    Busname,
 			inputDeviceIndex: 0,
 			expectedResult:   "0000:6d:00.0",
@@ -26,7 +26,7 @@ func TestReadMgmtFile(t *testing.T) {
 		},
 		{
 			description:      "test dev",
-			inputSysFs:       "../../test/device/testdata/test-0/sys",
+			inputSysFs:       "../../testdata/device/testdata/test-0/sys",
 			inputMgmtFile:    Dev,
 			inputDeviceIndex: 0,
 			expectedResult:   "234:0",
@@ -34,7 +34,7 @@ func TestReadMgmtFile(t *testing.T) {
 		},
 		{
 			description:      "test device sn",
-			inputSysFs:       "../../test/device/testdata/test-0/sys",
+			inputSysFs:       "../../testdata/device/testdata/test-0/sys",
 			inputMgmtFile:    DeviceSn,
 			inputDeviceIndex: 0,
 			expectedResult:   "WBYB0236FH505KREO",
@@ -42,7 +42,7 @@ func TestReadMgmtFile(t *testing.T) {
 		},
 		{
 			description:      "test device type",
-			inputSysFs:       "../../test/device/testdata/test-0/sys",
+			inputSysFs:       "../../testdata/device/testdata/test-0/sys",
 			inputMgmtFile:    DeviceType,
 			inputDeviceIndex: 0,
 			expectedResult:   "Warboy",
@@ -50,7 +50,7 @@ func TestReadMgmtFile(t *testing.T) {
 		},
 		{
 			description:      "test device uuid",
-			inputSysFs:       "../../test/device/testdata/test-0/sys",
+			inputSysFs:       "../../testdata/device/testdata/test-0/sys",
 			inputMgmtFile:    DeviceUuid,
 			inputDeviceIndex: 0,
 			expectedResult:   "A76AAD68-6855-40B1-9E86-D080852D1C84",
@@ -58,7 +58,7 @@ func TestReadMgmtFile(t *testing.T) {
 		},
 		{
 			description:      "test platform type",
-			inputSysFs:       "../../test/device/testdata/test-0/sys",
+			inputSysFs:       "../../testdata/device/testdata/test-0/sys",
 			inputMgmtFile:    PlatformType,
 			inputDeviceIndex: 0,
 			expectedResult:   "FuriosaAI",
@@ -66,7 +66,7 @@ func TestReadMgmtFile(t *testing.T) {
 		},
 		{
 			description:      "test soc rev",
-			inputSysFs:       "../../test/device/testdata/test-0/sys",
+			inputSysFs:       "../../testdata/device/testdata/test-0/sys",
 			inputMgmtFile:    SocRev,
 			inputDeviceIndex: 0,
 			expectedResult:   "B0",
@@ -74,7 +74,7 @@ func TestReadMgmtFile(t *testing.T) {
 		},
 		{
 			description:      "test soc uid",
-			inputSysFs:       "../../test/device/testdata/test-0/sys",
+			inputSysFs:       "../../testdata/device/testdata/test-0/sys",
 			inputMgmtFile:    SocUid,
 			inputDeviceIndex: 0,
 			expectedResult:   "A76AAD68-8224DC84",
@@ -82,7 +82,7 @@ func TestReadMgmtFile(t *testing.T) {
 		},
 		{
 			description:      "test alive",
-			inputSysFs:       "../../test/device/testdata/test-0/sys",
+			inputSysFs:       "../../testdata/device/testdata/test-0/sys",
 			inputMgmtFile:    Alive,
 			inputDeviceIndex: 0,
 			expectedResult:   "1",
@@ -90,7 +90,7 @@ func TestReadMgmtFile(t *testing.T) {
 		},
 		{
 			description:      "test atr error",
-			inputSysFs:       "../../test/device/testdata/test-0/sys",
+			inputSysFs:       "../../testdata/device/testdata/test-0/sys",
 			inputMgmtFile:    AtrError,
 			inputDeviceIndex: 0,
 			expectedResult:   "AXI Post Error: 0\nAXI Fetch Error: 0\nAXI Discard Error: 0\nAXI Doorbell done: 0\nPCIe Post Error: 0\nPCIe Fetch Error: 0\nPCIe Discard Error: 0\nPCIe Doorbell done: 0\nDevice Error: 0",
@@ -98,7 +98,7 @@ func TestReadMgmtFile(t *testing.T) {
 		},
 		{
 			description:      "test fw version",
-			inputSysFs:       "../../test/device/testdata/test-0/sys",
+			inputSysFs:       "../../testdata/device/testdata/test-0/sys",
 			inputMgmtFile:    FwVersion,
 			inputDeviceIndex: 0,
 			expectedResult:   "1.6.0, c1bebfd",
@@ -106,7 +106,7 @@ func TestReadMgmtFile(t *testing.T) {
 		},
 		{
 			description:      "test heartbeat",
-			inputSysFs:       "../../test/device/testdata/test-0/sys",
+			inputSysFs:       "../../testdata/device/testdata/test-0/sys",
 			inputMgmtFile:    Heartbeat,
 			inputDeviceIndex: 0,
 			expectedResult:   "14649",
@@ -114,7 +114,7 @@ func TestReadMgmtFile(t *testing.T) {
 		},
 		{
 			description:      "test NeClkFreqInfo",
-			inputSysFs:       "../../test/device/testdata/test-0/sys",
+			inputSysFs:       "../../testdata/device/testdata/test-0/sys",
 			inputMgmtFile:    NeClkFreqInfo,
 			inputDeviceIndex: 0,
 			expectedResult:   "ne tensor (MHz): 2000\nne memory (MHz): 1000\nne operation (MHz): 1000\ndram (MT/s): 4266",
@@ -122,7 +122,7 @@ func TestReadMgmtFile(t *testing.T) {
 		},
 		{
 			description:      "test version",
-			inputSysFs:       "../../test/device/testdata/test-0/sys",
+			inputSysFs:       "../../testdata/device/testdata/test-0/sys",
 			inputMgmtFile:    Version,
 			inputDeviceIndex: 0,
 			expectedResult:   "1.9.2, 3def9c2",
@@ -169,21 +169,21 @@ func TestReadNumaNode(t *testing.T) {
 	}{
 		{
 			description:        "expect numa node 0",
-			inputSysFs:         "../../test/device/testdata/test-0/sys",
+			inputSysFs:         "../../testdata/device/testdata/test-0/sys",
 			inputBdfIdentifier: "0000:6d:00.0",
 			expectedResult:     0,
 			expectedError:      nil,
 		},
 		{
 			description:        "expect numa node -1",
-			inputSysFs:         "../../test/device/testdata/test-0/sys",
+			inputSysFs:         "../../testdata/device/testdata/test-0/sys",
 			inputBdfIdentifier: "0000:ff:00.0",
 			expectedResult:     -1,
 			expectedError:      nil,
 		},
 		{
 			description:        "expect error : wrong identifier",
-			inputSysFs:         "../../test/device/testdata/test-0/sys",
+			inputSysFs:         "../../testdata/device/testdata/test-0/sys",
 			inputBdfIdentifier: "",
 			expectedResult:     -1,
 			expectedError:      fs.ErrNotExist,

@@ -15,8 +15,8 @@ func TestListDevices(t *testing.T) {
 	}{
 		{
 			description:       "test positive case",
-			inputDevFs:        Abs("../../test/device/testdata/test-0/dev"),
-			inputSysFs:        Abs("../../test/device/testdata/test-0/sys"),
+			inputDevFs:        Abs("../../testdata/device/testdata/test-0/dev"),
+			inputSysFs:        Abs("../../testdata/device/testdata/test-0/sys"),
 			expectedDeviceLen: 2,
 			expectedError:     nil,
 		},

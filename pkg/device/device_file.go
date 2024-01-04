@@ -64,22 +64,22 @@ func NewDeviceFile(path string) (DeviceFile, error) {
 	return &devFile, nil
 }
 
-func (d deviceFile) Path() string {
+func (d *deviceFile) Path() string {
 	return d.path
 }
 
-func (d deviceFile) Filename() string {
+func (d *deviceFile) Filename() string {
 	return filepath.Base(d.path)
 }
 
-func (d deviceFile) DeviceIndex() uint8 {
+func (d *deviceFile) DeviceIndex() uint8 {
 	return d.index
 }
 
-func (d deviceFile) CoreRange() CoreRange {
+func (d *deviceFile) CoreRange() CoreRange {
 	return &d.coreRange
 }
 
-func (d deviceFile) Mode() DeviceMode {
+func (d *deviceFile) Mode() DeviceMode {
 	return d.deviceMode
 }

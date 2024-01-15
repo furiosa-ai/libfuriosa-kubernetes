@@ -18,40 +18,42 @@ const (
 	warboyMaxChannel int = 4
 )
 
-var _ Manifest = (*warboyMenifest)(nil)
+var _ Manifest = (*warboyManifest)(nil)
 
-type warboyMenifest struct {
+type warboyManifest struct {
 	device device.Device
 }
 
 func NewWarboyManifest(origin device.Device) Manifest {
-	return &warboyMenifest{
+	return &warboyManifest{
 		device: origin,
 	}
 }
 
 // EnvVars Note: older version of device plugin sets `NPU_DEVNAME`, `NPU_NPUNAME`, `NPU_PENAME`.
 // However, those env variables are now deprecated and replaced with device-api.
-func (w warboyMenifest) EnvVars() map[string]string {
+func (w warboyManifest) EnvVars() map[string]string {
 	return nil
 }
 
 // Annotations Note: order version of device plugin set the annotation `alpha.furiosa.ai/npu.devname`.
 // This annotation is used for CRI Runtime injection, however the annotation was not consumed.
-func (w warboyMenifest) Annotations() map[string]string {
+func (w warboyManifest) Annotations() map[string]string {
 	return nil
 
 }
 
-func (w warboyMenifest) DeviceNodes() []DeviceNode {
+func (w warboyManifest) DeviceNodes() []DeviceNode {
 	var deviceNodes []DeviceNode
 
+	// mount npu mgmt file under "/dev"
 	deviceNodes = append(deviceNodes, DeviceNode{
 		ContainerPath: devRoot + fmt.Sprintf(mgmtFileExp, w.device.Name()),
 		HostPath:      devRoot + fmt.Sprintf(mgmtFileExp, w.device.Name()),
 		permissions:   readWriteOpt,
 	})
 
+	// mount devFiles such as "/dev/npu0", "/dev/npu0pe0"
 	for _, file := range w.device.DevFiles() {
 		deviceNodes = append(deviceNodes, DeviceNode{
 			ContainerPath: file.Path(),
@@ -60,6 +62,7 @@ func (w warboyMenifest) DeviceNodes() []DeviceNode {
 		})
 	}
 
+	// mount channel fd for dma such as "/dev/npu0ch0" ~ "/dev/npu0ch3"
 	for idx := range iter.N(warboyMaxChannel) {
 		deviceNodes = append(deviceNodes, DeviceNode{
 			ContainerPath: fmt.Sprintf(channelExp, w.device.Name(), idx),
@@ -71,7 +74,7 @@ func (w warboyMenifest) DeviceNodes() []DeviceNode {
 	return deviceNodes
 }
 
-func (w warboyMenifest) MountPaths() []Mount {
+func (w warboyManifest) MountPaths() []Mount {
 	var mounts []Mount
 	devName := w.device.Name()
 

@@ -32,5 +32,5 @@ type DeviceNode struct {
 	// * r - allows container to read from the specified device.
 	// * w - allows container to write to the specified device.
 	// * m - allows container to create device files that do not yet exist.
-	permissions string
+	Permissions string
 }

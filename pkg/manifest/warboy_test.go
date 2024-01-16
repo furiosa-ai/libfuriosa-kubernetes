@@ -36,39 +36,39 @@ func TestDeviceNodes(t *testing.T) {
 				{
 					ContainerPath: devRoot + fmt.Sprintf(mgmtFileExp, "npu0"),
 					HostPath:      devRoot + fmt.Sprintf(mgmtFileExp, "npu0"),
-					permissions:   readWriteOpt,
+					Permissions:   readWriteOpt,
 				}, {
 					ContainerPath: device.Abs("../../testdata/device/testdata/test-0/dev/npu0"),
 					HostPath:      device.Abs("../../testdata/device/testdata/test-0/dev/npu0"),
-					permissions:   readWriteOpt,
+					Permissions:   readWriteOpt,
 				}, {
 					ContainerPath: device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe0"),
 					HostPath:      device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe0"),
-					permissions:   readWriteOpt,
+					Permissions:   readWriteOpt,
 				}, {
 					ContainerPath: device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe1"),
 					HostPath:      device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe1"),
-					permissions:   readWriteOpt,
+					Permissions:   readWriteOpt,
 				}, {
 					ContainerPath: device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe0-1"),
 					HostPath:      device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe0-1"),
-					permissions:   readWriteOpt,
+					Permissions:   readWriteOpt,
 				}, {
 					ContainerPath: fmt.Sprintf(channelExp, "npu0", 0),
 					HostPath:      fmt.Sprintf(channelExp, "npu0", 0),
-					permissions:   readWriteOpt,
+					Permissions:   readWriteOpt,
 				}, {
 					ContainerPath: fmt.Sprintf(channelExp, "npu0", 1),
 					HostPath:      fmt.Sprintf(channelExp, "npu0", 1),
-					permissions:   readWriteOpt,
+					Permissions:   readWriteOpt,
 				}, {
 					ContainerPath: fmt.Sprintf(channelExp, "npu0", 2),
 					HostPath:      fmt.Sprintf(channelExp, "npu0", 2),
-					permissions:   readWriteOpt,
+					Permissions:   readWriteOpt,
 				}, {
 					ContainerPath: fmt.Sprintf(channelExp, "npu0", 3),
 					HostPath:      fmt.Sprintf(channelExp, "npu0", 3),
-					permissions:   readWriteOpt,
+					Permissions:   readWriteOpt,
 				},
 			},
 		},

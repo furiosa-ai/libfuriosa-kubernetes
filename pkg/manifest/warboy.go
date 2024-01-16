@@ -50,7 +50,7 @@ func (w warboyManifest) DeviceNodes() []DeviceNode {
 	deviceNodes = append(deviceNodes, DeviceNode{
 		ContainerPath: devRoot + fmt.Sprintf(mgmtFileExp, w.device.Name()),
 		HostPath:      devRoot + fmt.Sprintf(mgmtFileExp, w.device.Name()),
-		permissions:   readWriteOpt,
+		Permissions:   readWriteOpt,
 	})
 
 	// mount devFiles such as "/dev/npu0", "/dev/npu0pe0"
@@ -58,7 +58,7 @@ func (w warboyManifest) DeviceNodes() []DeviceNode {
 		deviceNodes = append(deviceNodes, DeviceNode{
 			ContainerPath: file.Path(),
 			HostPath:      file.Path(),
-			permissions:   readWriteOpt,
+			Permissions:   readWriteOpt,
 		})
 	}
 
@@ -67,7 +67,7 @@ func (w warboyManifest) DeviceNodes() []DeviceNode {
 		deviceNodes = append(deviceNodes, DeviceNode{
 			ContainerPath: fmt.Sprintf(channelExp, w.device.Name(), idx),
 			HostPath:      fmt.Sprintf(channelExp, w.device.Name(), idx),
-			permissions:   readWriteOpt,
+			Permissions:   readWriteOpt,
 		})
 	}
 

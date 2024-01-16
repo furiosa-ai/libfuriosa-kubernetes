@@ -28,11 +28,11 @@ func newTestWarboyDevice() device.Device {
 func TestDeviceNodes(t *testing.T) {
 	tests := []struct {
 		description         string
-		expectedDeviceNodes []DeviceNode
+		expectedDeviceNodes []*DeviceNode
 	}{
 		{
 			description: "test DeviceNodes()",
-			expectedDeviceNodes: []DeviceNode{
+			expectedDeviceNodes: []*DeviceNode{
 				{
 					ContainerPath: devRoot + fmt.Sprintf(mgmtFileExp, "npu0"),
 					HostPath:      devRoot + fmt.Sprintf(mgmtFileExp, "npu0"),
@@ -79,7 +79,6 @@ func TestDeviceNodes(t *testing.T) {
 		if !reflect.DeepEqual(actualDeviceNodes, tc.expectedDeviceNodes) {
 			t.Errorf("expected %v but got %v", tc.expectedDeviceNodes, actualDeviceNodes)
 		}
-
 	}
 
 }
@@ -87,11 +86,11 @@ func TestDeviceNodes(t *testing.T) {
 func TestMountPaths(t *testing.T) {
 	tests := []struct {
 		description        string
-		expectedMountPaths []Mount
+		expectedMountPaths []*Mount
 	}{
 		{
 			description: "test MountPaths()",
-			expectedMountPaths: []Mount{
+			expectedMountPaths: []*Mount{
 				{
 					ContainerPath: sysClassRoot + fmt.Sprintf(mgmtFileExp, "npu0"),
 					HostPath:      sysClassRoot + fmt.Sprintf(mgmtFileExp, "npu0"),

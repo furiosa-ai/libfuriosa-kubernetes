@@ -7,9 +7,9 @@ type Manifest interface {
 	// https://github.com/kubernetes/kubernetes/pull/58172
 	Annotations() map[string]string
 	// DeviceNodes returns set of DeviceNode for dev file mount
-	DeviceNodes() []DeviceNode
+	DeviceNodes() []*DeviceNode
 	// MountPaths returns set of Mount for extra file and directory mount
-	MountPaths() []Mount
+	MountPaths() []*Mount
 }
 
 // Mount is subset of oci-runtime Mount spec

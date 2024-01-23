@@ -28,47 +28,47 @@ func newTestWarboyDevice() device.Device {
 func TestDeviceNodes(t *testing.T) {
 	tests := []struct {
 		description         string
-		expectedDeviceNodes []DeviceNode
+		expectedDeviceNodes []*DeviceNode
 	}{
 		{
 			description: "test DeviceNodes()",
-			expectedDeviceNodes: []DeviceNode{
+			expectedDeviceNodes: []*DeviceNode{
 				{
 					ContainerPath: devRoot + fmt.Sprintf(mgmtFileExp, "npu0"),
 					HostPath:      devRoot + fmt.Sprintf(mgmtFileExp, "npu0"),
-					permissions:   readWriteOpt,
+					Permissions:   readWriteOpt,
 				}, {
 					ContainerPath: device.Abs("../../testdata/device/testdata/test-0/dev/npu0"),
 					HostPath:      device.Abs("../../testdata/device/testdata/test-0/dev/npu0"),
-					permissions:   readWriteOpt,
+					Permissions:   readWriteOpt,
 				}, {
 					ContainerPath: device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe0"),
 					HostPath:      device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe0"),
-					permissions:   readWriteOpt,
+					Permissions:   readWriteOpt,
 				}, {
 					ContainerPath: device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe1"),
 					HostPath:      device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe1"),
-					permissions:   readWriteOpt,
+					Permissions:   readWriteOpt,
 				}, {
 					ContainerPath: device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe0-1"),
 					HostPath:      device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe0-1"),
-					permissions:   readWriteOpt,
+					Permissions:   readWriteOpt,
 				}, {
 					ContainerPath: fmt.Sprintf(channelExp, "npu0", 0),
 					HostPath:      fmt.Sprintf(channelExp, "npu0", 0),
-					permissions:   readWriteOpt,
+					Permissions:   readWriteOpt,
 				}, {
 					ContainerPath: fmt.Sprintf(channelExp, "npu0", 1),
 					HostPath:      fmt.Sprintf(channelExp, "npu0", 1),
-					permissions:   readWriteOpt,
+					Permissions:   readWriteOpt,
 				}, {
 					ContainerPath: fmt.Sprintf(channelExp, "npu0", 2),
 					HostPath:      fmt.Sprintf(channelExp, "npu0", 2),
-					permissions:   readWriteOpt,
+					Permissions:   readWriteOpt,
 				}, {
 					ContainerPath: fmt.Sprintf(channelExp, "npu0", 3),
 					HostPath:      fmt.Sprintf(channelExp, "npu0", 3),
-					permissions:   readWriteOpt,
+					Permissions:   readWriteOpt,
 				},
 			},
 		},
@@ -79,7 +79,6 @@ func TestDeviceNodes(t *testing.T) {
 		if !reflect.DeepEqual(actualDeviceNodes, tc.expectedDeviceNodes) {
 			t.Errorf("expected %v but got %v", tc.expectedDeviceNodes, actualDeviceNodes)
 		}
-
 	}
 
 }
@@ -87,11 +86,11 @@ func TestDeviceNodes(t *testing.T) {
 func TestMountPaths(t *testing.T) {
 	tests := []struct {
 		description        string
-		expectedMountPaths []Mount
+		expectedMountPaths []*Mount
 	}{
 		{
 			description: "test MountPaths()",
-			expectedMountPaths: []Mount{
+			expectedMountPaths: []*Mount{
 				{
 					ContainerPath: sysClassRoot + fmt.Sprintf(mgmtFileExp, "npu0"),
 					HostPath:      sysClassRoot + fmt.Sprintf(mgmtFileExp, "npu0"),

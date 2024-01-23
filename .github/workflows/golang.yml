@@ -21,6 +21,8 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Display Go version
         run: go version
+      - name: install hwloc
+        run: sudo apt install -y hwloc libhwloc-dev
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:

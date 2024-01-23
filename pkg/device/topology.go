@@ -5,22 +5,23 @@ import (
 	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/device/hwloc"
 )
 
-// LinkType represents distance between two devices
+// LinkType represents distance between two devices in integer.
+// The value will be used to calculate total score of device set to select the best NPU pairs.
 type LinkType uint
 
 const (
 	// LinkTypeUnknown unknown
-	LinkTypeUnknown LinkType = iota
+	LinkTypeUnknown LinkType = 0
 	// LinkTypeCrossCPU two devices are connected across different cpus.
-	LinkTypeCrossCPU
+	LinkTypeCrossCPU LinkType = 10
 	// LinkTypeCPU two devices are connected under the same cpu, it may mean:
 	// devices are directly attached to the cpu pcie lane without PCIE switch.
 	// devices are attached to different PCIE switches under the same cpu.
-	LinkTypeCPU
+	LinkTypeCPU LinkType = 20
 	// LinkTypeHostBridge two devices are connected under the same PCIE host bridge.
 	// Note that this does not guarantee devices are attached to the same PCIE switch.
 	// More switches could exist under the host bridge switch.
-	LinkTypeHostBridge
+	LinkTypeHostBridge LinkType = 30
 )
 
 type Topology interface {

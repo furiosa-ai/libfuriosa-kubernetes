@@ -43,43 +43,43 @@ func (w warboyManifest) Annotations() map[string]string {
 
 }
 
-func (w warboyManifest) DeviceNodes() []DeviceNode {
-	var deviceNodes []DeviceNode
+func (w warboyManifest) DeviceNodes() []*DeviceNode {
+	var deviceNodes []*DeviceNode
 
 	// mount npu mgmt file under "/dev"
-	deviceNodes = append(deviceNodes, DeviceNode{
+	deviceNodes = append(deviceNodes, &DeviceNode{
 		ContainerPath: devRoot + fmt.Sprintf(mgmtFileExp, w.device.Name()),
 		HostPath:      devRoot + fmt.Sprintf(mgmtFileExp, w.device.Name()),
-		permissions:   readWriteOpt,
+		Permissions:   readWriteOpt,
 	})
 
 	// mount devFiles such as "/dev/npu0", "/dev/npu0pe0"
 	for _, file := range w.device.DevFiles() {
-		deviceNodes = append(deviceNodes, DeviceNode{
+		deviceNodes = append(deviceNodes, &DeviceNode{
 			ContainerPath: file.Path(),
 			HostPath:      file.Path(),
-			permissions:   readWriteOpt,
+			Permissions:   readWriteOpt,
 		})
 	}
 
 	// mount channel fd for dma such as "/dev/npu0ch0" ~ "/dev/npu0ch3"
 	for idx := range iter.N(warboyMaxChannel) {
-		deviceNodes = append(deviceNodes, DeviceNode{
+		deviceNodes = append(deviceNodes, &DeviceNode{
 			ContainerPath: fmt.Sprintf(channelExp, w.device.Name(), idx),
 			HostPath:      fmt.Sprintf(channelExp, w.device.Name(), idx),
-			permissions:   readWriteOpt,
+			Permissions:   readWriteOpt,
 		})
 	}
 
 	return deviceNodes
 }
 
-func (w warboyManifest) MountPaths() []Mount {
-	var mounts []Mount
+func (w warboyManifest) MountPaths() []*Mount {
+	var mounts []*Mount
 	devName := w.device.Name()
 
 	// mount "/sys/class/npu_mgmt/npu{x}_mgmt" path
-	mounts = append(mounts, Mount{
+	mounts = append(mounts, &Mount{
 		ContainerPath: sysClassRoot + fmt.Sprintf(mgmtFileExp, devName),
 		HostPath:      sysClassRoot + fmt.Sprintf(mgmtFileExp, devName),
 		Options:       []string{readOnlyOpt},
@@ -87,7 +87,7 @@ func (w warboyManifest) MountPaths() []Mount {
 
 	// mount all dev files under "/sys/class/npu_mgmt/"
 	for _, file := range w.device.DevFiles() {
-		mounts = append(mounts, Mount{
+		mounts = append(mounts, &Mount{
 			ContainerPath: sysClassRoot + file.Filename(),
 			HostPath:      sysClassRoot + file.Filename(),
 			Options:       []string{readOnlyOpt},
@@ -95,7 +95,7 @@ func (w warboyManifest) MountPaths() []Mount {
 	}
 
 	// mount "/sys/devices/virtual/npu_mgmt/npu{x}_mgmt" path
-	mounts = append(mounts, Mount{
+	mounts = append(mounts, &Mount{
 		ContainerPath: sysDevicesRoot + fmt.Sprintf(mgmtFileExp, devName),
 		HostPath:      sysDevicesRoot + fmt.Sprintf(mgmtFileExp, devName),
 		Options:       []string{readOnlyOpt},
@@ -103,7 +103,7 @@ func (w warboyManifest) MountPaths() []Mount {
 
 	// mount all dev files under "/sys/devices/virtual/npu_mgmt/"
 	for _, file := range w.device.DevFiles() {
-		mounts = append(mounts, Mount{
+		mounts = append(mounts, &Mount{
 			ContainerPath: sysDevicesRoot + file.Filename(),
 			HostPath:      sysDevicesRoot + file.Filename(),
 			Options:       []string{readOnlyOpt},

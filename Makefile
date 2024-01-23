@@ -1,11 +1,18 @@
 SHELL := /bin/bash
 
+# make assumption that hwloc is installed with brew command "brew install hwloc"
+ifeq ($(shell uname -s),Darwin)
+    CGO_CFLAGS := -I/opt/homebrew/opt/hwloc/include
+    CGO_LDFLAGS := -L/opt/homebrew/opt/hwloc/lib
+endif
+
+
 .PHONY: all
 all: build fmt lint vet test tidy vendor
 
 .PHONY: build
 build:
-	go build ./...
+	CGO_CFLAGS=$(CGO_CFLAGS) CGO_LDFLAGS=$(CGO_LDFLAGS) go build ./...
 
 .PHONY: fmt
 fmt:
@@ -13,19 +20,19 @@ fmt:
 
 .PHONY: lint
 lint:
-	golangci-lint run
+	CGO_CFLAGS=$(CGO_CFLAGS) CGO_LDFLAGS=$(CGO_LDFLAGS) golangci-lint run
 
 .PHONY: vet
 vet:
-	go vet -v ./...
+	CGO_CFLAGS=$(CGO_CFLAGS) CGO_LDFLAGS=$(CGO_LDFLAGS) go vet -v ./...
 
 .PHONY: test
 test:
-	go test ./...
+	CGO_CFLAGS=$(CGO_CFLAGS) CGO_LDFLAGS=$(CGO_LDFLAGS) go test ./...
 
 .PHONY: cover
 cover:
-	go test -coverprofile=coverage.out ./...
+	CGO_CFLAGS=$(CGO_CFLAGS) CGO_LDFLAGS=$(CGO_LDFLAGS) go test -coverprofile=coverage.out ./...
 	go tool cover -func=coverage.out
 	rm coverage.out
 

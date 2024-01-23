@@ -11,20 +11,33 @@ func TestGetCommonAncestorObjType(t *testing.T) {
 		expected        LinkType
 	}{
 		{
+			description:     "expect HostBridge ",
+			xmlTopologyPath: "./hwloc/test.xml",
+			dev1:            NewMockWarboyDevice(0, 0, "0000:27:00.0", "", "", "", "", ""),
+			dev2:            NewMockWarboyDevice(1, 0, "0000:2a:00.0", "", "", "", "", ""),
+			expected:        LinkTypeHostBridge,
+		},
+		{
 			description:     "expect CPU ",
 			xmlTopologyPath: "./hwloc/test.xml",
-			dev1:            NewMockWarboyDevice(0, 0, "0000:5e:00.0", "", "", "", "", ""),
-			dev2:            NewMockWarboyDevice(1, 0, "0000:3b:00.0", "", "", "", "", ""),
+			dev1:            NewMockWarboyDevice(0, 0, "0000:27:00.0", "", "", "", "", ""),
+			dev2:            NewMockWarboyDevice(1, 0, "0000:51:00.0", "", "", "", "", ""),
 			expected:        LinkTypeCPU,
 		},
 		{
 			description:     "expect CrossCPU ",
 			xmlTopologyPath: "./hwloc/test.xml",
-			dev1:            NewMockWarboyDevice(0, 0, "0000:5e:00.0", "", "", "", "", ""),
-			dev2:            NewMockWarboyDevice(1, 1, "0000:af:00.0", "", "", "", "", ""),
+			dev1:            NewMockWarboyDevice(0, 0, "0000:27:00.0", "", "", "", "", ""),
+			dev2:            NewMockWarboyDevice(1, 1, "0000:c7:00.0", "", "", "", "", ""),
 			expected:        LinkTypeCrossCPU,
 		},
-		//TODO(@bg): add test case for LinkTypeHostBridge, it requires to replace ./hwloc/test.xml for proper test data.
+		{
+			description:     "expect CrossCPU ",
+			xmlTopologyPath: "./hwloc/test.xml",
+			dev1:            NewMockWarboyDevice(0, 0, "0000:27:00.0", "", "", "", "", ""),
+			dev2:            NewMockWarboyDevice(0, 0, "0000:27:00.0", "", "", "", "", ""),
+			expected:        LinkTypeUnknown,
+		},
 	}
 
 	for _, tc := range tests {

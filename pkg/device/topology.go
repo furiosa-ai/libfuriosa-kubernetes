@@ -12,8 +12,8 @@ type LinkType uint
 const (
 	// LinkTypeUnknown unknown
 	LinkTypeUnknown LinkType = 0
-	// LinkTypeCrossCPU two devices are connected across different cpus.
-	LinkTypeCrossCPU LinkType = 10
+	// LinkTypeInterconnect two devices are connected across different cpus through interconnect.
+	LinkTypeInterconnect LinkType = 10
 	// LinkTypeCPU two devices are connected under the same cpu, it may mean:
 	// devices are directly attached to the cpu pcie lane without PCIE switch.
 	// devices are attached to different PCIE switches under the same cpu.
@@ -22,11 +22,17 @@ const (
 	// Note that this does not guarantee devices are attached to the same PCIE switch.
 	// More switches could exist under the host bridge switch.
 	LinkTypeHostBridge LinkType = 30
+
+	// NOTE(@bg): Score 40 and 50 is reserved for LinkTypeMultiSwitch and LinkTypeSingleSwitch.
+	// NOTE(@bg): Score 60 is reserved for LinkTypeBoard
+
+	// LinkTypeSoc two devices are on the same Soc chip.
+	LinkTypeSoc LinkType = 70
 )
 
 type Topology interface {
 	// GetLinkType queries distance of two devices.
-	GetLinkType(device1 Device, device2 Device) LinkType
+	GetLinkType(dev1BDF string, dev2BDF string) LinkType
 }
 
 var _ Topology = new(topology)
@@ -45,6 +51,10 @@ func NewMockTopology(devices []Device, xmlTopologyPath string) (Topology, error)
 }
 
 func (t *topology) getLinkType(dev1BDF string, dev2BDF string) (LinkType, error) {
+	if dev1BDF == dev2BDF {
+		return LinkTypeSoc, nil
+	}
+
 	commonAncestorObjType, err := t.hwlocClient.GetCommonAncestorObjType(dev1BDF, dev2BDF)
 	if err != nil {
 		return LinkTypeUnknown, err
@@ -52,7 +62,7 @@ func (t *topology) getLinkType(dev1BDF string, dev2BDF string) (LinkType, error)
 
 	switch commonAncestorObjType {
 	case hwloc.HwlocObjTypeMachine:
-		return LinkTypeCrossCPU, nil
+		return LinkTypeInterconnect, nil
 	case hwloc.HwlocObjTypePackage:
 		return LinkTypeCPU, nil
 	case hwloc.HwlocObjTypeBridge:
@@ -73,10 +83,6 @@ func (t *topology) populateTopologyMatrix(Devices []Device) error {
 			key2, err := dev2.Busname()
 			if err != nil {
 				return err
-			}
-
-			if key1 == key2 {
-				continue
 			}
 
 			// order keys to reduce memory usage of two-dimensional map

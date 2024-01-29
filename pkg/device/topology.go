@@ -136,16 +136,12 @@ func newTopology(devices []Device, hwlocClient hwloc.Hwloc) (Topology, error) {
 }
 
 // GetLinkType takes two devices as parameters and return link type between them.
-func (t *topology) GetLinkType(device1 Device, device2 Device) LinkType {
-	//NOTE(@bg): ignoring errors is not good pattern, in this case, all devices are validated when topology matrix was populated.
-	key1, _ := device1.Busname()
-	key2, _ := device2.Busname()
-
-	if key1 > key2 {
-		key1, key2 = key2, key1
+func (t *topology) GetLinkType(dev1BDF string, dev2BDF string) LinkType {
+	if dev1BDF > dev2BDF {
+		dev1BDF, dev2BDF = dev2BDF, dev1BDF
 	}
 
-	linkType, ok := t.topologyMatrix[key1][key2]
+	linkType, ok := t.topologyMatrix[dev1BDF][dev2BDF]
 	if !ok {
 		return LinkTypeUnknown
 	}

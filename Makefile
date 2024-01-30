@@ -6,6 +6,19 @@ ifeq ($(shell uname -s),Darwin)
     CGO_LDFLAGS := -L/opt/homebrew/opt/hwloc/lib
 endif
 
+define install_deps_function
+    @UNAME_S=$$(uname -s); \
+    if [ "$$UNAME_S" = "Linux" ]; then \
+        echo "Installing for Ubuntu/Debian familly"; \
+        sudo apt-get install hwloc libhwloc-dev; \
+    elif [ "$$UNAME_S" = "Darwin" ]; then \
+        echo "macOS detected. Installing using Homebrew..."; \
+        brew install hwloc; \
+    else \
+        echo "Unsupported Operating System"; \
+        exit 1; \
+    fi
+endef
 
 .PHONY: all
 all: build fmt lint vet test tidy vendor
@@ -43,3 +56,7 @@ tidy:
 .PHONY:vendor
 vendor:
 	go mod vendor
+
+.PHONY: install-deps
+install-deps:
+	$(call install_deps_function)

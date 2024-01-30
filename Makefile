@@ -20,6 +20,15 @@ define install_deps_function
     fi
 endef
 
+define build_examples_function
+    @for dir in $(1)/*; do \
+        if [ -d "$$dir" ] && [ -f "$$dir/$$(basename $$dir).go" ]; then \
+            CGO_CFLAGS=$(CGO_CFLAGS) CGO_LDFLAGS=$(CGO_LDFLAGS) go build -o "$$(basename $$dir)" $$dir/$$(basename $$dir).go; \
+            echo "Built $$dir"; \
+        fi \
+    done
+endef
+
 .PHONY: all
 all: build fmt lint vet test tidy vendor
 
@@ -60,3 +69,7 @@ vendor:
 .PHONY: install-deps
 install-deps:
 	$(call install_deps_function)
+
+.PHONY: example
+example:
+	$(call build_examples_function,./example)

@@ -1,0 +1,20 @@
+name: Trigger Code Review
+
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  labeled:
+    runs-on: ubuntu-latest
+    if: github.event.label.name == 'github/review'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: furiosa-ai/gpt-code-review-action/golang@main
+        with:
+          openai-key: ${{ secrets.OPENAI_API_KEY }}

@@ -22,6 +22,10 @@ func NewScoreBasedOptimalNpuAllocator(device []topology.Device) (NpuAllocator, e
 	}), nil
 }
 
+func NewMockScoreBasedOptimalNpuAllocator(mockHintProvider TopologyHintProvider) (NpuAllocator, error) {
+	return newScoreBasedOptimalNpuAllocator(mockHintProvider), nil
+}
+
 func newScoreBasedOptimalNpuAllocator(hintProvider TopologyHintProvider) NpuAllocator {
 	return &scoreBasedOptimalNpuAllocator{
 		hintProvider: hintProvider,

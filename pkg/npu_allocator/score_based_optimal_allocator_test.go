@@ -927,7 +927,7 @@ func TestAllocation(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		allocator := newScoreBasedOptimalNpuAllocator(mockTopologyHintProvider(tc.hints))
+		allocator, _ := NewMockScoreBasedOptimalNpuAllocator(mockTopologyHintProvider(tc.hints))
 		actualResult := allocator.Allocate(tc.available, tc.required, tc.request)
 
 		if len(actualResult) != len(tc.expected) {

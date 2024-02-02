@@ -80,4 +80,21 @@ func (source DeviceSet) Difference(target DeviceSet) (difference DeviceSet) {
 	return difference
 }
 
-// TODO(@bg): impl Union() and Intersection()
+// Union returns new DeviceSet containing elements of source and target DeviceSets
+func (source DeviceSet) Union(target DeviceSet) (union DeviceSet) {
+	union = append(union, source...)
+	visited := map[string]bool{}
+	for _, device := range source {
+		visited[device.ID()] = true
+	}
+
+	for _, device := range target {
+		if _, ok := visited[device.ID()]; !ok {
+			union = append(union, device)
+		}
+	}
+
+	return union
+}
+
+// TODO(@bg): impl Intersection()

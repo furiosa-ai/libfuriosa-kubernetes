@@ -631,3 +631,121 @@ func TestDeviceSetDifference(t *testing.T) {
 		}
 	}
 }
+
+func TestDeviceSetUnion(t *testing.T) {
+	tests := []struct {
+		description string
+		source      DeviceSet
+		target      DeviceSet
+		expected    DeviceSet
+	}{
+		{
+			description: "Union nil DeviceSets",
+			source:      nil,
+			target:      nil,
+			expected:    DeviceSet{},
+		},
+		{
+			description: "Union empty DeviceSets",
+			source:      DeviceSet{},
+			target:      DeviceSet{},
+			expected:    DeviceSet{},
+		},
+		{
+			description: "Union empty target",
+			source: DeviceSet{
+				&mockDevice{
+					id:              "0",
+					topologyHintKey: "0",
+				},
+				&mockDevice{
+					id:              "1",
+					topologyHintKey: "1",
+				},
+			},
+			target: DeviceSet{},
+			expected: DeviceSet{
+				&mockDevice{
+					id:              "0",
+					topologyHintKey: "0",
+				},
+				&mockDevice{
+					id:              "1",
+					topologyHintKey: "1",
+				},
+			},
+		},
+		{
+			description: "Union empty source",
+			source:      DeviceSet{},
+			target: DeviceSet{
+				&mockDevice{
+					id:              "0",
+					topologyHintKey: "0",
+				},
+				&mockDevice{
+					id:              "1",
+					topologyHintKey: "1",
+				},
+			},
+			expected: DeviceSet{
+				&mockDevice{
+					id:              "0",
+					topologyHintKey: "0",
+				},
+				&mockDevice{
+					id:              "1",
+					topologyHintKey: "1",
+				},
+			},
+		},
+		{
+			description: "Union source and target",
+			source: DeviceSet{
+				&mockDevice{
+					id:              "0",
+					topologyHintKey: "0",
+				},
+				&mockDevice{
+					id:              "1",
+					topologyHintKey: "1",
+				},
+			},
+			target: DeviceSet{
+				&mockDevice{
+					id:              "2",
+					topologyHintKey: "2",
+				},
+				&mockDevice{
+					id:              "3",
+					topologyHintKey: "3",
+				},
+			},
+			expected: DeviceSet{
+				&mockDevice{
+					id:              "0",
+					topologyHintKey: "0",
+				},
+				&mockDevice{
+					id:              "1",
+					topologyHintKey: "1",
+				},
+				&mockDevice{
+					id:              "2",
+					topologyHintKey: "2",
+				},
+				&mockDevice{
+					id:              "3",
+					topologyHintKey: "3",
+				},
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		actual := tc.source.Union(tc.target)
+		if !actual.Equal(tc.expected) {
+			t.Errorf("expected %v but got %v", tc.expected, actual)
+		}
+	}
+}

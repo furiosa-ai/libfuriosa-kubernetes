@@ -2,6 +2,7 @@ package npu_allocator
 
 import (
 	topology "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/device"
+	"gonum.org/v1/gonum/stat/combin"
 )
 
 var _ NpuAllocator = (*scoreBasedOptimalNpuAllocator)(nil)
@@ -36,7 +37,7 @@ func (n *scoreBasedOptimalNpuAllocator) Allocate(available DeviceSet, required D
 
 	// generate seed sets using differences
 	difference := available.Difference(required)
-	combinations := generateNonDuplicatedDeviceSet(difference, subsetLen)
+	combinations := generateKDeviceSet(difference, subsetLen)
 
 	// union subset and required to build full device set combination
 	for idx, combination := range combinations {
@@ -61,51 +62,20 @@ func (n *scoreBasedOptimalNpuAllocator) Allocate(available DeviceSet, required D
 	return bestSet
 }
 
-func generateNonDuplicatedDeviceSet(devices DeviceSet, size int) (result []DeviceSet) {
-	if len(devices) == 0 || size == 0 || size > len(devices) {
+func generateKDeviceSet(devices DeviceSet, size int) (result []DeviceSet) {
+	// NOTE(@bg): combin.Combinations internally uses binomial coefficient C(n, k) implementation,
+	// which call panic() if k > n and either n and k is negative number.
+	// https://github.com/gonum/gonum/blob/f74f45f5f3e9cc7c1d0f0af2ffd19ccf8972a87e/stat/combin/combin.go#L29
+	if len(devices) < 1 || size < 1 || size > len(devices) {
 		return result
 	}
 
-	devices.Sort()
-
-	// use iterative approach for memory efficient
-	total := len(devices)
-	indices := make([]int, size)
-
-	// initialize indices
-	for i := range indices {
-		indices[i] = i
-	}
-
-	for {
-		newDeviceSet := make(DeviceSet, size)
-		// generate combination at the current position
-		for i, index := range indices {
-			newDeviceSet[i] = devices[index]
+	for _, indices := range combin.Combinations(len(devices), size) {
+		newDeviceSet := DeviceSet{}
+		for _, index := range indices {
+			newDeviceSet = append(newDeviceSet, devices[index])
 		}
 		result = append(result, newDeviceSet)
-
-		// initialize pivot with the last index
-		pivot := size - 1
-
-		// move(decrease) pivot if it reached max at the current position.
-		for pivot >= 0 && indices[pivot] == pivot+total-size {
-			pivot--
-		}
-
-		// exit loop we have visited all combination
-		if pivot < 0 {
-			break
-		}
-
-		// visit next element at the current position
-		indices[pivot]++
-
-		// initialize indices next to pivot to `pivot +1, +1, +1` if pivot moved
-		for i := pivot + 1; i < size; i++ {
-			indices[i] = indices[i-1] + 1
-		}
-
 	}
 
 	return result

@@ -371,7 +371,7 @@ func TestGenerateNonDuplicatedDeviceSet(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		actual := generateNonDuplicatedDeviceSet(tc.devices, tc.size)
+		actual := generateKDeviceSet(tc.devices, tc.size)
 		if len(actual) != len(tc.expected) {
 			t.Errorf("two slices are not identical")
 			continue

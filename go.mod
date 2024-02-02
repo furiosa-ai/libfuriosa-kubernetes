@@ -5,6 +5,7 @@ go 1.21.3
 require (
 	github.com/bradfitz/iter v0.0.0-20191230175014-e8f45d346db8
 	github.com/jedib0t/go-pretty/v6 v6.5.3
+	gonum.org/v1/gonum v0.14.0
 )
 
 require (

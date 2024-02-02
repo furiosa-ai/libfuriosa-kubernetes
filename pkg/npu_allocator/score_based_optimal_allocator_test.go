@@ -916,6 +916,14 @@ func TestAllocation(t *testing.T) {
 				},
 			},
 		},
+		{
+			description: "[reboot] allocate reserved resources",
+			available:   buildMockDeviceSet(0, 7),
+			required:    buildMockDeviceSet(0, 3),
+			request:     4,
+			hints:       buildStaticHintMatrixForTwoSocketBalancedConfig(),
+			expected:    buildMockDeviceSet(0, 3),
+		},
 	}
 
 	for _, tc := range tests {

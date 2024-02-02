@@ -28,34 +28,30 @@ func newScoreBasedOptimalNpuAllocator(hintProvider TopologyHintProvider) NpuAllo
 }
 
 func (n *scoreBasedOptimalNpuAllocator) Allocate(available DeviceSet, required DeviceSet, request int) DeviceSet {
-	// generate all possible device set
-	combinations := generateNonDuplicatedDeviceSet(available, request)
-
-	// filter device set doesn't contain required devices
-	var filtered []DeviceSet
-	if len(required) == 0 {
-		filtered = combinations
-	} else {
-		for _, combination := range combinations {
-			if combination.Contains(required) {
-				filtered = append(filtered, combination)
-			}
-		}
+	subsetLen := request - len(required)
+	// length of required equals to request, it means allocating specific device sets
+	if subsetLen == 0 {
+		return required
 	}
 
-	// no device set survived
-	if len(filtered) == 0 {
-		return nil
+	// generate seed sets using differences
+	difference := available.Difference(required)
+	combinations := generateNonDuplicatedDeviceSet(difference, subsetLen)
+
+	// union subset and required to build full device set combination
+	for idx, combination := range combinations {
+		newDeviceSet := combination.Union(required)
+		newDeviceSet.Sort()
+		combinations[idx] = newDeviceSet
 	}
 
 	// score all survived device set
 	// initialize with the first element to prevent edge case that score of all element in the filtered list is zero.
-	var bestSet = filtered[0]
+	var bestSet = combinations[0]
 	var highestScore = n.scoreDeviceSet(bestSet)
 
-	for _, set := range filtered {
-		score := n.scoreDeviceSet(set)
-		if score > highestScore {
+	for _, set := range combinations {
+		if score := n.scoreDeviceSet(set); score > highestScore {
 			bestSet = set
 			highestScore = score
 		}

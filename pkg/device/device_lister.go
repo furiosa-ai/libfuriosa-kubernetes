@@ -17,7 +17,7 @@ var _ DeviceLister = new(deviceLister)
 type deviceLister struct {
 	devFs           string
 	sysFs           string
-	deviceValidator deviceValidateFunc
+	deviceValidator DeviceValidateFunc
 }
 
 // TODO(@bg): pass logger
@@ -25,7 +25,11 @@ func NewDeviceLister() DeviceLister {
 	return newDeviceLister(defaultDevFsPath, defaultSysFsPath, defaultDeviceValidator)
 }
 
-func newDeviceLister(devFs string, sysFs string, deviceValidator deviceValidateFunc) DeviceLister {
+func NewMockDeviceLister(devFs string, sysFs string, validateFunc DeviceValidateFunc) DeviceLister {
+	return newDeviceLister(devFs, sysFs, validateFunc)
+}
+
+func newDeviceLister(devFs string, sysFs string, deviceValidator DeviceValidateFunc) DeviceLister {
 	return &deviceLister{
 		devFs:           devFs,
 		sysFs:           sysFs,

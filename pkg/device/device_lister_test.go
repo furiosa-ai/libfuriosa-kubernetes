@@ -30,7 +30,9 @@ func TestListDevices(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		mockDeviceLister := newMockDeviceLister(tc.inputDevFs, tc.inputSysFs)
+		mockDeviceLister := NewMockDeviceLister(tc.inputDevFs, tc.inputSysFs, func(dev DevFile) bool {
+			return true
+		})
 		actualResult, actualErr := mockDeviceLister.ListDevices()
 
 		if tc.expectedError != nil || actualErr != nil {
@@ -45,10 +47,4 @@ func TestListDevices(t *testing.T) {
 			continue
 		}
 	}
-}
-
-func newMockDeviceLister(devFs string, sysFs string) DeviceLister {
-	return newDeviceLister(devFs, sysFs, func(dev DevFile) bool {
-		return true
-	})
 }

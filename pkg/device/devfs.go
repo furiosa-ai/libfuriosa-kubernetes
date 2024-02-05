@@ -22,7 +22,7 @@ var (
 	deviceFileRegExp = regexp.MustCompile(deviceFilePattern)
 )
 
-type deviceValidateFunc func(dev DevFile) bool
+type DeviceValidateFunc func(dev DevFile) bool
 
 type DevFile struct {
 	fileAbsPath string
@@ -102,7 +102,7 @@ func defaultDeviceValidator(dev DevFile) bool {
 	return dev.fileType&fs.ModeCharDevice != 0
 }
 
-func filterDevFiles(devFiles []DevFile, validator deviceValidateFunc) map[uint8][]string {
+func filterDevFiles(devFiles []DevFile, validator DeviceValidateFunc) map[uint8][]string {
 	filtered := map[uint8][]string{}
 
 	for _, devFile := range devFiles {

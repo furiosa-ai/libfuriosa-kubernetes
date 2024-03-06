@@ -73,3 +73,11 @@ install-deps:
 .PHONY: example
 example:
 	$(call build_examples_function,./example)
+
+.PHONY: build-base
+build-base:
+	docker build . -t ghcr.io/furiosa-ai/libfuriosa-kubernetes:devel --progress=plain --platform=linux/amd64
+
+.PHONY: build-base-no-cache
+build-base-no-cache:
+	docker build . --no-cache -t ghcr.io/furiosa-ai/libfuriosa-kubernetes:devel --progress=plain --platform=linux/amd64

@@ -1,0 +1,24 @@
+name: Build & Push devel container image for new tag
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  docker_publish:
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and publish a image with release tag
+        uses: macbre/push-to-ghcr@v13
+        with:
+          image_name: ${{ github.repository }}
+          image_tag: ${{github.ref_name}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and publish a image for latest tag
+        uses: macbre/push-to-ghcr@v13
+        with:
+          image_name: ${{ github.repository }}
+          image_tag: latest
+          github_token: ${{ secrets.GITHUB_TOKEN }}

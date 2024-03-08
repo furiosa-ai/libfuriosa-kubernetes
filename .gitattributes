@@ -1,1 +1,6 @@
-vendor/* linguist-generated=true
+go.mod linguist-generated=true
+go.sum linguist-generated=true merge=ours
+*.pb.go linguist-generated=true
+*.gen.go linguist-generated=true
+
+vendor/** linguist-generated=true

@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-// TODO support renegade
+// TODO support rngd
 func TestCollectDevices(t *testing.T) {
 	tests := []struct {
 		description            string
@@ -50,7 +50,7 @@ func TestCollectDevices(t *testing.T) {
 	}
 }
 
-// TODO support renegade
+// TODO support rngd
 func TestNewDevice(t *testing.T) {
 	tests := []struct {
 		description    string
@@ -451,7 +451,7 @@ func TestNewDevice(t *testing.T) {
 			}
 		}
 
-		//TODO: we need distinguish warboy and renegade here
+		//TODO: we need distinguish warboy and rngd here
 		for _, coreIdx := range []uint8{0, 1} {
 			expectedGetStatusCoreValue, expectedGetStatusCoreError := tc.expectedResult.GetStatusCore(coreIdx)
 			actualGetStatusCoreValue, actualGetStatusCoreError := actualResult.GetStatusCore(coreIdx)

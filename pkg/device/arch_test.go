@@ -21,10 +21,10 @@ func TestArchFromStr(t *testing.T) {
 			expectedErr:  nil,
 		},
 		{
-			description:  "Renegade",
-			arch:         "Renegade",
+			description:  "Rngd",
+			arch:         "Rngd",
 			rev:          "",
-			expectedArch: ArchRenegade,
+			expectedArch: ArchRngd,
 			expectedErr:  nil,
 		},
 		{

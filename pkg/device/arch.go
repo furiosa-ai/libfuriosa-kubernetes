@@ -5,8 +5,8 @@ import "errors"
 type Arch string
 
 const (
-	ArchWarboy   Arch = "Warboy"
-	ArchRenegade Arch = "Renegade"
+	ArchWarboy Arch = "Warboy"
+	ArchRngd   Arch = "Rngd"
 )
 
 func archFromStr(archStr string, revStr string) (arch Arch, error error) {
@@ -14,8 +14,8 @@ func archFromStr(archStr string, revStr string) (arch Arch, error error) {
 	case "WarboyB0":
 		arch = ArchWarboy
 		error = nil
-	case "Renegade":
-		arch = ArchRenegade
+	case "Rngd":
+		arch = ArchRngd
 		error = nil
 	default:
 		arch = ""

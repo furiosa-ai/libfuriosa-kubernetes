@@ -74,7 +74,7 @@ func TestDeviceNodes(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		manifest := NewWarboyManifest(newTestWarboyDevice())
+		manifest := NewExclusiveWarboyManifest(newTestWarboyDevice())
 		actualDeviceNodes := manifest.DeviceNodes()
 		if !reflect.DeepEqual(actualDeviceNodes, tc.expectedDeviceNodes) {
 			t.Errorf("expected %v but got %v", tc.expectedDeviceNodes, actualDeviceNodes)
@@ -145,12 +145,10 @@ func TestMountPaths(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		manifest := NewWarboyManifest(newTestWarboyDevice())
+		manifest := NewExclusiveWarboyManifest(newTestWarboyDevice())
 		actualMountPaths := manifest.MountPaths()
 		if !reflect.DeepEqual(actualMountPaths, tc.expectedMountPaths) {
 			t.Errorf("expected %v but got %v", tc.expectedMountPaths, actualMountPaths)
 		}
-
 	}
-
 }

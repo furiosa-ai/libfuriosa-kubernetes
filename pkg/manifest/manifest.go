@@ -1,5 +1,9 @@
 package manifest
 
+import (
+	"tags.cncf.io/container-device-interface/pkg/cdi"
+)
+
 type Manifest interface {
 	// EnvVars returns map consisting of env variable name and value
 	EnvVars() map[string]string
@@ -10,6 +14,8 @@ type Manifest interface {
 	DeviceNodes() []*DeviceNode
 	// MountPaths returns set of Mount for extra file and directory mount
 	MountPaths() []*Mount
+	// ToCDIContainerEdits returns CDI container edits
+	ToCDIContainerEdits() *cdi.ContainerEdits
 }
 
 // Mount is subset of oci-runtime Mount spec

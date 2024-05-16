@@ -2,9 +2,9 @@ package manifest
 
 import (
 	"fmt"
-
 	"github.com/bradfitz/iter"
 	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/device"
+	"tags.cncf.io/container-device-interface/pkg/cdi"
 )
 
 const (
@@ -18,32 +18,31 @@ const (
 	warboyMaxChannel int = 4
 )
 
-var _ Manifest = (*warboyManifest)(nil)
+var _ Manifest = (*exclusiveWarboyManifest)(nil)
 
-type warboyManifest struct {
+type exclusiveWarboyManifest struct {
 	device device.Device
 }
 
-func NewWarboyManifest(origin device.Device) Manifest {
-	return &warboyManifest{
+func NewExclusiveWarboyManifest(origin device.Device) Manifest {
+	return &exclusiveWarboyManifest{
 		device: origin,
 	}
 }
 
 // EnvVars Note: older version of device plugin sets `NPU_DEVNAME`, `NPU_NPUNAME`, `NPU_PENAME`.
 // However, those env variables are now deprecated and replaced with device-api.
-func (w warboyManifest) EnvVars() map[string]string {
+func (w exclusiveWarboyManifest) EnvVars() map[string]string {
 	return nil
 }
 
 // Annotations Note: order version of device plugin set the annotation `alpha.furiosa.ai/npu.devname`.
 // This annotation is used for CRI Runtime injection, however the annotation was not consumed.
-func (w warboyManifest) Annotations() map[string]string {
+func (w exclusiveWarboyManifest) Annotations() map[string]string {
 	return nil
-
 }
 
-func (w warboyManifest) DeviceNodes() []*DeviceNode {
+func (w exclusiveWarboyManifest) DeviceNodes() []*DeviceNode {
 	var deviceNodes []*DeviceNode
 
 	// mount npu mgmt file under "/dev"
@@ -74,7 +73,7 @@ func (w warboyManifest) DeviceNodes() []*DeviceNode {
 	return deviceNodes
 }
 
-func (w warboyManifest) MountPaths() []*Mount {
+func (w exclusiveWarboyManifest) MountPaths() []*Mount {
 	var mounts []*Mount
 	devName := w.device.Name()
 
@@ -111,4 +110,8 @@ func (w warboyManifest) MountPaths() []*Mount {
 	}
 
 	return mounts
+}
+
+func (w exclusiveWarboyManifest) ToCDIContainerEdits() *cdi.ContainerEdits {
+	return toCDIContainerEdits(w)
 }

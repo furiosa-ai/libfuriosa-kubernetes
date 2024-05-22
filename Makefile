@@ -2,8 +2,8 @@ SHELL := /bin/bash
 
 # make assumption that hwloc is installed with brew command "brew install hwloc"
 ifeq ($(shell uname -s),Darwin)
-    CGO_CFLAGS := -I/opt/homebrew/opt/hwloc/include
-    CGO_LDFLAGS := -L/opt/homebrew/opt/hwloc/lib
+    CGO_CFLAGS := "-I/opt/homebrew/opt/hwloc/include -I/usr/local/include"
+    CGO_LDFLAGS := "-L/opt/homebrew/opt/hwloc/lib -L/usr/local/lib"
 endif
 
 define install_deps_function
@@ -89,3 +89,7 @@ base:
 .PHONY: base-no-cache
 base-no-cache:
 	docker build . --no-cache -t ghcr.io/furiosa-ai/libfuriosa-kubernetes:base --progress=plain --platform=linux/amd64 -f dockerfile/Dockerfile.base
+
+.PHONY: furiosa-smi-go-boilerplate
+furiosa-smi-go-boilerplate:
+	c-for-go -out pkg/furiosa_smi_go pkg/furiosa_smi_go/furiosa-smi.yml

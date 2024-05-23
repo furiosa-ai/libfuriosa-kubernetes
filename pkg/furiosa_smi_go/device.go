@@ -5,7 +5,6 @@ import (
 )
 
 func GetDevices() ([]Device, error) {
-
 	out := binding.FuriosaSmiDeviceHandles{
 		Count:         0,
 		DeviceHandles: [64]binding.FuriosaSmiDeviceHandle{},
@@ -32,6 +31,7 @@ type Device interface {
 	DeviceUtilization() (DeviceUtilization, error)
 	PowerConsumption() (uint32, error)
 	DeviceTemperature() (DeviceTemperature, error)
+	GetDeviceToDeviceLinkType(target Device) (LinkType, error)
 }
 
 var _ Device = new(device)
@@ -44,7 +44,7 @@ func newDevice(handle binding.FuriosaSmiDeviceHandle) Device {
 	return &device{handle: handle}
 }
 
-func (d device) DeviceInfo() (DeviceInfo, error) {
+func (d *device) DeviceInfo() (DeviceInfo, error) {
 	out := binding.FuriosaSmiDeviceInfo{}
 	if ret := binding.FuriosaSmiGetDeviceInfo(d.handle, &out); ret != binding.FuriosaSmiReturnCodeOk {
 		return nil, ToError(ret)
@@ -53,7 +53,7 @@ func (d device) DeviceInfo() (DeviceInfo, error) {
 	return newDeviceInfo(out), nil
 }
 
-func (d device) DeviceFiles() ([]DeviceFile, error) {
+func (d *device) DeviceFiles() ([]DeviceFile, error) {
 	out := binding.FuriosaSmiDeviceFiles{}
 
 	if ret := binding.FuriosaSmiGetDeviceFiles(d.handle, &out); ret != binding.FuriosaSmiReturnCodeOk {
@@ -68,7 +68,7 @@ func (d device) DeviceFiles() ([]DeviceFile, error) {
 	return deviceFiles, nil
 }
 
-func (d device) CoreStatus() (map[uint32]CoreStatus, error) {
+func (d *device) CoreStatus() (map[uint32]CoreStatus, error) {
 
 	out := binding.FuriosaSmiCoreStatuses{}
 
@@ -84,7 +84,7 @@ func (d device) CoreStatus() (map[uint32]CoreStatus, error) {
 	return coreStatusMap, nil
 }
 
-func (d device) DeviceErrorInfo() (DeviceErrorInfo, error) {
+func (d *device) DeviceErrorInfo() (DeviceErrorInfo, error) {
 	out := binding.FuriosaSmiDeviceErrorInfo{}
 
 	if ret := binding.FuriosaSmiGetDeviceErrorInfo(d.handle, &out); ret != binding.FuriosaSmiReturnCodeOk {
@@ -94,7 +94,7 @@ func (d device) DeviceErrorInfo() (DeviceErrorInfo, error) {
 	return newDeviceErrorInfo(out), nil
 }
 
-func (d device) Liveness() (bool, error) {
+func (d *device) Liveness() (bool, error) {
 	out := false
 
 	if ret := binding.FuriosaSmiGetDeviceLiveness(d.handle, &out); ret != binding.FuriosaSmiReturnCodeOk {
@@ -104,7 +104,7 @@ func (d device) Liveness() (bool, error) {
 	return out, nil
 }
 
-func (d device) DeviceUtilization() (DeviceUtilization, error) {
+func (d *device) DeviceUtilization() (DeviceUtilization, error) {
 	out := binding.FuriosaSmiDeviceUtilization{}
 
 	if ret := binding.FuriosaSmiGetDeviceUtilization(d.handle, &out); ret != binding.FuriosaSmiReturnCodeOk {
@@ -114,7 +114,7 @@ func (d device) DeviceUtilization() (DeviceUtilization, error) {
 	return newDeviceUtilization(out), nil
 }
 
-func (d device) PowerConsumption() (uint32, error) {
+func (d *device) PowerConsumption() (uint32, error) {
 	out := binding.FuriosaSmiDevicePowerConsumption{}
 
 	if ret := binding.FuriosaSmiGetDevicePowerConsumption(d.handle, &out); ret != binding.FuriosaSmiReturnCodeOk {
@@ -124,7 +124,7 @@ func (d device) PowerConsumption() (uint32, error) {
 	return uint32(out.RmsTotal), nil
 }
 
-func (d device) DeviceTemperature() (DeviceTemperature, error) {
+func (d *device) DeviceTemperature() (DeviceTemperature, error) {
 	out := binding.FuriosaSmiDeviceTemperature{}
 
 	if ret := binding.FuriosaSmiGetDeviceTemperature(d.handle, &out); ret != binding.FuriosaSmiReturnCodeOk {
@@ -132,4 +132,14 @@ func (d device) DeviceTemperature() (DeviceTemperature, error) {
 	}
 
 	return newDeviceTemperature(out), nil
+}
+
+func (d *device) GetDeviceToDeviceLinkType(target Device) (LinkType, error) {
+	var linkType binding.FuriosaSmiDeviceToDeviceLinkType
+
+	if ret := binding.FuriosaSmiGetDeviceToDeviceLinkType(d.handle, target.(*device).handle, &linkType); ret != binding.FuriosaSmiReturnCodeOk {
+		return LinkTypeUnknown, ToError(ret)
+	}
+
+	return LinkType(linkType), nil
 }

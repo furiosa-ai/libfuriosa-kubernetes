@@ -1,25 +1,66 @@
 package npu_allocator
 
 import (
-	topology "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/device"
+	furiosaSmi "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/furiosa_smi_go"
+
 	"gonum.org/v1/gonum/stat/combin"
 )
 
 var _ NpuAllocator = (*scoreBasedOptimalNpuAllocator)(nil)
 
+type topologyMatrix map[string]map[string]uint
+
 type scoreBasedOptimalNpuAllocator struct {
-	hintProvider TopologyHintProvider
+	topologyMatrix topologyMatrix
+	hintProvider   TopologyHintProvider
 }
 
-func NewScoreBasedOptimalNpuAllocator(device []topology.Device) (NpuAllocator, error) {
-	newTopology, err := topology.NewTopology(device)
+func populateTopologyMatrix(devices []furiosaSmi.Device) (topologyMatrix, error) {
+	topologyMatrix := make(topologyMatrix)
+	deviceToDeviceInfo := make(map[furiosaSmi.Device]furiosaSmi.DeviceInfo)
+
+	for _, device := range devices {
+		deviceInfo, err := device.DeviceInfo()
+		if err != nil {
+			return nil, err
+		}
+		deviceToDeviceInfo[device] = deviceInfo
+	}
+
+	for device1, deviceInfo1 := range deviceToDeviceInfo {
+		for device2, deviceInfo2 := range deviceToDeviceInfo {
+			linkType, err := device1.GetDeviceToDeviceLinkType(device2)
+			if err != nil {
+				return nil, err
+			}
+
+			if _, ok := topologyMatrix[deviceInfo1.BDF()]; !ok {
+				topologyMatrix[deviceInfo1.BDF()] = make(map[string]uint)
+			}
+
+			topologyMatrix[deviceInfo1.BDF()][deviceInfo2.BDF()] = uint(linkType)
+		}
+	}
+
+	return topologyMatrix, nil
+}
+
+func NewScoreBasedOptimalNpuAllocator(devices []furiosaSmi.Device) (NpuAllocator, error) {
+	topologyMatrix, err := populateTopologyMatrix(devices)
 	if err != nil {
 		return nil, err
 	}
 
-	return newScoreBasedOptimalNpuAllocator(func(topologyHintKey1, topologyHintKey2 string) uint {
-		return uint(newTopology.GetLinkType(topologyHintKey1, topologyHintKey2))
-	}), nil
+	return newScoreBasedOptimalNpuAllocator(
+		func(device1, device2 Device) uint {
+			if innerMap, exists := topologyMatrix[device1.TopologyHintKey()]; exists {
+				if score, exists := innerMap[device2.TopologyHintKey()]; exists {
+					return score
+				}
+			}
+
+			return 0
+		}), nil
 }
 
 func NewMockScoreBasedOptimalNpuAllocator(mockHintProvider TopologyHintProvider) (NpuAllocator, error) {
@@ -101,5 +142,5 @@ func (n *scoreBasedOptimalNpuAllocator) scoreDeviceSet(deviceSet DeviceSet) uint
 }
 
 func (n *scoreBasedOptimalNpuAllocator) scoreDevicePair(device1 Device, device2 Device) uint {
-	return n.hintProvider(device1.TopologyHintKey(), device2.TopologyHintKey())
+	return n.hintProvider(device1, device2)
 }

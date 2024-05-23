@@ -27,5 +27,5 @@ const (
 	LinkTypeInterconnect = LinkType(binding.FuriosaSmiDeviceToDeviceLinkTypeInterconnect)
 	LinkTypeCpu          = LinkType(binding.FuriosaSmiDeviceToDeviceLinkTypeCpu)
 	LinkTypeHostBridge   = LinkType(binding.FuriosaSmiDeviceToDeviceLinkTypeBridge)
-	LinkTypeSocket       = LinkType(binding.FuriosaSmiDeviceToDeviceLinkTypeSoc)
+	LinkTypeSoc          = LinkType(binding.FuriosaSmiDeviceToDeviceLinkTypeSoc)
 )

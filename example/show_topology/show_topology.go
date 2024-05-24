@@ -70,7 +70,7 @@ func linkTypeToString(linkType furiosaSmi.LinkType) string {
 	case furiosaSmi.LinkTypeHostBridge:
 		return "Host Bridge"
 	case furiosaSmi.LinkTypeNoc:
-		return "SoC"
+		return "NoC"
 	default:
 		return "Unknown"
 	}

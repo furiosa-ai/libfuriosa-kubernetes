@@ -4,18 +4,23 @@ import (
 	"fmt"
 	"os"
 
-	furiosaDevice "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/device"
+	furiosaSmi "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/furiosa_smi_go"
 	"github.com/jedib0t/go-pretty/v6/table"
 )
 
+/*
+#cgo LDFLAGS: -lfuriosa_smi
+*/
+import "C"
+
 func main() {
-	devices, err := furiosaDevice.NewDeviceLister().ListDevices()
+	err := furiosaSmi.Init()
 	if err != nil {
 		fmt.Printf("%s\n", err.Error())
 		os.Exit(1)
 	}
 
-	topology, err := furiosaDevice.NewTopology(devices)
+	devices, err := furiosaSmi.GetDevices()
 	if err != nil {
 		fmt.Printf("%s\n", err.Error())
 		os.Exit(1)
@@ -26,33 +31,50 @@ func main() {
 
 	header := table.Row{"#"}
 	for _, device := range devices {
-		header = append(header, device.Name())
+		info, err := device.DeviceInfo()
+		if err != nil {
+			fmt.Printf("%s\n", err.Error())
+			os.Exit(1)
+		}
+
+		header = append(header, info.Name())
 	}
 	t.AppendHeader(header)
 
 	for _, device1 := range devices {
-		row := table.Row{device1.Name()}
-		key1, _ := device1.Busname()
+		info1, err := device1.DeviceInfo()
+		if err != nil {
+			fmt.Printf("%s\n", err.Error())
+			os.Exit(1)
+		}
+
+		row := table.Row{info1.Name()}
 		for _, device2 := range devices {
-			key2, _ := device2.Busname()
-			linkType := topology.GetLinkType(key1, key2)
+			linkType, err := device1.GetDeviceToDeviceLinkType(device2)
+			if err != nil {
+				fmt.Printf("%s\n", err.Error())
+				os.Exit(1)
+			}
+
 			row = append(row, linkTypeToString(linkType))
 		}
 		t.AppendRow(row)
 	}
 
 	t.Render()
+
+	_ = furiosaSmi.Shutdown()
 }
 
-func linkTypeToString(linkType furiosaDevice.LinkType) string {
+func linkTypeToString(linkType furiosaSmi.LinkType) string {
 	switch linkType {
-	case furiosaDevice.LinkTypeInterconnect:
+	case furiosaSmi.LinkTypeInterconnect:
 		return "Interconnect"
-	case furiosaDevice.LinkTypeCPU:
+	case furiosaSmi.LinkTypeCpu:
 		return "CPU"
-	case furiosaDevice.LinkTypeHostBridge:
+	case furiosaSmi.LinkTypeHostBridge:
 		return "Host Bridge"
-	case furiosaDevice.LinkTypeSoc:
+	case furiosaSmi.LinkTypeNoc:
 		return "SoC"
 	default:
 		return "Unknown"

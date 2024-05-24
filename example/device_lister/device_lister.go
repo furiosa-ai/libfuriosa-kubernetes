@@ -4,11 +4,22 @@ import (
 	"fmt"
 	"os"
 
-	furiosaDevice "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/device"
+	furiosaSmi "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/furiosa_smi_go"
 )
 
+/*
+#cgo LDFLAGS: -lfuriosa_smi
+*/
+import "C"
+
 func main() {
-	devices, err := furiosaDevice.NewDeviceLister().ListDevices()
+	err := furiosaSmi.Init()
+	if err != nil {
+		fmt.Printf("%s\n", err.Error())
+		os.Exit(1)
+	}
+
+	devices, err := furiosaSmi.GetDevices()
 	if err != nil {
 		fmt.Printf("%s\n", err.Error())
 		os.Exit(1)
@@ -18,14 +29,23 @@ func main() {
 
 	for _, device := range devices {
 		fmt.Printf("%v\n", device)
-		coreStatus, err := device.GetStatusAll()
+		coreStatus, err := device.CoreStatus()
 		if err != nil {
 			fmt.Println(err.Error())
 			os.Exit(1)
 		}
 		fmt.Printf("%v\n", coreStatus)
-		for _, deviceFile := range device.DevFiles() {
+
+		deviceFiles, err := device.DeviceFiles()
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+
+		for _, deviceFile := range deviceFiles {
 			fmt.Printf("%v\n", deviceFile)
 		}
 	}
+
+	_ = furiosaSmi.Shutdown()
 }

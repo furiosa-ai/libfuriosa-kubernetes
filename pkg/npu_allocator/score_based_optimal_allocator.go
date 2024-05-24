@@ -11,8 +11,7 @@ var _ NpuAllocator = (*scoreBasedOptimalNpuAllocator)(nil)
 type topologyMatrix map[string]map[string]uint
 
 type scoreBasedOptimalNpuAllocator struct {
-	topologyMatrix topologyMatrix
-	hintProvider   TopologyHintProvider
+	hintProvider TopologyHintProvider
 }
 
 func populateTopologyMatrix(devices []furiosaSmi.Device) (topologyMatrix, error) {

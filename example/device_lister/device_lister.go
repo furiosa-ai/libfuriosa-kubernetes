@@ -7,11 +7,6 @@ import (
 	furiosaSmi "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/furiosa_smi_go"
 )
 
-/*
-#cgo LDFLAGS: -lfuriosa_smi
-*/
-import "C"
-
 func main() {
 	err := furiosaSmi.Init()
 	if err != nil {

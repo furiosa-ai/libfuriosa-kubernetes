@@ -3,7 +3,7 @@ SHELL := /bin/bash
 # make assumption that hwloc is installed with brew command "brew install hwloc"
 ifeq ($(shell uname -s),Darwin)
     CGO_CFLAGS := "-I/usr/local/include"
-    CGO_LDFLAGS := "-L/usr/local/lib -lfuriosa_smi"
+    CGO_LDFLAGS := "-L/usr/local/lib"
 endif
 
 define build_examples_function

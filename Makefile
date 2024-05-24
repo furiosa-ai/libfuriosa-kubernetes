@@ -1,9 +1,12 @@
 SHELL := /bin/bash
 
-# make assumption that hwloc is installed with brew command "brew install hwloc"
 ifeq ($(shell uname -s),Darwin)
     CGO_CFLAGS := "-I/usr/local/include"
     CGO_LDFLAGS := "-L/usr/local/lib"
+endif
+
+ifeq ($(shell uname), Linux)
+export LD_LIBRARY_PATH := $(LD_LIBRARY_PATH):/usr/local/lib
 endif
 
 define build_examples_function

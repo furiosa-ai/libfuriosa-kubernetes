@@ -1,24 +1,13 @@
 SHELL := /bin/bash
 
-# make assumption that hwloc is installed with brew command "brew install hwloc"
 ifeq ($(shell uname -s),Darwin)
-    CGO_CFLAGS := -I/opt/homebrew/opt/hwloc/include
-    CGO_LDFLAGS := -L/opt/homebrew/opt/hwloc/lib
+    CGO_CFLAGS := "-I/usr/local/include"
+    CGO_LDFLAGS := "-L/usr/local/lib"
 endif
 
-define install_deps_function
-    @UNAME_S=$$(uname -s); \
-    if [ "$$UNAME_S" = "Linux" ]; then \
-        echo "Installing for Ubuntu/Debian familly"; \
-        sudo apt-get install hwloc libhwloc-dev; \
-    elif [ "$$UNAME_S" = "Darwin" ]; then \
-        echo "macOS detected. Installing using Homebrew..."; \
-        brew install hwloc; \
-    else \
-        echo "Unsupported Operating System"; \
-        exit 1; \
-    fi
-endef
+ifeq ($(shell uname), Linux)
+export LD_LIBRARY_PATH := $(LD_LIBRARY_PATH):/usr/local/lib
+endif
 
 define build_examples_function
     @for dir in $(1)/*; do \
@@ -66,10 +55,6 @@ tidy:
 vendor:
 	go mod vendor
 
-.PHONY: install-deps
-install-deps:
-	$(call install_deps_function)
-
 .PHONY: example
 example:
 	$(call build_examples_function,./example)
@@ -89,3 +74,7 @@ base:
 .PHONY: base-no-cache
 base-no-cache:
 	docker build . --no-cache -t ghcr.io/furiosa-ai/libfuriosa-kubernetes:base --progress=plain --platform=linux/amd64 -f dockerfile/Dockerfile.base
+
+.PHONY: furiosa-smi-go-boilerplate
+furiosa-smi-go-boilerplate:
+	c-for-go -out pkg/furiosa_smi_go pkg/furiosa_smi_go/furiosa-smi.yml

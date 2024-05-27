@@ -5,24 +5,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/device"
+	furiosaSmi "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/furiosa_smi_go"
 )
 
-func newTestWarboyDevice() device.Device {
-	newDevice, err := device.NewDevice(0,
-		[]string{
-			device.Abs("../../testdata/device/testdata/test-0/dev/npu0"),
-			device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe0"),
-			device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe1"),
-			device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe0-1"),
-		},
-		"../../testdata/device/testdata/test-0/dev",
-		"../../testdata/device/testdata/test-0/sys")
-	if err != nil {
-		return nil
-	}
-
-	return newDevice
+func newTestWarboyDevice() furiosaSmi.Device {
+	return furiosaSmi.GetMockWarboyDevice(0)
 }
 
 func TestDeviceNodes(t *testing.T) {
@@ -34,47 +21,47 @@ func TestDeviceNodes(t *testing.T) {
 			description: "test DeviceNodes()",
 			expectedDeviceNodes: []*DeviceNode{
 				{
-					ContainerPath: devRoot + fmt.Sprintf(mgmtFileExp, "npu0"),
-					HostPath:      devRoot + fmt.Sprintf(mgmtFileExp, "npu0"),
+					ContainerPath: fmt.Sprintf(mgmtFileExp, "/dev/npu0"),
+					HostPath:      fmt.Sprintf(mgmtFileExp, "/dev/npu0"),
 					Permissions:   readWriteOpt,
 				}, {
-					ContainerPath: device.Abs("../../testdata/device/testdata/test-0/dev/npu0"),
-					HostPath:      device.Abs("../../testdata/device/testdata/test-0/dev/npu0"),
+					ContainerPath: "/dev/npu0",
+					HostPath:      "/dev/npu0",
 					Permissions:   readWriteOpt,
 				}, {
-					ContainerPath: device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe0"),
-					HostPath:      device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe0"),
+					ContainerPath: "/dev/npu0pe0",
+					HostPath:      "/dev/npu0pe0",
 					Permissions:   readWriteOpt,
 				}, {
-					ContainerPath: device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe1"),
-					HostPath:      device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe1"),
+					ContainerPath: "/dev/npu0pe1",
+					HostPath:      "/dev/npu0pe1",
 					Permissions:   readWriteOpt,
 				}, {
-					ContainerPath: device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe0-1"),
-					HostPath:      device.Abs("../../testdata/device/testdata/test-0/dev/npu0pe0-1"),
+					ContainerPath: "/dev/npu0pe0-1",
+					HostPath:      "/dev/npu0pe0-1",
 					Permissions:   readWriteOpt,
 				}, {
-					ContainerPath: fmt.Sprintf(channelExp, "npu0", 0),
-					HostPath:      fmt.Sprintf(channelExp, "npu0", 0),
+					ContainerPath: "/dev/" + fmt.Sprintf(channelExp, "npu0", 0),
+					HostPath:      "/dev/" + fmt.Sprintf(channelExp, "npu0", 0),
 					Permissions:   readWriteOpt,
 				}, {
-					ContainerPath: fmt.Sprintf(channelExp, "npu0", 1),
-					HostPath:      fmt.Sprintf(channelExp, "npu0", 1),
+					ContainerPath: "/dev/" + fmt.Sprintf(channelExp, "npu0", 1),
+					HostPath:      "/dev/" + fmt.Sprintf(channelExp, "npu0", 1),
 					Permissions:   readWriteOpt,
 				}, {
-					ContainerPath: fmt.Sprintf(channelExp, "npu0", 2),
-					HostPath:      fmt.Sprintf(channelExp, "npu0", 2),
+					ContainerPath: "/dev/" + fmt.Sprintf(channelExp, "npu0", 2),
+					HostPath:      "/dev/" + fmt.Sprintf(channelExp, "npu0", 2),
 					Permissions:   readWriteOpt,
 				}, {
-					ContainerPath: fmt.Sprintf(channelExp, "npu0", 3),
-					HostPath:      fmt.Sprintf(channelExp, "npu0", 3),
+					ContainerPath: "/dev/" + fmt.Sprintf(channelExp, "npu0", 3),
+					HostPath:      "/dev/" + fmt.Sprintf(channelExp, "npu0", 3),
 					Permissions:   readWriteOpt,
 				},
 			},
 		},
 	}
 	for _, tc := range tests {
-		manifest := NewWarboyManifest(newTestWarboyDevice())
+		manifest, _ := NewWarboyManifest(newTestWarboyDevice())
 		actualDeviceNodes := manifest.DeviceNodes()
 		if !reflect.DeepEqual(actualDeviceNodes, tc.expectedDeviceNodes) {
 			t.Errorf("expected %v but got %v", tc.expectedDeviceNodes, actualDeviceNodes)
@@ -145,12 +132,10 @@ func TestMountPaths(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		manifest := NewWarboyManifest(newTestWarboyDevice())
+		manifest, _ := NewWarboyManifest(newTestWarboyDevice())
 		actualMountPaths := manifest.MountPaths()
 		if !reflect.DeepEqual(actualMountPaths, tc.expectedMountPaths) {
 			t.Errorf("expected %v but got %v", tc.expectedMountPaths, actualMountPaths)
 		}
-
 	}
-
 }

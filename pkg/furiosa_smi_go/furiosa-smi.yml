@@ -1,0 +1,40 @@
+---
+GENERATOR:
+  PackageName: binding
+  PackageDescription: "Go bindings for furiosa-smi"
+  Includes: ["furiosa_smi.h"]
+
+PARSER:
+  SourcesPaths: ["furiosa_smi.h"]
+
+TRANSLATOR:
+  Rules:
+    global:
+      - {action: accept, from: ^FURIOSA}
+      - {action: accept, from: ^Furiosa}
+      - {action: accept, from: ^furiosa}
+    const:
+      - {transform: lower}
+    private:
+      - {transform: unexport}
+    post-global:
+      - {transform: export}
+      - {load: snakecase}
+  MemTips:
+    - { target: "^furiosa_smi_", default: "raw" }
+  PtrTips:
+    function:
+      - {target: furiosa_smi_get_device_handles, tips: [ref]}
+      - {target: furiosa_smi_get_device_handle_by_uuid, tips: [0,ref]}
+      - {target: furiosa_smi_get_device_handle_by_serial, tips: [0,ref]}
+      - {target: furiosa_smi_get_device_handle_by_bdf, tips: [0,ref]}
+      - {target: furiosa_smi_get_device_info, tips: [0,ref]}
+      - {target: furiosa_smi_get_device_files, tips: [0,ref]}
+      - {target: furiosa_smi_get_device_core_status, tips: [0,ref]}
+      - {target: furiosa_smi_get_device_liveness, tips: [0,ref]}
+      - {target: furiosa_smi_get_device_error_info, tips: [0,ref]}
+      - {target: furiosa_smi_get_driver_info, tips: [ref]}
+      - {target: furiosa_smi_get_device_utilization, tips: [0,ref]}
+      - {target: furiosa_smi_get_device_power_consumption, tips: [0,ref]}
+      - {target: furiosa_smi_get_device_temperature, tips: [0,ref]}
+      - {target: furiosa_smi_get_device_to_device_link_type, tips: [0,0,ref]}

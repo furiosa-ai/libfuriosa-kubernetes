@@ -1,11 +1,12 @@
 package npu_allocator
 
-import "sort"
+import (
+	"sort"
+)
 
-// TopologyHintProvider takes two argument as topology hint key and return hint as unsigned int.
-// The topology hint key could be one of BDF, ID, Index.
+// TopologyHintProvider takes two devices as argument return topology hint.
 // The hint would be score, distance, preference of two devices.
-type TopologyHintProvider func(topologyHintKey1, topologyHintKey2 string) uint
+type TopologyHintProvider func(device1, device2 Device) uint
 
 type NpuAllocator interface {
 	Allocate(available DeviceSet, required DeviceSet, size int) DeviceSet

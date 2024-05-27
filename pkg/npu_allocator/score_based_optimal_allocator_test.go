@@ -1,6 +1,8 @@
 package npu_allocator
 
 import (
+	furiosaSmi "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/furiosa_smi_go"
+	"reflect"
 	"strconv"
 	"testing"
 )
@@ -388,7 +390,10 @@ func TestGenerateNonDuplicatedDeviceSet(t *testing.T) {
 }
 
 func mockTopologyHintProvider(hints map[string]map[string]uint) TopologyHintProvider {
-	return func(topologyHintKey1, topologyHintKey2 string) uint {
+	return func(device1, device2 Device) uint {
+		topologyHintKey1 := device1.TopologyHintKey()
+		topologyHintKey2 := device2.TopologyHintKey()
+
 		if topologyHintKey1 > topologyHintKey2 {
 			topologyHintKey1, topologyHintKey2 = topologyHintKey2, topologyHintKey1
 		}
@@ -401,27 +406,6 @@ func mockTopologyHintProvider(hints map[string]map[string]uint) TopologyHintProv
 	}
 }
 
-// buildStaticHintMatrixForTwoSocketBalancedConfig build hint matrix for optimized 2socket server like the below topology.
-// Machine
-// ├── Package (CPU)
-// │   ├── Host Bridge
-// │   │   └····· PCI Bridge
-// │   │       ├── NPU0
-// │   │       └── NPU1
-// │   └── Host Bridge
-// │       └····· PCI Bridge
-// │           ├── NPU2
-// │           └── NPU3
-// └── Package (CPU)
-//
-//	├── Host Bridge
-//	│   └····· PCI Bridge
-//	│       ├── NPU4
-//	│       └── NPU5
-//	└── Host Bridge
-//	    └····· PCI Bridge
-//	        ├── NPU6
-//	        └── NPU7
 func buildStaticHintMatrixForTwoSocketBalancedConfig() map[string]map[string]uint {
 	return map[string]map[string]uint{
 		"0": {"0": 70, "1": 30, "2": 20, "3": 20, "4": 10, "5": 10, "6": 10, "7": 10},
@@ -942,6 +926,81 @@ func TestAllocation(t *testing.T) {
 				t.Errorf("expected %v but got %v", actual.(*mockDevice), tc.expected[idx].(*mockDevice))
 				break
 			}
+		}
+	}
+}
+
+func TestPopulateTopologyMatrix(t *testing.T) {
+	tests := []struct {
+		description string
+		input       []furiosaSmi.Device
+		expected    topologyMatrix
+	}{
+		{
+			description: "test 8 npu configuration",
+			input:       furiosaSmi.GetMockWarboyDevices(),
+			expected: topologyMatrix{
+				"0000:27:00.0": {
+					"0000:27:00.0": 70,
+					"0000:2a:00.0": 30,
+					"0000:51:00.0": 20,
+					"0000:57:00.0": 20,
+					"0000:9e:00.0": 10,
+					"0000:a4:00.0": 10,
+					"0000:c7:00.0": 10,
+					"0000:ca:00.0": 10,
+				},
+				"0000:2a:00.0": {
+					"0000:2a:00.0": 70,
+					"0000:51:00.0": 20,
+					"0000:57:00.0": 20,
+					"0000:9e:00.0": 10,
+					"0000:a4:00.0": 10,
+					"0000:c7:00.0": 10,
+					"0000:ca:00.0": 10,
+				},
+				"0000:51:00.0": {
+					"0000:51:00.0": 70,
+					"0000:57:00.0": 30,
+					"0000:9e:00.0": 10,
+					"0000:a4:00.0": 10,
+					"0000:c7:00.0": 10,
+					"0000:ca:00.0": 10,
+				},
+				"0000:57:00.0": {
+					"0000:57:00.0": 70,
+					"0000:9e:00.0": 10,
+					"0000:a4:00.0": 10,
+					"0000:c7:00.0": 10,
+					"0000:ca:00.0": 10,
+				},
+				"0000:9e:00.0": {
+					"0000:9e:00.0": 70,
+					"0000:a4:00.0": 30,
+					"0000:c7:00.0": 20,
+					"0000:ca:00.0": 20,
+				},
+				"0000:a4:00.0": {
+					"0000:a4:00.0": 70,
+					"0000:c7:00.0": 20,
+					"0000:ca:00.0": 20,
+				},
+				"0000:c7:00.0": {
+					"0000:c7:00.0": 70,
+					"0000:ca:00.0": 30,
+				},
+				"0000:ca:00.0": {
+					"0000:ca:00.0": 70,
+				},
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		actual, _ := populateTopologyMatrix(tc.input)
+
+		if !reflect.DeepEqual(actual, tc.expected) {
+			t.Errorf("expected %v but got %v", tc.expected, actual)
 		}
 	}
 }

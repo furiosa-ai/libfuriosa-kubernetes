@@ -21,7 +21,7 @@ TRANSLATOR:
       - {transform: export}
       - {load: snakecase}
   MemTips:
-    - {target: "^furiosa_smi_", default: "raw"}
+    - { target: "^furiosa_smi_", default: "raw" }
   PtrTips:
     function:
       - {target: furiosa_smi_get_device_handles, tips: [ref]}

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	furiosaSmi "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/furiosa_smi_go"
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -32,7 +33,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		header = append(header, info.Name())
+		header = append(header, filepath.Base(info.Name()))
 	}
 	t.AppendHeader(header)
 
@@ -43,7 +44,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		row := table.Row{info1.Name()}
+		row := table.Row{filepath.Base(info1.Name())}
 		for _, device2 := range devices {
 			linkType, err := device1.GetDeviceToDeviceLinkType(device2)
 			if err != nil {

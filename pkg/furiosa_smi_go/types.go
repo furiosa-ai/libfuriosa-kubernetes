@@ -13,6 +13,21 @@ const (
 	ArchRngdS   = Arch(binding.FuriosaSmiArchRngdS)
 )
 
+func (a Arch) ToString() string {
+	switch a {
+	case ArchWarboy:
+		return "warboy"
+	case ArchRngd:
+		return "rngd"
+	case ArchRngdMax:
+		return "rngd-max"
+	case ArchRngdS:
+		return "rngd-s"
+	default:
+		return "unknown"
+	}
+}
+
 type CoreStatus uint32
 
 const (

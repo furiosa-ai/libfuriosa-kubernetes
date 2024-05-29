@@ -4,30 +4,44 @@ import (
 	"fmt"
 
 	"github.com/bradfitz/iter"
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/device"
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
+	"path/filepath"
 )
 
 const (
 	sysClassRoot         = "/sys/class/npu_mgmt/"
 	sysDevicesRoot       = "/sys/devices/virtual/npu_mgmt/"
-	devRoot              = "/dev/"
 	mgmtFileExp          = "%s_mgmt"
 	readOnlyOpt          = "ro"
 	readWriteOpt         = "rw"
-	channelExp           = devRoot + "%sch%d"
+	channelExp           = "%sch%d"
 	warboyMaxChannel int = 4
 )
 
 var _ Manifest = (*warboyManifest)(nil)
 
 type warboyManifest struct {
-	device device.Device
+	device      smi.Device
+	deviceInfo  smi.DeviceInfo
+	deviceFiles []smi.DeviceFile
 }
 
-func NewWarboyManifest(origin device.Device) Manifest {
-	return &warboyManifest{
-		device: origin,
+func NewWarboyManifest(device smi.Device) (Manifest, error) {
+	deviceInfo, err := device.DeviceInfo()
+	if err != nil {
+		return nil, err
 	}
+
+	deviceFiles, err := device.DeviceFiles()
+	if err != nil {
+		return nil, err
+	}
+
+	return &warboyManifest{
+		device:      device,
+		deviceInfo:  deviceInfo,
+		deviceFiles: deviceFiles,
+	}, nil
 }
 
 // EnvVars Note: older version of device plugin sets `NPU_DEVNAME`, `NPU_NPUNAME`, `NPU_PENAME`.
@@ -40,21 +54,21 @@ func (w warboyManifest) EnvVars() map[string]string {
 // This annotation is used for CRI Runtime injection, however the annotation was not consumed.
 func (w warboyManifest) Annotations() map[string]string {
 	return nil
-
 }
 
 func (w warboyManifest) DeviceNodes() []*DeviceNode {
 	var deviceNodes []*DeviceNode
+	devName := w.deviceInfo.Name()
 
 	// mount npu mgmt file under "/dev"
 	deviceNodes = append(deviceNodes, &DeviceNode{
-		ContainerPath: devRoot + fmt.Sprintf(mgmtFileExp, w.device.Name()),
-		HostPath:      devRoot + fmt.Sprintf(mgmtFileExp, w.device.Name()),
+		ContainerPath: fmt.Sprintf(mgmtFileExp, devName),
+		HostPath:      fmt.Sprintf(mgmtFileExp, devName),
 		Permissions:   readWriteOpt,
 	})
 
 	// mount devFiles such as "/dev/npu0", "/dev/npu0pe0"
-	for _, file := range w.device.DevFiles() {
+	for _, file := range w.deviceFiles {
 		deviceNodes = append(deviceNodes, &DeviceNode{
 			ContainerPath: file.Path(),
 			HostPath:      file.Path(),
@@ -65,8 +79,8 @@ func (w warboyManifest) DeviceNodes() []*DeviceNode {
 	// mount channel fd for dma such as "/dev/npu0ch0" ~ "/dev/npu0ch3"
 	for idx := range iter.N(warboyMaxChannel) {
 		deviceNodes = append(deviceNodes, &DeviceNode{
-			ContainerPath: fmt.Sprintf(channelExp, w.device.Name(), idx),
-			HostPath:      fmt.Sprintf(channelExp, w.device.Name(), idx),
+			ContainerPath: fmt.Sprintf(channelExp, devName, idx),
+			HostPath:      fmt.Sprintf(channelExp, devName, idx),
 			Permissions:   readWriteOpt,
 		})
 	}
@@ -76,7 +90,7 @@ func (w warboyManifest) DeviceNodes() []*DeviceNode {
 
 func (w warboyManifest) MountPaths() []*Mount {
 	var mounts []*Mount
-	devName := w.device.Name()
+	devName := filepath.Base(w.deviceInfo.Name())
 
 	// mount "/sys/class/npu_mgmt/npu{x}_mgmt" path
 	mounts = append(mounts, &Mount{
@@ -86,10 +100,11 @@ func (w warboyManifest) MountPaths() []*Mount {
 	})
 
 	// mount all dev files under "/sys/class/npu_mgmt/"
-	for _, file := range w.device.DevFiles() {
+	for _, file := range w.deviceFiles {
+		fileName := filepath.Base(file.Path())
 		mounts = append(mounts, &Mount{
-			ContainerPath: sysClassRoot + file.Filename(),
-			HostPath:      sysClassRoot + file.Filename(),
+			ContainerPath: sysClassRoot + fileName,
+			HostPath:      sysClassRoot + fileName,
 			Options:       []string{readOnlyOpt},
 		})
 	}
@@ -102,10 +117,11 @@ func (w warboyManifest) MountPaths() []*Mount {
 	})
 
 	// mount all dev files under "/sys/devices/virtual/npu_mgmt/"
-	for _, file := range w.device.DevFiles() {
+	for _, file := range w.deviceFiles {
+		fileName := filepath.Base(file.Path())
 		mounts = append(mounts, &Mount{
-			ContainerPath: sysDevicesRoot + file.Filename(),
-			HostPath:      sysDevicesRoot + file.Filename(),
+			ContainerPath: sysDevicesRoot + fileName,
+			HostPath:      sysDevicesRoot + fileName,
 			Options:       []string{readOnlyOpt},
 		})
 	}

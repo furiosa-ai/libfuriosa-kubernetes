@@ -5,18 +5,18 @@ import (
 	"os"
 	"path/filepath"
 
-	furiosaSmi "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/furiosa_smi_go"
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 	"github.com/jedib0t/go-pretty/v6/table"
 )
 
 func main() {
-	err := furiosaSmi.Init()
+	err := smi.Init()
 	if err != nil {
 		fmt.Printf("%s\n", err.Error())
 		os.Exit(1)
 	}
 
-	devices, err := furiosaSmi.GetDevices()
+	devices, err := smi.GetDevices()
 	if err != nil {
 		fmt.Printf("%s\n", err.Error())
 		os.Exit(1)
@@ -59,18 +59,18 @@ func main() {
 
 	t.Render()
 
-	_ = furiosaSmi.Shutdown()
+	_ = smi.Shutdown()
 }
 
-func linkTypeToString(linkType furiosaSmi.LinkType) string {
+func linkTypeToString(linkType smi.LinkType) string {
 	switch linkType {
-	case furiosaSmi.LinkTypeInterconnect:
+	case smi.LinkTypeInterconnect:
 		return "Interconnect"
-	case furiosaSmi.LinkTypeCpu:
+	case smi.LinkTypeCpu:
 		return "CPU"
-	case furiosaSmi.LinkTypeHostBridge:
+	case smi.LinkTypeHostBridge:
 		return "Host Bridge"
-	case furiosaSmi.LinkTypeNoc:
+	case smi.LinkTypeNoc:
 		return "NoC"
 	default:
 		return "Unknown"

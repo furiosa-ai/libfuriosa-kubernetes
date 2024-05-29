@@ -4,17 +4,17 @@ import (
 	"fmt"
 	"os"
 
-	furiosaSmi "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/furiosa_smi_go"
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 )
 
 func main() {
-	err := furiosaSmi.Init()
+	err := smi.Init()
 	if err != nil {
 		fmt.Printf("%s\n", err.Error())
 		os.Exit(1)
 	}
 
-	devices, err := furiosaSmi.GetDevices()
+	devices, err := smi.GetDevices()
 	if err != nil {
 		fmt.Printf("%s\n", err.Error())
 		os.Exit(1)
@@ -138,5 +138,5 @@ func main() {
 
 	}
 
-	_ = furiosaSmi.Shutdown()
+	_ = smi.Shutdown()
 }

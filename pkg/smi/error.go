@@ -1,9 +1,9 @@
-package furiosa_smi_go
+package smi
 
 import (
 	"errors"
 
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/furiosa_smi_go/binding"
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi/binding"
 )
 
 func ToError(code binding.FuriosaSmiReturnCode) (ret error) {

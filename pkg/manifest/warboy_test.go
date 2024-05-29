@@ -9,7 +9,7 @@ import (
 )
 
 func newTestWarboyDevice() furiosaSmi.Device {
-	return furiosaSmi.GetMockWarboyDevice(0)
+	return furiosaSmi.GetStaticMockWarboyDevice(0)
 }
 
 func TestDeviceNodes(t *testing.T) {

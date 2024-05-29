@@ -14,7 +14,7 @@ type mockHint struct {
 	minor    uint16
 }
 
-var mockHintMap = map[int]mockHint{
+var staticMockHintMap = map[int]mockHint{
 	0: {bdf: "0000:27:00.0", numaNode: 0, serial: "WBYB0236FH505KRE0", uuid: "A76AAD68-6855-40B1-9E86-D080852D1C80", major: 234, minor: 0},
 	1: {bdf: "0000:2a:00.0", numaNode: 0, serial: "WBYB0236FH505KRE1", uuid: "A76AAD68-6855-40B1-9E86-D080852D1C81", major: 235, minor: 0},
 	2: {bdf: "0000:51:00.0", numaNode: 0, serial: "WBYB0236FH505KRE2", uuid: "A76AAD68-6855-40B1-9E86-D080852D1C82", major: 236, minor: 0},
@@ -57,84 +57,85 @@ var linkTypeHintMap = map[int]map[int]LinkType{
 	7: {7: LinkTypeNoc},
 }
 
-func GetMockWarboyDevices() (mockDevices []Device) {
+func GetStaticMockWarboyDevices() (mockDevices []Device) {
 	for i := range iter.N(8) {
-		mockDevices = append(mockDevices, GetMockWarboyDevice(i))
+		mockDevices = append(mockDevices, GetStaticMockWarboyDevice(i))
 	}
 
 	return
 }
-func GetMockWarboyDevice(nodeIdx int) Device {
-	return &mockDevice{
+
+func GetStaticMockWarboyDevice(nodeIdx int) Device {
+	return &staticMockDevice{
 		nodeIdx: nodeIdx,
 	}
 }
 
-var _ Device = new(mockDevice)
+var _ Device = new(staticMockDevice)
 
-type mockDevice struct {
+type staticMockDevice struct {
 	nodeIdx int
 }
 
-func (m mockDevice) DeviceInfo() (DeviceInfo, error) {
-	return &mockDeviceInfo{
+func (m staticMockDevice) DeviceInfo() (DeviceInfo, error) {
+	return &staticMockDeviceInfo{
 		nodeIdx: m.nodeIdx,
 	}, nil
 }
 
-func (m mockDevice) DeviceFiles() ([]DeviceFile, error) {
+func (m staticMockDevice) DeviceFiles() ([]DeviceFile, error) {
 	return []DeviceFile{
-		&mockDeviceFile{
+		&staticMockDeviceFile{
 			cores: []uint32{0},
 			path:  fmt.Sprintf("/dev/npu%d", m.nodeIdx),
 		},
-		&mockDeviceFile{
+		&staticMockDeviceFile{
 			cores: []uint32{0},
 			path:  fmt.Sprintf("/dev/npu%dpe0", m.nodeIdx),
 		},
-		&mockDeviceFile{
+		&staticMockDeviceFile{
 			cores: []uint32{1},
 			path:  fmt.Sprintf("/dev/npu%dpe1", m.nodeIdx),
 		},
-		&mockDeviceFile{
+		&staticMockDeviceFile{
 			cores: []uint32{1},
 			path:  fmt.Sprintf("/dev/npu%dpe0-1", m.nodeIdx),
 		},
 	}, nil
 }
 
-func (m mockDevice) CoreStatus() (map[uint32]CoreStatus, error) {
+func (m staticMockDevice) CoreStatus() (map[uint32]CoreStatus, error) {
 	return map[uint32]CoreStatus{0: CoreStatusAvailable, 1: CoreStatusAvailable}, nil
 }
 
-func (m mockDevice) DeviceErrorInfo() (DeviceErrorInfo, error) {
-	return &mockDeviceErrorInfo{}, nil
+func (m staticMockDevice) DeviceErrorInfo() (DeviceErrorInfo, error) {
+	return &staticMockDeviceErrorInfo{}, nil
 }
 
-func (m mockDevice) Liveness() (bool, error) {
+func (m staticMockDevice) Liveness() (bool, error) {
 	return true, nil
 }
 
-func (m mockDevice) DeviceUtilization() (DeviceUtilization, error) {
-	return &mockDeviceUtilization{
+func (m staticMockDevice) DeviceUtilization() (DeviceUtilization, error) {
+	return &staticMockDeviceUtilization{
 		pe: []PeUtilization{
-			&mockPeUtilization{cores: []uint32{0}, timeWindow: 1000, usage: 50},
+			&staticMockPeUtilization{cores: []uint32{0}, timeWindow: 1000, usage: 50},
 		},
-		mem: &mockMemoryUtilization{},
+		mem: &staticMockMemoryUtilization{},
 	}, nil
 }
 
-func (m mockDevice) PowerConsumption() (uint32, error) {
+func (m staticMockDevice) PowerConsumption() (uint32, error) {
 	return 100, nil
 }
 
-func (m mockDevice) DeviceTemperature() (DeviceTemperature, error) {
-	return &mockDeviceTemperature{}, nil
+func (m staticMockDevice) DeviceTemperature() (DeviceTemperature, error) {
+	return &staticMockDeviceTemperature{}, nil
 }
 
-func (m mockDevice) GetDeviceToDeviceLinkType(target Device) (LinkType, error) {
+func (m staticMockDevice) GetDeviceToDeviceLinkType(target Device) (LinkType, error) {
 	selfNodeIdx := m.nodeIdx
-	targetNodeIdx := target.(*mockDevice).nodeIdx
+	targetNodeIdx := target.(*staticMockDevice).nodeIdx
 
 	if selfNodeIdx > targetNodeIdx {
 		selfNodeIdx, targetNodeIdx = targetNodeIdx, selfNodeIdx
@@ -144,217 +145,217 @@ func (m mockDevice) GetDeviceToDeviceLinkType(target Device) (LinkType, error) {
 	return ret, nil
 }
 
-type mockDeviceInfo struct {
+type staticMockDeviceInfo struct {
 	nodeIdx int
 }
 
-var _ DeviceInfo = new(mockDeviceInfo)
+var _ DeviceInfo = new(staticMockDeviceInfo)
 
-func (m mockDeviceInfo) Arch() Arch {
+func (m staticMockDeviceInfo) Arch() Arch {
 	return ArchWarboy
 }
 
-func (m mockDeviceInfo) CoreNum() uint32 {
+func (m staticMockDeviceInfo) CoreNum() uint32 {
 	return 2
 }
 
-func (m mockDeviceInfo) NumaNode() uint32 {
+func (m staticMockDeviceInfo) NumaNode() uint32 {
 	return 0
 }
 
-func (m mockDeviceInfo) Name() string {
+func (m staticMockDeviceInfo) Name() string {
 	return fmt.Sprintf("/dev/npu%d", m.nodeIdx)
 }
 
-func (m mockDeviceInfo) Serial() string {
-	return mockHintMap[m.nodeIdx].serial
+func (m staticMockDeviceInfo) Serial() string {
+	return staticMockHintMap[m.nodeIdx].serial
 }
 
-func (m mockDeviceInfo) UUID() string {
-	return mockHintMap[m.nodeIdx].uuid
+func (m staticMockDeviceInfo) UUID() string {
+	return staticMockHintMap[m.nodeIdx].uuid
 }
 
-func (m mockDeviceInfo) BDF() string {
-	return mockHintMap[m.nodeIdx].bdf
+func (m staticMockDeviceInfo) BDF() string {
+	return staticMockHintMap[m.nodeIdx].bdf
 }
 
-func (m mockDeviceInfo) Major() uint16 {
-	return mockHintMap[m.nodeIdx].major
+func (m staticMockDeviceInfo) Major() uint16 {
+	return staticMockHintMap[m.nodeIdx].major
 }
 
-func (m mockDeviceInfo) Minor() uint16 {
-	return mockHintMap[m.nodeIdx].minor
+func (m staticMockDeviceInfo) Minor() uint16 {
+	return staticMockHintMap[m.nodeIdx].minor
 }
 
-func (m mockDeviceInfo) FirmwareVersion() VersionInfo {
-	return &mockFirmwareVersionInfo{}
+func (m staticMockDeviceInfo) FirmwareVersion() VersionInfo {
+	return &staticMockFirmwareVersionInfo{}
 }
 
-func (m mockDeviceInfo) DriverVersion() VersionInfo {
-	return &mockDriverVersionInfo{}
+func (m staticMockDeviceInfo) DriverVersion() VersionInfo {
+	return &staticMockDriverVersionInfo{}
 }
 
-type mockDeviceFile struct {
+type staticMockDeviceFile struct {
 	cores []uint32
 	path  string
 }
 
-var _ DeviceFile = new(mockDeviceFile)
+var _ DeviceFile = new(staticMockDeviceFile)
 
-func (m mockDeviceFile) Cores() []uint32 {
+func (m staticMockDeviceFile) Cores() []uint32 {
 	return m.cores
 }
 
-func (m mockDeviceFile) Path() string {
+func (m staticMockDeviceFile) Path() string {
 	return m.path
 }
 
-type mockDeviceErrorInfo struct{}
+type staticMockDeviceErrorInfo struct{}
 
-var _ DeviceErrorInfo = new(mockDeviceErrorInfo)
+var _ DeviceErrorInfo = new(staticMockDeviceErrorInfo)
 
-func (m mockDeviceErrorInfo) AxiPostErrorCount() uint32 {
+func (m staticMockDeviceErrorInfo) AxiPostErrorCount() uint32 {
 	return 0
 }
 
-func (m mockDeviceErrorInfo) AxiFetchErrorCount() uint32 {
+func (m staticMockDeviceErrorInfo) AxiFetchErrorCount() uint32 {
 	return 0
 }
 
-func (m mockDeviceErrorInfo) AxiDiscardErrorCount() uint32 {
+func (m staticMockDeviceErrorInfo) AxiDiscardErrorCount() uint32 {
 	return 0
 }
 
-func (m mockDeviceErrorInfo) AxiDoorbellErrorCount() uint32 {
+func (m staticMockDeviceErrorInfo) AxiDoorbellErrorCount() uint32 {
 	return 0
 }
 
-func (m mockDeviceErrorInfo) PciePostErrorCount() uint32 {
+func (m staticMockDeviceErrorInfo) PciePostErrorCount() uint32 {
 	return 0
 }
 
-func (m mockDeviceErrorInfo) PcieFetchErrorCount() uint32 {
+func (m staticMockDeviceErrorInfo) PcieFetchErrorCount() uint32 {
 	return 0
 }
 
-func (m mockDeviceErrorInfo) PcieDiscardErrorCount() uint32 {
+func (m staticMockDeviceErrorInfo) PcieDiscardErrorCount() uint32 {
 	return 0
 }
 
-func (m mockDeviceErrorInfo) PcieDoorbellErrorCount() uint32 {
+func (m staticMockDeviceErrorInfo) PcieDoorbellErrorCount() uint32 {
 	return 0
 }
 
-func (m mockDeviceErrorInfo) DeviceErrorCount() uint32 {
+func (m staticMockDeviceErrorInfo) DeviceErrorCount() uint32 {
 	return 0
 }
 
-type mockPeUtilization struct {
+type staticMockPeUtilization struct {
 	cores      []uint32
 	timeWindow uint32
 	usage      uint32
 }
 
-var _ PeUtilization = new(mockPeUtilization)
+var _ PeUtilization = new(staticMockPeUtilization)
 
-func (m mockPeUtilization) Cores() []uint32 {
+func (m staticMockPeUtilization) Cores() []uint32 {
 	return m.cores
 }
 
-func (m mockPeUtilization) TimeWindowMill() uint32 {
+func (m staticMockPeUtilization) TimeWindowMill() uint32 {
 	return m.timeWindow
 }
 
-func (m mockPeUtilization) PeUsagePercentage() uint32 {
+func (m staticMockPeUtilization) PeUsagePercentage() uint32 {
 	return m.usage
 }
 
-type mockMemoryUtilization struct{}
+type staticMockMemoryUtilization struct{}
 
-var _ MemoryUtilization = new(mockMemoryUtilization)
+var _ MemoryUtilization = new(staticMockMemoryUtilization)
 
-func (m mockMemoryUtilization) TotalBytes() uint64 {
+func (m staticMockMemoryUtilization) TotalBytes() uint64 {
 	return 0
 }
 
-func (m mockMemoryUtilization) InUseBytes() uint64 {
+func (m staticMockMemoryUtilization) InUseBytes() uint64 {
 	return 0
 }
 
-type mockDeviceUtilization struct {
+type staticMockDeviceUtilization struct {
 	pe  []PeUtilization
 	mem MemoryUtilization
 }
 
-var _ DeviceUtilization = new(mockDeviceUtilization)
+var _ DeviceUtilization = new(staticMockDeviceUtilization)
 
-func (m mockDeviceUtilization) PeUtilization() []PeUtilization {
+func (m staticMockDeviceUtilization) PeUtilization() []PeUtilization {
 	return m.pe
 }
 
-func (m mockDeviceUtilization) MemoryUtilization() MemoryUtilization {
+func (m staticMockDeviceUtilization) MemoryUtilization() MemoryUtilization {
 	return m.mem
 }
 
-type mockDeviceTemperature struct{}
+type staticMockDeviceTemperature struct{}
 
-var _ DeviceTemperature = new(mockDeviceTemperature)
+var _ DeviceTemperature = new(staticMockDeviceTemperature)
 
-func (m mockDeviceTemperature) SocPeak() int32 {
+func (m staticMockDeviceTemperature) SocPeak() int32 {
 	return 0
 }
 
-func (m mockDeviceTemperature) Ambient() int32 {
+func (m staticMockDeviceTemperature) Ambient() int32 {
 	return 0
 }
 
 // version: 1.9.2, 3def9c2
-type mockDriverVersionInfo struct{}
+type staticMockDriverVersionInfo struct{}
 
-var _ VersionInfo = new(mockDriverVersionInfo)
+var _ VersionInfo = new(staticMockDriverVersionInfo)
 
-func (m mockDriverVersionInfo) Arch() Arch {
+func (m staticMockDriverVersionInfo) Arch() Arch {
 	return ArchWarboy
 }
 
-func (m mockDriverVersionInfo) Major() uint32 {
+func (m staticMockDriverVersionInfo) Major() uint32 {
 	return 1
 }
 
-func (m mockDriverVersionInfo) Minor() uint32 {
+func (m staticMockDriverVersionInfo) Minor() uint32 {
 	return 9
 }
 
-func (m mockDriverVersionInfo) Patch() uint32 {
+func (m staticMockDriverVersionInfo) Patch() uint32 {
 	return 2
 }
 
-func (m mockDriverVersionInfo) Metadata() string {
+func (m staticMockDriverVersionInfo) Metadata() string {
 	return "3def9c2"
 }
 
 // version: 1.6.0, c1bebfd
-type mockFirmwareVersionInfo struct {
+type staticMockFirmwareVersionInfo struct {
 }
 
-var _ VersionInfo = new(mockFirmwareVersionInfo)
+var _ VersionInfo = new(staticMockFirmwareVersionInfo)
 
-func (m mockFirmwareVersionInfo) Arch() Arch {
+func (m staticMockFirmwareVersionInfo) Arch() Arch {
 	return ArchWarboy
 }
 
-func (m mockFirmwareVersionInfo) Major() uint32 {
+func (m staticMockFirmwareVersionInfo) Major() uint32 {
 	return 1
 }
 
-func (m mockFirmwareVersionInfo) Minor() uint32 {
+func (m staticMockFirmwareVersionInfo) Minor() uint32 {
 	return 6
 }
 
-func (m mockFirmwareVersionInfo) Patch() uint32 {
+func (m staticMockFirmwareVersionInfo) Patch() uint32 {
 	return 0
 }
 
-func (m mockFirmwareVersionInfo) Metadata() string {
+func (m staticMockFirmwareVersionInfo) Metadata() string {
 	return "c1bebfd"
 }

@@ -938,7 +938,7 @@ func TestPopulateTopologyMatrix(t *testing.T) {
 	}{
 		{
 			description: "test 8 npu configuration",
-			input:       furiosaSmi.GetMockWarboyDevices(),
+			input:       furiosaSmi.GetStaticMockWarboyDevices(),
 			expected: topologyMatrix{
 				"0000:27:00.0": {
 					"0000:27:00.0": 70,

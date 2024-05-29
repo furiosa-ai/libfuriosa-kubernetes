@@ -1,4 +1,4 @@
-package furiosa_smi_go
+package smi
 
 import (
 	"fmt"

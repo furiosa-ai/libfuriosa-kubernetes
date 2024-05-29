@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bradfitz/iter"
-	furiosaSmi "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 	"path/filepath"
 )
 
@@ -21,12 +21,12 @@ const (
 var _ Manifest = (*warboyManifest)(nil)
 
 type warboyManifest struct {
-	device      furiosaSmi.Device
-	deviceInfo  furiosaSmi.DeviceInfo
-	deviceFiles []furiosaSmi.DeviceFile
+	device      smi.Device
+	deviceInfo  smi.DeviceInfo
+	deviceFiles []smi.DeviceFile
 }
 
-func NewWarboyManifest(device furiosaSmi.Device) (Manifest, error) {
+func NewWarboyManifest(device smi.Device) (Manifest, error) {
 	deviceInfo, err := device.DeviceInfo()
 	if err != nil {
 		return nil, err

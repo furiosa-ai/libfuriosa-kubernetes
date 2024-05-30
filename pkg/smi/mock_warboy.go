@@ -160,7 +160,7 @@ func (m staticMockDeviceInfo) CoreNum() uint32 {
 }
 
 func (m staticMockDeviceInfo) NumaNode() uint32 {
-	return 0
+	return uint32(staticMockHintMap[m.nodeIdx].numaNode)
 }
 
 func (m staticMockDeviceInfo) Name() string {

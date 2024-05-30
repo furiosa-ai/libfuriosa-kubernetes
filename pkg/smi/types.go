@@ -1,7 +1,7 @@
-package furiosa_smi_go
+package smi
 
 import (
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/furiosa_smi_go/binding"
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi/binding"
 )
 
 type Arch uint32
@@ -12,6 +12,21 @@ const (
 	ArchRngdMax = Arch(binding.FuriosaSmiArchRngdMax)
 	ArchRngdS   = Arch(binding.FuriosaSmiArchRngdS)
 )
+
+func (a Arch) ToString() string {
+	switch a {
+	case ArchWarboy:
+		return "warboy"
+	case ArchRngd:
+		return "rngd"
+	case ArchRngdMax:
+		return "rngd-max"
+	case ArchRngdS:
+		return "rngd-s"
+	default:
+		return "unknown"
+	}
+}
 
 type CoreStatus uint32
 

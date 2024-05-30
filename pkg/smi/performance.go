@@ -1,6 +1,6 @@
-package furiosa_smi_go
+package smi
 
-import "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/furiosa_smi_go/binding"
+import "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi/binding"
 
 type PeUtilization interface {
 	Cores() []uint32

@@ -1,7 +1,7 @@
 package npu_allocator
 
 import (
-	furiosaSmi "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/furiosa_smi_go"
+	furiosaSmi "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 
 	"gonum.org/v1/gonum/stat/combin"
 )

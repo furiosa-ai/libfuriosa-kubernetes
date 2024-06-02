@@ -39,5 +39,5 @@ func (v versionInfo) Patch() uint32 {
 }
 
 func (v versionInfo) Metadata() string {
-	return string(v.raw.Metadata[:])
+	return byteBufferToString(v.raw.Metadata[:])
 }

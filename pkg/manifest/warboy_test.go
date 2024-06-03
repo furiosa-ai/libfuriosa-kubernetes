@@ -5,14 +5,14 @@ import (
 	"reflect"
 	"testing"
 
-	furiosaSmi "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 )
 
-func newTestWarboyDevice() furiosaSmi.Device {
-	return furiosaSmi.GetStaticMockWarboyDevice(0)
+func newTestWarboyDevice() smi.Device {
+	return smi.GetStaticMockDevice(smi.ArchWarboy, 0)
 }
 
-func TestDeviceNodes(t *testing.T) {
+func TestWarboyDeviceNodes(t *testing.T) {
 	tests := []struct {
 		description         string
 		expectedDeviceNodes []*DeviceNode
@@ -67,10 +67,9 @@ func TestDeviceNodes(t *testing.T) {
 			t.Errorf("expected %v but got %v", tc.expectedDeviceNodes, actualDeviceNodes)
 		}
 	}
-
 }
 
-func TestMountPaths(t *testing.T) {
+func TestWarboyMountPaths(t *testing.T) {
 	tests := []struct {
 		description        string
 		expectedMountPaths []*Mount

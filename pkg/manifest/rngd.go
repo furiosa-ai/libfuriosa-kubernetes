@@ -9,12 +9,12 @@ import (
 )
 
 const (
-	devFsRngdMgmtFileExp     = "/dev/rngd/%smgmt"
-	sysFsRngdMgmtFileExp     = "rngd!%smgmt"
-	rngdSysClassRoot         = "/sys/class/rngd_mgmt/"
-	rngdSysDevicesRoot       = "/sys/devices/virtual/rngd_mgmt/"
-	rngdMaxChannel       int = 8
-	rngdChannelExp           = "/dev/rngd/%sch%d"
+	devFsRngdMgmtFileExp = "/dev/rngd/%smgmt"
+	sysFsRngdMgmtFileExp = "rngd!%smgmt"
+	rngdSysClassRoot     = "/sys/class/rngd_mgmt/"
+	rngdSysDevicesRoot   = "/sys/devices/virtual/rngd_mgmt/"
+	rngdMaxChannel       = 8
+	rngdChannelExp       = "/dev/rngd/%sch%d"
 )
 
 var _ Manifest = (*rngdManifest)(nil)
@@ -98,16 +98,12 @@ func (w rngdManifest) MountPaths() []*Mount {
 		Options:       []string{readOnlyOpt},
 	})
 
-	//skip "/sys/class/rngd_mgmt/rngd!npu{x}", it does not exist
-
 	// mount "/sys/devices/virtual/rngd_mgmt/rngd!npu{x}_mgmt" path
 	mounts = append(mounts, &Mount{
 		ContainerPath: rngdSysDevicesRoot + fmt.Sprintf(sysFsRngdMgmtFileExp, devName),
 		HostPath:      rngdSysDevicesRoot + fmt.Sprintf(sysFsRngdMgmtFileExp, devName),
 		Options:       []string{readOnlyOpt},
 	})
-
-	// skip "/sys/devices/virtual/npu_mgmt/rngd!npu{x}", it does not exist"
 
 	return mounts
 }

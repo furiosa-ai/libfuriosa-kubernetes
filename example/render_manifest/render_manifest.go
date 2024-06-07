@@ -15,7 +15,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	devices, err := smi.GetDevices()
+	devices, err := smi.ListDevices()
 	if err != nil {
 		fmt.Printf("%s\n", err.Error())
 		os.Exit(1)

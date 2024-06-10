@@ -4,7 +4,7 @@ import (
 	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi/binding"
 )
 
-func GetDevices() ([]Device, error) {
+func ListDevices() ([]Device, error) {
 	var out binding.FuriosaSmiDeviceHandles
 
 	if ret := binding.FuriosaSmiGetDeviceHandles(&out); ret != binding.FuriosaSmiReturnCodeOk {

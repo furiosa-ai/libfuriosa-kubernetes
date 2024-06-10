@@ -30,5 +30,5 @@ func (d deviceFile) Cores() []uint32 {
 }
 
 func (d deviceFile) Path() string {
-	return string(d.raw.Path[:])
+	return byteBufferToString(d.raw.Path[:])
 }

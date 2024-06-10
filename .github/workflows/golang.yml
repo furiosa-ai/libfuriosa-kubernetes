@@ -26,7 +26,7 @@ jobs:
           rustup component add clippy rustfmt
           cargo install --force cargo-make
           cargo build
-          cargo make install
+          make install
       - uses: actions/checkout@v4
       - name: Setup Go ${{ matrix.go-version }}
         uses: actions/setup-go@v4

@@ -41,19 +41,19 @@ func (d deviceInfo) NumaNode() uint32 {
 }
 
 func (d deviceInfo) Name() string {
-	return string(d.raw.Name[:])
+	return byteBufferToString(d.raw.Name[:])
 }
 
 func (d deviceInfo) Serial() string {
-	return string(d.raw.Serial[:])
+	return byteBufferToString(d.raw.Serial[:])
 }
 
 func (d deviceInfo) UUID() string {
-	return string(d.raw.Uuid[:])
+	return byteBufferToString(d.raw.Uuid[:])
 }
 
 func (d deviceInfo) BDF() string {
-	return string(d.raw.Bdf[:])
+	return byteBufferToString(d.raw.Bdf[:])
 }
 
 func (d deviceInfo) Major() uint16 {

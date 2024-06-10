@@ -9,13 +9,11 @@ import (
 )
 
 const (
-	sysClassRoot         = "/sys/class/npu_mgmt/"
-	sysDevicesRoot       = "/sys/devices/virtual/npu_mgmt/"
-	mgmtFileExp          = "%s_mgmt"
-	readOnlyOpt          = "ro"
-	readWriteOpt         = "rw"
-	channelExp           = "%sch%d"
-	warboyMaxChannel int = 4
+	warboyMgmtFileExp        = "%s_mgmt"
+	warboySysClassRoot       = "/sys/class/npu_mgmt/"
+	warboySysDevicesRoot     = "/sys/devices/virtual/npu_mgmt/"
+	warboyMaxChannel     int = 4
+	warboyChannelExp         = "%sch%d"
 )
 
 var _ Manifest = (*warboyManifest)(nil)
@@ -62,8 +60,8 @@ func (w warboyManifest) DeviceNodes() []*DeviceNode {
 
 	// mount npu mgmt file under "/dev"
 	deviceNodes = append(deviceNodes, &DeviceNode{
-		ContainerPath: fmt.Sprintf(mgmtFileExp, devName),
-		HostPath:      fmt.Sprintf(mgmtFileExp, devName),
+		ContainerPath: fmt.Sprintf(warboyMgmtFileExp, devName),
+		HostPath:      fmt.Sprintf(warboyMgmtFileExp, devName),
 		Permissions:   readWriteOpt,
 	})
 
@@ -79,8 +77,8 @@ func (w warboyManifest) DeviceNodes() []*DeviceNode {
 	// mount channel fd for dma such as "/dev/npu0ch0" ~ "/dev/npu0ch3"
 	for idx := range iter.N(warboyMaxChannel) {
 		deviceNodes = append(deviceNodes, &DeviceNode{
-			ContainerPath: fmt.Sprintf(channelExp, devName, idx),
-			HostPath:      fmt.Sprintf(channelExp, devName, idx),
+			ContainerPath: fmt.Sprintf(warboyChannelExp, devName, idx),
+			HostPath:      fmt.Sprintf(warboyChannelExp, devName, idx),
 			Permissions:   readWriteOpt,
 		})
 	}
@@ -94,8 +92,8 @@ func (w warboyManifest) MountPaths() []*Mount {
 
 	// mount "/sys/class/npu_mgmt/npu{x}_mgmt" path
 	mounts = append(mounts, &Mount{
-		ContainerPath: sysClassRoot + fmt.Sprintf(mgmtFileExp, devName),
-		HostPath:      sysClassRoot + fmt.Sprintf(mgmtFileExp, devName),
+		ContainerPath: warboySysClassRoot + fmt.Sprintf(warboyMgmtFileExp, devName),
+		HostPath:      warboySysClassRoot + fmt.Sprintf(warboyMgmtFileExp, devName),
 		Options:       []string{readOnlyOpt},
 	})
 
@@ -103,16 +101,16 @@ func (w warboyManifest) MountPaths() []*Mount {
 	for _, file := range w.deviceFiles {
 		fileName := filepath.Base(file.Path())
 		mounts = append(mounts, &Mount{
-			ContainerPath: sysClassRoot + fileName,
-			HostPath:      sysClassRoot + fileName,
+			ContainerPath: warboySysClassRoot + fileName,
+			HostPath:      warboySysClassRoot + fileName,
 			Options:       []string{readOnlyOpt},
 		})
 	}
 
 	// mount "/sys/devices/virtual/npu_mgmt/npu{x}_mgmt" path
 	mounts = append(mounts, &Mount{
-		ContainerPath: sysDevicesRoot + fmt.Sprintf(mgmtFileExp, devName),
-		HostPath:      sysDevicesRoot + fmt.Sprintf(mgmtFileExp, devName),
+		ContainerPath: warboySysDevicesRoot + fmt.Sprintf(warboyMgmtFileExp, devName),
+		HostPath:      warboySysDevicesRoot + fmt.Sprintf(warboyMgmtFileExp, devName),
 		Options:       []string{readOnlyOpt},
 	})
 
@@ -120,8 +118,8 @@ func (w warboyManifest) MountPaths() []*Mount {
 	for _, file := range w.deviceFiles {
 		fileName := filepath.Base(file.Path())
 		mounts = append(mounts, &Mount{
-			ContainerPath: sysDevicesRoot + fileName,
-			HostPath:      sysDevicesRoot + fileName,
+			ContainerPath: warboySysDevicesRoot + fileName,
+			HostPath:      warboySysDevicesRoot + fileName,
 			Options:       []string{readOnlyOpt},
 		})
 	}

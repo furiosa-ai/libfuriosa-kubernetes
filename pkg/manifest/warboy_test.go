@@ -5,14 +5,14 @@ import (
 	"reflect"
 	"testing"
 
-	furiosaSmi "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 )
 
-func newTestWarboyDevice() furiosaSmi.Device {
-	return furiosaSmi.GetStaticMockWarboyDevice(0)
+func newTestWarboyDevice() smi.Device {
+	return smi.GetStaticMockDevice(smi.ArchWarboy, 0)
 }
 
-func TestDeviceNodes(t *testing.T) {
+func TestWarboyDeviceNodes(t *testing.T) {
 	tests := []struct {
 		description         string
 		expectedDeviceNodes []*DeviceNode
@@ -21,8 +21,8 @@ func TestDeviceNodes(t *testing.T) {
 			description: "test DeviceNodes()",
 			expectedDeviceNodes: []*DeviceNode{
 				{
-					ContainerPath: fmt.Sprintf(mgmtFileExp, "/dev/npu0"),
-					HostPath:      fmt.Sprintf(mgmtFileExp, "/dev/npu0"),
+					ContainerPath: fmt.Sprintf(warboyMgmtFileExp, "/dev/npu0"),
+					HostPath:      fmt.Sprintf(warboyMgmtFileExp, "/dev/npu0"),
 					Permissions:   readWriteOpt,
 				}, {
 					ContainerPath: "/dev/npu0",
@@ -41,20 +41,20 @@ func TestDeviceNodes(t *testing.T) {
 					HostPath:      "/dev/npu0pe0-1",
 					Permissions:   readWriteOpt,
 				}, {
-					ContainerPath: "/dev/" + fmt.Sprintf(channelExp, "npu0", 0),
-					HostPath:      "/dev/" + fmt.Sprintf(channelExp, "npu0", 0),
+					ContainerPath: "/dev/" + fmt.Sprintf(warboyChannelExp, "npu0", 0),
+					HostPath:      "/dev/" + fmt.Sprintf(warboyChannelExp, "npu0", 0),
 					Permissions:   readWriteOpt,
 				}, {
-					ContainerPath: "/dev/" + fmt.Sprintf(channelExp, "npu0", 1),
-					HostPath:      "/dev/" + fmt.Sprintf(channelExp, "npu0", 1),
+					ContainerPath: "/dev/" + fmt.Sprintf(warboyChannelExp, "npu0", 1),
+					HostPath:      "/dev/" + fmt.Sprintf(warboyChannelExp, "npu0", 1),
 					Permissions:   readWriteOpt,
 				}, {
-					ContainerPath: "/dev/" + fmt.Sprintf(channelExp, "npu0", 2),
-					HostPath:      "/dev/" + fmt.Sprintf(channelExp, "npu0", 2),
+					ContainerPath: "/dev/" + fmt.Sprintf(warboyChannelExp, "npu0", 2),
+					HostPath:      "/dev/" + fmt.Sprintf(warboyChannelExp, "npu0", 2),
 					Permissions:   readWriteOpt,
 				}, {
-					ContainerPath: "/dev/" + fmt.Sprintf(channelExp, "npu0", 3),
-					HostPath:      "/dev/" + fmt.Sprintf(channelExp, "npu0", 3),
+					ContainerPath: "/dev/" + fmt.Sprintf(warboyChannelExp, "npu0", 3),
+					HostPath:      "/dev/" + fmt.Sprintf(warboyChannelExp, "npu0", 3),
 					Permissions:   readWriteOpt,
 				},
 			},
@@ -67,10 +67,9 @@ func TestDeviceNodes(t *testing.T) {
 			t.Errorf("expected %v but got %v", tc.expectedDeviceNodes, actualDeviceNodes)
 		}
 	}
-
 }
 
-func TestMountPaths(t *testing.T) {
+func TestWarboyMountPaths(t *testing.T) {
 	tests := []struct {
 		description        string
 		expectedMountPaths []*Mount
@@ -79,53 +78,53 @@ func TestMountPaths(t *testing.T) {
 			description: "test MountPaths()",
 			expectedMountPaths: []*Mount{
 				{
-					ContainerPath: sysClassRoot + fmt.Sprintf(mgmtFileExp, "npu0"),
-					HostPath:      sysClassRoot + fmt.Sprintf(mgmtFileExp, "npu0"),
+					ContainerPath: warboySysClassRoot + fmt.Sprintf(warboyMgmtFileExp, "npu0"),
+					HostPath:      warboySysClassRoot + fmt.Sprintf(warboyMgmtFileExp, "npu0"),
 					Options:       []string{readOnlyOpt},
 				},
 				{
-					ContainerPath: sysClassRoot + "npu0",
-					HostPath:      sysClassRoot + "npu0",
+					ContainerPath: warboySysClassRoot + "npu0",
+					HostPath:      warboySysClassRoot + "npu0",
 					Options:       []string{readOnlyOpt},
 				},
 				{
-					ContainerPath: sysClassRoot + "npu0pe0",
-					HostPath:      sysClassRoot + "npu0pe0",
+					ContainerPath: warboySysClassRoot + "npu0pe0",
+					HostPath:      warboySysClassRoot + "npu0pe0",
 					Options:       []string{readOnlyOpt},
 				},
 				{
-					ContainerPath: sysClassRoot + "npu0pe1",
-					HostPath:      sysClassRoot + "npu0pe1",
+					ContainerPath: warboySysClassRoot + "npu0pe1",
+					HostPath:      warboySysClassRoot + "npu0pe1",
 					Options:       []string{readOnlyOpt},
 				},
 				{
-					ContainerPath: sysClassRoot + "npu0pe0-1",
-					HostPath:      sysClassRoot + "npu0pe0-1",
+					ContainerPath: warboySysClassRoot + "npu0pe0-1",
+					HostPath:      warboySysClassRoot + "npu0pe0-1",
 					Options:       []string{readOnlyOpt},
 				},
 				{
-					ContainerPath: sysDevicesRoot + fmt.Sprintf(mgmtFileExp, "npu0"),
-					HostPath:      sysDevicesRoot + fmt.Sprintf(mgmtFileExp, "npu0"),
+					ContainerPath: warboySysDevicesRoot + fmt.Sprintf(warboyMgmtFileExp, "npu0"),
+					HostPath:      warboySysDevicesRoot + fmt.Sprintf(warboyMgmtFileExp, "npu0"),
 					Options:       []string{readOnlyOpt},
 				},
 				{
-					ContainerPath: sysDevicesRoot + "npu0",
-					HostPath:      sysDevicesRoot + "npu0",
+					ContainerPath: warboySysDevicesRoot + "npu0",
+					HostPath:      warboySysDevicesRoot + "npu0",
 					Options:       []string{readOnlyOpt},
 				},
 				{
-					ContainerPath: sysDevicesRoot + "npu0pe0",
-					HostPath:      sysDevicesRoot + "npu0pe0",
+					ContainerPath: warboySysDevicesRoot + "npu0pe0",
+					HostPath:      warboySysDevicesRoot + "npu0pe0",
 					Options:       []string{readOnlyOpt},
 				},
 				{
-					ContainerPath: sysDevicesRoot + "npu0pe1",
-					HostPath:      sysDevicesRoot + "npu0pe1",
+					ContainerPath: warboySysDevicesRoot + "npu0pe1",
+					HostPath:      warboySysDevicesRoot + "npu0pe1",
 					Options:       []string{readOnlyOpt},
 				},
 				{
-					ContainerPath: sysDevicesRoot + "npu0pe0-1",
-					HostPath:      sysDevicesRoot + "npu0pe0-1",
+					ContainerPath: warboySysDevicesRoot + "npu0pe0-1",
+					HostPath:      warboySysDevicesRoot + "npu0pe0-1",
 					Options:       []string{readOnlyOpt},
 				},
 			},

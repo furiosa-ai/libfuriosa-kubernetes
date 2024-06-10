@@ -2,7 +2,7 @@
 GENERATOR:
   PackageName: binding
   PackageDescription: "Go bindings for furiosa-smi"
-  Includes: ["furiosa_smi.h"]
+  Includes: ["furiosa/furiosa_smi.h"]
 
 PARSER:
   SourcesPaths: ["furiosa_smi.h"]

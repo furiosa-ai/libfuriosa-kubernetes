@@ -77,4 +77,4 @@ base-no-cache:
 
 .PHONY: furiosa-smi-go-boilerplate
 furiosa-smi-go-boilerplate:
-	c-for-go -out pkg/furiosa_smi_go pkg/furiosa_smi_go/furiosa-smi.yml
+	c-for-go -out pkg/smi pkg/smi/furiosa-smi.yml

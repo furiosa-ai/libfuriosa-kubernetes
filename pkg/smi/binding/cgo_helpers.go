@@ -4,7 +4,7 @@
 package binding
 
 /*
-#include "furiosa_smi.h"
+#include "furiosa/furiosa_smi.h"
 #include <stdlib.h>
 #include "cgo_helpers.h"
 */

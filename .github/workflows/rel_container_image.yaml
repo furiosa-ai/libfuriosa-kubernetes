@@ -9,17 +9,16 @@ jobs:
   docker_publish:
     runs-on: "ubuntu-latest"
     steps:
-      - name: Build and publish a base image
+      - uses: actions/checkout@v4
+      - name: Build and publish a base image with latest tag
         uses: macbre/push-to-ghcr@v13
         with:
           image_name: ${{ github.repository }}
-          image_tag: base-${{github.ref_name}}
-          dockerfile: ./dockerfile/Dockerfile.base
+          image_tag: latest
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and publish a base image with release tag
         uses: macbre/push-to-ghcr@v13
         with:
           image_name: ${{ github.repository }}
-          image_tag: base
-          dockerfile: ./dockerfile/Dockerfile.base
+          image_tag: ${{github.ref_name}}
           github_token: ${{ secrets.GITHUB_TOKEN }}

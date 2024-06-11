@@ -9,21 +9,6 @@ jobs:
   docker_publish:
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v4
-      - name: Build and publish a buildbase image
-        uses: macbre/push-to-ghcr@v13
-        with:
-          image_name: ${{ github.repository }}
-          image_tag: buildbase-${{github.ref_name}}
-          dockerfile: ./dockerfile/Dockerfile.buildbase
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and publish a buildbase image with release tag
-        uses: macbre/push-to-ghcr@v13
-        with:
-          image_name: ${{ github.repository }}
-          image_tag: buildbase
-          dockerfile: ./dockerfile/Dockerfile.buildbase
-          github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and publish a base image
         uses: macbre/push-to-ghcr@v13
         with:

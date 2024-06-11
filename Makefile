@@ -59,14 +59,6 @@ vendor:
 example:
 	$(call build_examples_function,./example)
 
-.PHONY: buildbase
-buildbase:
-	docker build . -t ghcr.io/furiosa-ai/libfuriosa-kubernetes:buildbase --progress=plain --platform=linux/amd64 -f dockerfile/Dockerfile.buildbase
-
-.PHONY: buildbase-no-cache
-buildbase-no-cache:
-	docker build . --no-cache -t ghcr.io/furiosa-ai/libfuriosa-kubernetes:buildbase --progress=plain --platform=linux/amd64 -f dockerfile/Dockerfile.buildbase
-
 .PHONY: base
 base:
 	docker build . -t ghcr.io/furiosa-ai/libfuriosa-kubernetes:base --progress=plain --platform=linux/amd64 -f dockerfile/Dockerfile.base

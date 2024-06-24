@@ -15,17 +15,17 @@ type FuriosaSmiDeviceHandle uint32
 
 // FuriosaSmiDeviceHandles as declared in smi/furiosa_smi.h:67
 type FuriosaSmiDeviceHandles struct {
-	Count          uint32
-	DeviceHandles  [64]FuriosaSmiDeviceHandle
+	Count         uint32
+	DeviceHandles [64]FuriosaSmiDeviceHandle
 }
 
 // FuriosaSmiVersion as declared in smi/furiosa_smi.h:75
 type FuriosaSmiVersion struct {
-	Arch           FuriosaSmiArch
-	Major          uint32
-	Minor          uint32
-	Patch          uint32
-	Metadata       [96]byte
+	Arch     FuriosaSmiArch
+	Major    uint32
+	Minor    uint32
+	Patch    uint32
+	Metadata [96]byte
 }
 
 // FuriosaSmiDeviceInfo as declared in smi/furiosa_smi.h:89
@@ -45,21 +45,21 @@ type FuriosaSmiDeviceInfo struct {
 
 // FuriosaSmiDeviceFile as declared in smi/furiosa_smi.h:95
 type FuriosaSmiDeviceFile struct {
-	CoreStart      uint32
-	CoreEnd        uint32
-	Path           [256]byte
+	CoreStart uint32
+	CoreEnd   uint32
+	Path      [256]byte
 }
 
 // FuriosaSmiDeviceFiles as declared in smi/furiosa_smi.h:100
 type FuriosaSmiDeviceFiles struct {
-	Count          uint32
-	DeviceFiles    [64]FuriosaSmiDeviceFile
+	Count       uint32
+	DeviceFiles [64]FuriosaSmiDeviceFile
 }
 
 // FuriosaSmiCoreStatuses as declared in smi/furiosa_smi.h:105
 type FuriosaSmiCoreStatuses struct {
-	Count          uint32
-	CoreStatus     [128]FuriosaSmiCoreStatus
+	Count      uint32
+	CoreStatus [128]FuriosaSmiCoreStatus
 }
 
 // FuriosaSmiDeviceErrorInfo as declared in smi/furiosa_smi.h:117
@@ -77,8 +77,8 @@ type FuriosaSmiDeviceErrorInfo struct {
 
 // FuriosaSmiDriverInfo as declared in smi/furiosa_smi.h:122
 type FuriosaSmiDriverInfo struct {
-	Count          uint32
-	DriverInfo     [24]FuriosaSmiVersion
+	Count      uint32
+	DriverInfo [24]FuriosaSmiVersion
 }
 
 // FuriosaSmiPeUtilization as declared in smi/furiosa_smi.h:129
@@ -91,24 +91,24 @@ type FuriosaSmiPeUtilization struct {
 
 // FuriosaSmiMemoryUtilization as declared in smi/furiosa_smi.h:134
 type FuriosaSmiMemoryUtilization struct {
-	TotalBytes     uint64
-	InUseBytes     uint64
+	TotalBytes uint64
+	InUseBytes uint64
 }
 
 // FuriosaSmiDeviceUtilization as declared in smi/furiosa_smi.h:140
 type FuriosaSmiDeviceUtilization struct {
-	PeCount        uint32
-	Pe             [64]FuriosaSmiPeUtilization
-	Memory         FuriosaSmiMemoryUtilization
+	PeCount uint32
+	Pe      [64]FuriosaSmiPeUtilization
+	Memory  FuriosaSmiMemoryUtilization
 }
 
 // FuriosaSmiDevicePowerConsumption as declared in smi/furiosa_smi.h:144
 type FuriosaSmiDevicePowerConsumption struct {
-	RmsTotal       float64
+	RmsTotal float64
 }
 
 // FuriosaSmiDeviceTemperature as declared in smi/furiosa_smi.h:149
 type FuriosaSmiDeviceTemperature struct {
-	SocPeak        float64
-	Ambient        float64
+	SocPeak float64
+	Ambient float64
 }

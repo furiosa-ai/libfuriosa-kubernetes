@@ -73,3 +73,4 @@ furiosa-smi-go-boilerplate:
 	go build -o clean_cgo_structs tools/clean_cgo_structs.go
 	./clean_cgo_structs -source=pkg/smi/binding/types.go -output=pkg/smi/binding/zz_types.go
 	rm -rf pkg/smi/binding/types.go
+	rm -rf pkg/smi/binding/cgo_helpers.go

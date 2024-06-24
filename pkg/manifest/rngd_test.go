@@ -112,6 +112,38 @@ func TestRngdDeviceNodes(t *testing.T) {
 					ContainerPath: fmt.Sprintf(rngdChannelExp, "npu0", 7),
 					HostPath:      fmt.Sprintf(rngdChannelExp, "npu0", 7),
 					Permissions:   readWriteOpt,
+				}, {
+					ContainerPath: fmt.Sprintf(rngdRemoteChannelExp, "npu0", 0),
+					HostPath:      fmt.Sprintf(rngdRemoteChannelExp, "npu0", 0),
+					Permissions:   readWriteOpt,
+				}, {
+					ContainerPath: fmt.Sprintf(rngdRemoteChannelExp, "npu0", 1),
+					HostPath:      fmt.Sprintf(rngdRemoteChannelExp, "npu0", 1),
+					Permissions:   readWriteOpt,
+				}, {
+					ContainerPath: fmt.Sprintf(rngdRemoteChannelExp, "npu0", 2),
+					HostPath:      fmt.Sprintf(rngdRemoteChannelExp, "npu0", 2),
+					Permissions:   readWriteOpt,
+				}, {
+					ContainerPath: fmt.Sprintf(rngdRemoteChannelExp, "npu0", 3),
+					HostPath:      fmt.Sprintf(rngdRemoteChannelExp, "npu0", 3),
+					Permissions:   readWriteOpt,
+				}, {
+					ContainerPath: fmt.Sprintf(rngdRemoteChannelExp, "npu0", 4),
+					HostPath:      fmt.Sprintf(rngdRemoteChannelExp, "npu0", 4),
+					Permissions:   readWriteOpt,
+				}, {
+					ContainerPath: fmt.Sprintf(rngdRemoteChannelExp, "npu0", 5),
+					HostPath:      fmt.Sprintf(rngdRemoteChannelExp, "npu0", 5),
+					Permissions:   readWriteOpt,
+				}, {
+					ContainerPath: fmt.Sprintf(rngdRemoteChannelExp, "npu0", 6),
+					HostPath:      fmt.Sprintf(rngdRemoteChannelExp, "npu0", 6),
+					Permissions:   readWriteOpt,
+				}, {
+					ContainerPath: fmt.Sprintf(rngdRemoteChannelExp, "npu0", 7),
+					HostPath:      fmt.Sprintf(rngdRemoteChannelExp, "npu0", 7),
+					Permissions:   readWriteOpt,
 				},
 			},
 		},

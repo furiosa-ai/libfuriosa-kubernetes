@@ -14,7 +14,9 @@ const (
 	rngdSysClassRoot     = "/sys/class/rngd_mgmt/"
 	rngdSysDevicesRoot   = "/sys/devices/virtual/rngd_mgmt/"
 	rngdMaxChannel       = 8
+	rngdMaxRemoteChannel = 8
 	rngdChannelExp       = "/dev/rngd/%sch%d"
+	rngdRemoteChannelExp = "/dev/rngd/%sch%dr"
 )
 
 var _ Manifest = (*rngdManifest)(nil)
@@ -80,6 +82,15 @@ func (w rngdManifest) DeviceNodes() []*DeviceNode {
 		deviceNodes = append(deviceNodes, &DeviceNode{
 			ContainerPath: fmt.Sprintf(rngdChannelExp, devName, idx),
 			HostPath:      fmt.Sprintf(rngdChannelExp, devName, idx),
+			Permissions:   readWriteOpt,
+		})
+	}
+
+	// mount remote channel fd for dma such as "/dev/rngd/npu0ch0r" ~ "/dev/rngd/npu0ch7r"
+	for idx := range iter.N(rngdMaxRemoteChannel) {
+		deviceNodes = append(deviceNodes, &DeviceNode{
+			ContainerPath: fmt.Sprintf(rngdRemoteChannelExp, devName, idx),
+			HostPath:      fmt.Sprintf(rngdRemoteChannelExp, devName, idx),
 			Permissions:   readWriteOpt,
 		})
 	}

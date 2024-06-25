@@ -113,8 +113,8 @@ func (m staticRngdMockDevice) DeviceUtilization() (DeviceUtilization, error) {
 	}, nil
 }
 
-func (m staticRngdMockDevice) PowerConsumption() (uint32, error) {
-	return 100, nil
+func (m staticRngdMockDevice) PowerConsumption() (float64, error) {
+	return float64(100), nil
 }
 
 func (m staticRngdMockDevice) DeviceTemperature() (DeviceTemperature, error) {

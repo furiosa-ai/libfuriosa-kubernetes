@@ -59,8 +59,8 @@ func (m staticWarboyMockDevice) DeviceUtilization() (DeviceUtilization, error) {
 	}, nil
 }
 
-func (m staticWarboyMockDevice) PowerConsumption() (uint32, error) {
-	return 100, nil
+func (m staticWarboyMockDevice) PowerConsumption() (float64, error) {
+	return float64(100), nil
 }
 
 func (m staticWarboyMockDevice) DeviceTemperature() (DeviceTemperature, error) {

@@ -26,7 +26,7 @@ type Device interface {
 	DeviceErrorInfo() (DeviceErrorInfo, error)
 	Liveness() (bool, error)
 	DeviceUtilization() (DeviceUtilization, error)
-	PowerConsumption() (uint32, error)
+	PowerConsumption() (float64, error)
 	DeviceTemperature() (DeviceTemperature, error)
 	GetDeviceToDeviceLinkType(target Device) (LinkType, error)
 }
@@ -110,14 +110,14 @@ func (d *device) DeviceUtilization() (DeviceUtilization, error) {
 	return newDeviceUtilization(out), nil
 }
 
-func (d *device) PowerConsumption() (uint32, error) {
+func (d *device) PowerConsumption() (float64, error) {
 	var out binding.FuriosaSmiDevicePowerConsumption
 
 	if ret := binding.FuriosaSmiGetDevicePowerConsumption(d.handle, &out); ret != binding.FuriosaSmiReturnCodeOk {
 		return 0, ToError(ret)
 	}
 
-	return uint32(out.RmsTotal), nil
+	return out.RmsTotal, nil
 }
 
 func (d *device) DeviceTemperature() (DeviceTemperature, error) {

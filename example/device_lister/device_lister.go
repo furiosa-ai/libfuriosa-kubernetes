@@ -134,7 +134,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		fmt.Printf("Power Consumption: %d\n", powerConsumption)
+		fmt.Printf("Power Consumption: %f\n", powerConsumption)
 
 	}
 

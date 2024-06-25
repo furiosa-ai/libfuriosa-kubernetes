@@ -144,6 +144,10 @@ func TestRngdDeviceNodes(t *testing.T) {
 					ContainerPath: fmt.Sprintf(rngdRemoteChannelExp, "npu0", 7),
 					HostPath:      fmt.Sprintf(rngdRemoteChannelExp, "npu0", 7),
 					Permissions:   readWriteOpt,
+				}, {
+					ContainerPath: fmt.Sprintf(rngdDmaRemappingExp, "npu0"),
+					HostPath:      fmt.Sprintf(rngdDmaRemappingExp, "npu0"),
+					Permissions:   readWriteOpt,
 				},
 			},
 		},

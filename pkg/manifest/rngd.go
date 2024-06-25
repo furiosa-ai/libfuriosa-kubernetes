@@ -17,6 +17,7 @@ const (
 	rngdMaxRemoteChannel = 8
 	rngdChannelExp       = "/dev/rngd/%sch%d"
 	rngdRemoteChannelExp = "/dev/rngd/%sch%dr"
+	rngdDmaRemappingExp  = "/dev/rngd/%sdmar"
 )
 
 var _ Manifest = (*rngdManifest)(nil)
@@ -94,6 +95,13 @@ func (w rngdManifest) DeviceNodes() []*DeviceNode {
 			Permissions:   readWriteOpt,
 		})
 	}
+
+	// mount dma remapping fd
+	deviceNodes = append(deviceNodes, &DeviceNode{
+		ContainerPath: fmt.Sprintf(rngdDmaRemappingExp, devName),
+		HostPath:      fmt.Sprintf(rngdDmaRemappingExp, devName),
+		Permissions:   readWriteOpt,
+	})
 
 	return deviceNodes
 }

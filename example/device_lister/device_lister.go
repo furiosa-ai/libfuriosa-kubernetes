@@ -112,7 +112,7 @@ func main() {
 			fmt.Printf("  PE Utilization:\n")
 			fmt.Printf("    Cores: %v\n", peUtilization.Cores())
 			fmt.Printf("    Time Window Mill: %d\n", peUtilization.TimeWindowMill())
-			fmt.Printf("    PE Usage Percentage: %d\n", peUtilization.PeUsagePercentage())
+			fmt.Printf("    PE Usage Percentage: %f\n", peUtilization.PeUsagePercentage())
 		}
 		fmt.Printf("  Memory Utilization:\n")
 		fmt.Printf("    Total Bytes: %d\n", utilization.MemoryUtilization().TotalBytes())
@@ -125,8 +125,8 @@ func main() {
 		}
 
 		fmt.Printf("Device Temperature:\n")
-		fmt.Printf("  Soc Peak: %d\n", temperature.SocPeak())
-		fmt.Printf("  Ambient: %d\n", temperature.Ambient())
+		fmt.Printf("  Soc Peak: %f\n", temperature.SocPeak())
+		fmt.Printf("  Ambient: %f\n", temperature.Ambient())
 
 		powerConsumption, err := device.PowerConsumption()
 		if err != nil {
@@ -134,7 +134,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		fmt.Printf("Power Consumption: %d\n", powerConsumption)
+		fmt.Printf("Power Consumption: %f\n", powerConsumption)
 
 	}
 

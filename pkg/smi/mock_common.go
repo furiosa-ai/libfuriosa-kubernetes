@@ -137,7 +137,7 @@ func (m staticMockDeviceErrorInfo) DeviceErrorCount() uint32 {
 type staticMockPeUtilization struct {
 	cores      []uint32
 	timeWindow uint32
-	usage      uint32
+	usage      float64
 }
 
 var _ PeUtilization = new(staticMockPeUtilization)
@@ -150,7 +150,7 @@ func (m staticMockPeUtilization) TimeWindowMill() uint32 {
 	return m.timeWindow
 }
 
-func (m staticMockPeUtilization) PeUsagePercentage() uint32 {
+func (m staticMockPeUtilization) PeUsagePercentage() float64 {
 	return m.usage
 }
 
@@ -185,11 +185,11 @@ type staticMockDeviceTemperature struct{}
 
 var _ DeviceTemperature = new(staticMockDeviceTemperature)
 
-func (m staticMockDeviceTemperature) SocPeak() int32 {
+func (m staticMockDeviceTemperature) SocPeak() float64 {
 	return 0
 }
 
-func (m staticMockDeviceTemperature) Ambient() int32 {
+func (m staticMockDeviceTemperature) Ambient() float64 {
 	return 0
 }
 

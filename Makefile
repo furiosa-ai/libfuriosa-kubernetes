@@ -61,12 +61,16 @@ example:
 
 .PHONY: base
 base:
-	docker build . -t ghcr.io/furiosa-ai/libfuriosa-kubernetes:base --progress=plain --platform=linux/amd64 -f dockerfile/Dockerfile.base
+	docker build . -t ghcr.io/furiosa-ai/libfuriosa-kubernetes:devel --progress=plain --platform=linux/amd64
 
 .PHONY: base-no-cache
 base-no-cache:
-	docker build . --no-cache -t ghcr.io/furiosa-ai/libfuriosa-kubernetes:base --progress=plain --platform=linux/amd64 -f dockerfile/Dockerfile.base
+	docker build . --no-cache -t ghcr.io/furiosa-ai/libfuriosa-kubernetes:devel --progress=plain --platform=linux/amd64
 
 .PHONY: furiosa-smi-go-boilerplate
 furiosa-smi-go-boilerplate:
-	c-for-go -out pkg/smi pkg/smi/furiosa-smi.yml
+	c-for-go -nostamp -out pkg/smi pkg/smi/furiosa-smi.yml
+	go build -o clean_cgo_structs tools/clean_cgo_structs.go
+	./clean_cgo_structs -source=pkg/smi/binding/types.go -output=pkg/smi/binding/zz_types.go
+	rm -rf pkg/smi/binding/types.go
+	rm -rf pkg/smi/binding/cgo_helpers.go

@@ -5,7 +5,7 @@ import "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi/binding"
 type PeUtilization interface {
 	Cores() []uint32
 	TimeWindowMill() uint32
-	PeUsagePercentage() uint32
+	PeUsagePercentage() float64
 }
 
 var _ PeUtilization = new(peUtilization)
@@ -32,7 +32,7 @@ func (p peUtilization) TimeWindowMill() uint32 {
 	return p.raw.TimeWindowMil
 }
 
-func (p peUtilization) PeUsagePercentage() uint32 {
+func (p peUtilization) PeUsagePercentage() float64 {
 	return p.raw.PeUsagePercentage
 }
 
@@ -91,8 +91,8 @@ func (d deviceUtilization) MemoryUtilization() MemoryUtilization {
 }
 
 type DeviceTemperature interface {
-	SocPeak() int32
-	Ambient() int32
+	SocPeak() float64
+	Ambient() float64
 }
 
 var _ DeviceTemperature = new(deviceTemperature)
@@ -107,10 +107,10 @@ func newDeviceTemperature(raw binding.FuriosaSmiDeviceTemperature) DeviceTempera
 	}
 }
 
-func (d deviceTemperature) SocPeak() int32 {
+func (d deviceTemperature) SocPeak() float64 {
 	return d.raw.SocPeak
 }
 
-func (d deviceTemperature) Ambient() int32 {
+func (d deviceTemperature) Ambient() float64 {
 	return d.raw.Ambient
 }

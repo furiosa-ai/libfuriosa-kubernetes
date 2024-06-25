@@ -42,17 +42,21 @@ typedef enum {
 
 typedef enum {
   FURIOSA_SMI_RETURN_CODE_OK = 0,
-  FURIOSA_SMI_RETURN_CODE_INITIALIZE_ERROR,
-  FURIOSA_SMI_RETURN_CODE_UNINITIALIZED_ERROR,
   FURIOSA_SMI_RETURN_CODE_INVALID_ARGUMENT_ERROR,
   FURIOSA_SMI_RETURN_CODE_NULL_POINTER_ERROR,
   FURIOSA_SMI_RETURN_CODE_MAX_BUFFER_SIZE_EXCEED_ERROR,
-  FURIOSA_SMI_RETURN_CODE_DEVICE_FILE_NOT_FOUND_ERROR,
-  FURIOSA_SMI_RETURN_CODE_DEVICE_FILE_FORMAT_ERROR,
-  FURIOSA_SMI_RETURN_CODE_DEVICE_NOT_IN_USE_ERROR,
-  FURIOSA_SMI_RETURN_CODE_DEVICE_NODE_ERROR,
+  FURIOSA_SMI_RETURN_CODE_DEVICE_NOT_FOUND_ERROR,
+  FURIOSA_SMI_RETURN_CODE_DEVICE_BUSY_ERROR,
+  FURIOSA_SMI_RETURN_CODE_IO_ERROR,
+  FURIOSA_SMI_RETURN_CODE_PERMISSION_DENIED_ERROR,
+  FURIOSA_SMI_RETURN_CODE_UNKNOWN_ARCH_ERROR,
+  FURIOSA_SMI_RETURN_CODE_INCOMPATIBLE_DRIVER_ERROR,
+  FURIOSA_SMI_RETURN_CODE_UNEXPECTED_VALUE_ERROR,
   FURIOSA_SMI_RETURN_CODE_PARSE_ERROR,
   FURIOSA_SMI_RETURN_CODE_UNKNOWN_ERROR,
+  FURIOSA_SMI_RETURN_CODE_INTERNAL_ERROR,
+  FURIOSA_SMI_RETURN_CODE_UNINITIALIZED_ERROR,
+  FURIOSA_SMI_RETURN_CODE_CONTEXT_ERROR,
 } FuriosaSmiReturnCode;
 
 typedef uint32_t FuriosaSmiDeviceHandle;
@@ -121,7 +125,7 @@ typedef struct {
   uint32_t core_count;
   uint32_t cores[FURIOSA_SMI_MAX_PE_SIZE];
   uint32_t time_window_mil;
-  uint32_t pe_usage_percentage;
+  double pe_usage_percentage;
 } FuriosaSmiPeUtilization;
 
 typedef struct {
@@ -140,8 +144,8 @@ typedef struct {
 } FuriosaSmiDevicePowerConsumption;
 
 typedef struct {
-  int soc_peak;
-  int ambient;
+  double soc_peak;
+  double ambient;
 } FuriosaSmiDeviceTemperature;
 
 FuriosaSmiReturnCode furiosa_smi_init(void);
@@ -153,10 +157,10 @@ FuriosaSmiReturnCode furiosa_smi_get_device_handles(FuriosaSmiDeviceHandles *out
 FuriosaSmiReturnCode furiosa_smi_get_device_handle_by_uuid(const char *uuid,
                                                            FuriosaSmiDeviceHandle *out_handle);
 
-FuriosaSmiReturnCode furiosa_smi_get_device_handle_by_serial(const char *uuid,
+FuriosaSmiReturnCode furiosa_smi_get_device_handle_by_serial(const char *serial,
                                                              FuriosaSmiDeviceHandle *out_handle);
 
-FuriosaSmiReturnCode furiosa_smi_get_device_handle_by_bdf(const char *uuid,
+FuriosaSmiReturnCode furiosa_smi_get_device_handle_by_bdf(const char *bdf,
                                                           FuriosaSmiDeviceHandle *out_handle);
 
 FuriosaSmiReturnCode furiosa_smi_get_device_info(FuriosaSmiDeviceHandle handle,

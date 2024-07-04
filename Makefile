@@ -69,8 +69,10 @@ base-no-cache:
 
 .PHONY: furiosa-smi-go-boilerplate
 furiosa-smi-go-boilerplate:
-	c-for-go -nostamp -out pkg/smi pkg/smi/furiosa-smi.yml
-	go build -o clean_cgo_structs tools/clean_cgo_structs.go
-	./clean_cgo_structs -source=pkg/smi/binding/types.go -output=pkg/smi/binding/zz_types.go
+	c-for-go -debug -nostamp -out pkg/smi pkg/smi/furiosa-smi.yml
+	go build -o clean_cgo tools/clean_cgo.go
+	./clean_cgo -source=pkg/smi/binding/types.go -output=pkg/smi/binding/zz_types.go
+	./clean_cgo -source=pkg/smi/binding/binding.go -output=pkg/smi/binding/zz_binding.go
 	rm -rf pkg/smi/binding/types.go
+	rm -rf pkg/smi/binding/binding.go
 	rm -rf pkg/smi/binding/cgo_helpers.go

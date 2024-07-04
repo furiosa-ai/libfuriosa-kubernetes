@@ -14,21 +14,6 @@ import (
 	"unsafe"
 )
 
-// FuriosaSmiInit function as declared in smi/furiosa_smi.h:151
-func FuriosaSmiInit() FuriosaSmiReturnCode {
-	__ret := C.furiosa_smi_init()
-	__v := (FuriosaSmiReturnCode)(__ret)
-	return __v
-}
-
-// FuriosaSmiShutdown function as declared in smi/furiosa_smi.h:153
-func FuriosaSmiShutdown() FuriosaSmiReturnCode {
-	__ret := C.furiosa_smi_shutdown()
-	__v := (FuriosaSmiReturnCode)(__ret)
-	return __v
-}
-
-// FuriosaSmiGetDeviceHandles function as declared in smi/furiosa_smi.h:155
 func FuriosaSmiGetDeviceHandles(outHandles *FuriosaSmiDeviceHandles) FuriosaSmiReturnCode {
 	coutHandles, coutHandlesAllocMap := (*C.FuriosaSmiDeviceHandles)(unsafe.Pointer(outHandles)), cgoAllocsUnknown
 	__ret := C.furiosa_smi_get_device_handles(coutHandles)
@@ -37,7 +22,22 @@ func FuriosaSmiGetDeviceHandles(outHandles *FuriosaSmiDeviceHandles) FuriosaSmiR
 	return __v
 }
 
-// FuriosaSmiGetDeviceHandleByUuid function as declared in smi/furiosa_smi.h:157
+func FuriosaSmiCreateObserver(outObserverInstance **FuriosaSmiObserver) FuriosaSmiReturnCode {
+	coutObserverInstance, coutObserverInstanceAllocMap := (*C.FuriosaSmiObserverInstance)(unsafe.Pointer(outObserverInstance)), cgoAllocsUnknown
+	__ret := C.furiosa_smi_create_observer(coutObserverInstance)
+	runtime.KeepAlive(coutObserverInstanceAllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}
+
+func FuriosaSmiDestroyObserver(pObserverInstance **FuriosaSmiObserver) FuriosaSmiReturnCode {
+	cpObserverInstance, cpObserverInstanceAllocMap := (*C.FuriosaSmiObserverInstance)(unsafe.Pointer(pObserverInstance)), cgoAllocsUnknown
+	__ret := C.furiosa_smi_destroy_observer(cpObserverInstance)
+	runtime.KeepAlive(cpObserverInstanceAllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}
+
 func FuriosaSmiGetDeviceHandleByUuid(uuid string, outHandle *FuriosaSmiDeviceHandle) FuriosaSmiReturnCode {
 	cuuid, cuuidAllocMap := unpackPCharString(uuid)
 	coutHandle, coutHandleAllocMap := (*C.FuriosaSmiDeviceHandle)(unsafe.Pointer(outHandle)), cgoAllocsUnknown
@@ -48,7 +48,6 @@ func FuriosaSmiGetDeviceHandleByUuid(uuid string, outHandle *FuriosaSmiDeviceHan
 	return __v
 }
 
-// FuriosaSmiGetDeviceHandleBySerial function as declared in smi/furiosa_smi.h:160
 func FuriosaSmiGetDeviceHandleBySerial(serial string, outHandle *FuriosaSmiDeviceHandle) FuriosaSmiReturnCode {
 	cserial, cserialAllocMap := unpackPCharString(serial)
 	coutHandle, coutHandleAllocMap := (*C.FuriosaSmiDeviceHandle)(unsafe.Pointer(outHandle)), cgoAllocsUnknown
@@ -59,7 +58,6 @@ func FuriosaSmiGetDeviceHandleBySerial(serial string, outHandle *FuriosaSmiDevic
 	return __v
 }
 
-// FuriosaSmiGetDeviceHandleByBdf function as declared in smi/furiosa_smi.h:163
 func FuriosaSmiGetDeviceHandleByBdf(bdf string, outHandle *FuriosaSmiDeviceHandle) FuriosaSmiReturnCode {
 	cbdf, cbdfAllocMap := unpackPCharString(bdf)
 	coutHandle, coutHandleAllocMap := (*C.FuriosaSmiDeviceHandle)(unsafe.Pointer(outHandle)), cgoAllocsUnknown
@@ -70,7 +68,6 @@ func FuriosaSmiGetDeviceHandleByBdf(bdf string, outHandle *FuriosaSmiDeviceHandl
 	return __v
 }
 
-// FuriosaSmiGetDeviceInfo function as declared in smi/furiosa_smi.h:166
 func FuriosaSmiGetDeviceInfo(handle FuriosaSmiDeviceHandle, outDeviceInfo *FuriosaSmiDeviceInfo) FuriosaSmiReturnCode {
 	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
 	coutDeviceInfo, coutDeviceInfoAllocMap := (*C.FuriosaSmiDeviceInfo)(unsafe.Pointer(outDeviceInfo)), cgoAllocsUnknown
@@ -81,7 +78,6 @@ func FuriosaSmiGetDeviceInfo(handle FuriosaSmiDeviceHandle, outDeviceInfo *Furio
 	return __v
 }
 
-// FuriosaSmiGetDeviceFiles function as declared in smi/furiosa_smi.h:169
 func FuriosaSmiGetDeviceFiles(handle FuriosaSmiDeviceHandle, outDeviceFiles *FuriosaSmiDeviceFiles) FuriosaSmiReturnCode {
 	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
 	coutDeviceFiles, coutDeviceFilesAllocMap := (*C.FuriosaSmiDeviceFiles)(unsafe.Pointer(outDeviceFiles)), cgoAllocsUnknown
@@ -92,7 +88,6 @@ func FuriosaSmiGetDeviceFiles(handle FuriosaSmiDeviceHandle, outDeviceFiles *Fur
 	return __v
 }
 
-// FuriosaSmiGetDeviceCoreStatus function as declared in smi/furiosa_smi.h:172
 func FuriosaSmiGetDeviceCoreStatus(handle FuriosaSmiDeviceHandle, outCoreStatus *FuriosaSmiCoreStatuses) FuriosaSmiReturnCode {
 	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
 	coutCoreStatus, coutCoreStatusAllocMap := (*C.FuriosaSmiCoreStatuses)(unsafe.Pointer(outCoreStatus)), cgoAllocsUnknown
@@ -103,7 +98,6 @@ func FuriosaSmiGetDeviceCoreStatus(handle FuriosaSmiDeviceHandle, outCoreStatus 
 	return __v
 }
 
-// FuriosaSmiGetDeviceLiveness function as declared in smi/furiosa_smi.h:175
 func FuriosaSmiGetDeviceLiveness(handle FuriosaSmiDeviceHandle, outLiveness *bool) FuriosaSmiReturnCode {
 	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
 	coutLiveness, coutLivenessAllocMap := (*C._Bool)(unsafe.Pointer(outLiveness)), cgoAllocsUnknown
@@ -114,7 +108,6 @@ func FuriosaSmiGetDeviceLiveness(handle FuriosaSmiDeviceHandle, outLiveness *boo
 	return __v
 }
 
-// FuriosaSmiGetDeviceErrorInfo function as declared in smi/furiosa_smi.h:178
 func FuriosaSmiGetDeviceErrorInfo(handle FuriosaSmiDeviceHandle, outErrorInfo *FuriosaSmiDeviceErrorInfo) FuriosaSmiReturnCode {
 	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
 	coutErrorInfo, coutErrorInfoAllocMap := (*C.FuriosaSmiDeviceErrorInfo)(unsafe.Pointer(outErrorInfo)), cgoAllocsUnknown
@@ -125,7 +118,6 @@ func FuriosaSmiGetDeviceErrorInfo(handle FuriosaSmiDeviceHandle, outErrorInfo *F
 	return __v
 }
 
-// FuriosaSmiGetDriverInfo function as declared in smi/furiosa_smi.h:181
 func FuriosaSmiGetDriverInfo(outDriverInfo *FuriosaSmiDriverInfo) FuriosaSmiReturnCode {
 	coutDriverInfo, coutDriverInfoAllocMap := (*C.FuriosaSmiDriverInfo)(unsafe.Pointer(outDriverInfo)), cgoAllocsUnknown
 	__ret := C.furiosa_smi_get_driver_info(coutDriverInfo)
@@ -134,18 +126,18 @@ func FuriosaSmiGetDriverInfo(outDriverInfo *FuriosaSmiDriverInfo) FuriosaSmiRetu
 	return __v
 }
 
-// FuriosaSmiGetDeviceUtilization function as declared in smi/furiosa_smi.h:183
-func FuriosaSmiGetDeviceUtilization(handle FuriosaSmiDeviceHandle, outUtilizationInfo *FuriosaSmiDeviceUtilization) FuriosaSmiReturnCode {
+func FuriosaSmiGetDeviceUtilization(observerInstance *FuriosaSmiObserver, handle FuriosaSmiDeviceHandle, outUtilizationInfo *FuriosaSmiDeviceUtilization) FuriosaSmiReturnCode {
+	cobserverInstance, cobserverInstanceAllocMap := (*C.FuriosaSmiObserver)(unsafe.Pointer(observerInstance)), cgoAllocsUnknown
 	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
 	coutUtilizationInfo, coutUtilizationInfoAllocMap := (*C.FuriosaSmiDeviceUtilization)(unsafe.Pointer(outUtilizationInfo)), cgoAllocsUnknown
-	__ret := C.furiosa_smi_get_device_utilization(chandle, coutUtilizationInfo)
+	__ret := C.furiosa_smi_get_device_utilization(cobserverInstance, chandle, coutUtilizationInfo)
 	runtime.KeepAlive(coutUtilizationInfoAllocMap)
 	runtime.KeepAlive(chandleAllocMap)
+	runtime.KeepAlive(cobserverInstanceAllocMap)
 	__v := (FuriosaSmiReturnCode)(__ret)
 	return __v
 }
 
-// FuriosaSmiGetDevicePowerConsumption function as declared in smi/furiosa_smi.h:186
 func FuriosaSmiGetDevicePowerConsumption(handle FuriosaSmiDeviceHandle, outPowerConsumption *FuriosaSmiDevicePowerConsumption) FuriosaSmiReturnCode {
 	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
 	coutPowerConsumption, coutPowerConsumptionAllocMap := (*C.FuriosaSmiDevicePowerConsumption)(unsafe.Pointer(outPowerConsumption)), cgoAllocsUnknown
@@ -156,7 +148,6 @@ func FuriosaSmiGetDevicePowerConsumption(handle FuriosaSmiDeviceHandle, outPower
 	return __v
 }
 
-// FuriosaSmiGetDeviceTemperature function as declared in smi/furiosa_smi.h:189
 func FuriosaSmiGetDeviceTemperature(handle FuriosaSmiDeviceHandle, outTemperature *FuriosaSmiDeviceTemperature) FuriosaSmiReturnCode {
 	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
 	coutTemperature, coutTemperatureAllocMap := (*C.FuriosaSmiDeviceTemperature)(unsafe.Pointer(outTemperature)), cgoAllocsUnknown
@@ -167,7 +158,6 @@ func FuriosaSmiGetDeviceTemperature(handle FuriosaSmiDeviceHandle, outTemperatur
 	return __v
 }
 
-// FuriosaSmiGetDeviceToDeviceLinkType function as declared in smi/furiosa_smi.h:192
 func FuriosaSmiGetDeviceToDeviceLinkType(handle1 FuriosaSmiDeviceHandle, handle2 FuriosaSmiDeviceHandle, outLinkType *FuriosaSmiDeviceToDeviceLinkType) FuriosaSmiReturnCode {
 	chandle1, chandle1AllocMap := (C.FuriosaSmiDeviceHandle)(handle1), cgoAllocsUnknown
 	chandle2, chandle2AllocMap := (C.FuriosaSmiDeviceHandle)(handle2), cgoAllocsUnknown

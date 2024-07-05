@@ -9,12 +9,6 @@ import (
 )
 
 func main() {
-	err := smi.Init()
-	if err != nil {
-		fmt.Printf("%s\n", err.Error())
-		os.Exit(1)
-	}
-
 	devices, err := smi.ListDevices()
 	if err != nil {
 		fmt.Printf("%s\n", err.Error())
@@ -37,6 +31,4 @@ func main() {
 			fmt.Printf("Mount: %+v\n", mount)
 		}
 	}
-
-	_ = smi.Shutdown()
 }

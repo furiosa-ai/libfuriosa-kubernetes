@@ -5,11 +5,17 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strings"
+	"regexp"
 )
 
-var sourceFile = flag.String("source", "", "Path to the source file")
-var outputFile = flag.String("output", "", "Path to the output file")
+var (
+	sourceFile     = flag.String("source", "", "Path to the source file")
+	outputFile     = flag.String("output", "", "Path to the output file")
+	refPattern     = regexp.MustCompile(`\tref.*\*C\..*`)
+	allocsPattern  = regexp.MustCompile(`\tallocs.*interface\{\}`)
+	commentPattern = regexp.MustCompile(`.*as declared in.*`)
+	replacePattern = regexp.MustCompile(`:= \(\*\*C\.FuriosaSmiObserver\)\(unsafe\.Pointer`)
+)
 
 func main() {
 	flag.Parse()
@@ -43,9 +49,14 @@ func main() {
 	for scanner.Scan() {
 		line := scanner.Text()
 		// skip lines with ref* and allocs*
-		if strings.Contains(line, "ref") || strings.Contains(line, "allocs") {
+		if refPattern.MatchString(line) || allocsPattern.MatchString(line) || commentPattern.MatchString(line) {
 			continue
 		}
+
+		if replacePattern.MatchString(line) {
+			line = replacePattern.ReplaceAllString(line, `:= (*C.FuriosaSmiObserverInstance)(unsafe.Pointer`)
+		}
+
 		if _, err := writer.WriteString(line + "\n"); err != nil {
 			fmt.Printf("Error writing to output file: %v\n", err)
 			return

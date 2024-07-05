@@ -1,19 +1,31 @@
 package smi
 
 import (
+	"runtime"
+
 	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi/binding"
 )
 
-func ListDevices() ([]Device, error) {
-	var out binding.FuriosaSmiDeviceHandles
+type furiosaSmiObserverInstance = *binding.FuriosaSmiObserver
 
-	if ret := binding.FuriosaSmiGetDeviceHandles(&out); ret != binding.FuriosaSmiReturnCodeOk {
+func ListDevices() ([]Device, error) {
+	var outDeviceHandle binding.FuriosaSmiDeviceHandles
+	if ret := binding.FuriosaSmiGetDeviceHandles(&outDeviceHandle); ret != binding.FuriosaSmiReturnCodeOk {
 		return nil, ToError(ret)
 	}
 
+	var outObserverInstance = new(furiosaSmiObserverInstance)
+	if ret := binding.FuriosaSmiCreateObserver(outObserverInstance); ret != binding.FuriosaSmiReturnCodeOk {
+		return nil, ToError(ret)
+	}
+
+	defer runtime.SetFinalizer(outObserverInstance, func(observerInstance *furiosaSmiObserverInstance) {
+		_ = binding.FuriosaSmiDestroyObserver(observerInstance)
+	})
+
 	var devices []Device
-	for i := 0; i < int(out.Count); i++ {
-		devices = append(devices, newDevice(out.DeviceHandles[i]))
+	for i := 0; i < int(outDeviceHandle.Count); i++ {
+		devices = append(devices, newDevice(outDeviceHandle.DeviceHandles[i], outObserverInstance))
 	}
 
 	return devices, nil
@@ -34,11 +46,15 @@ type Device interface {
 var _ Device = new(device)
 
 type device struct {
-	handle binding.FuriosaSmiDeviceHandle
+	observerInstance *furiosaSmiObserverInstance
+	handle           binding.FuriosaSmiDeviceHandle
 }
 
-func newDevice(handle binding.FuriosaSmiDeviceHandle) Device {
-	return &device{handle: handle}
+func newDevice(handle binding.FuriosaSmiDeviceHandle, observerInstance *furiosaSmiObserverInstance) Device {
+	return &device{
+		observerInstance: observerInstance,
+		handle:           handle,
+	}
 }
 
 func (d *device) DeviceInfo() (DeviceInfo, error) {
@@ -103,7 +119,7 @@ func (d *device) Liveness() (bool, error) {
 func (d *device) DeviceUtilization() (DeviceUtilization, error) {
 	var out binding.FuriosaSmiDeviceUtilization
 
-	if ret := binding.FuriosaSmiGetDeviceUtilization(d.handle, &out); ret != binding.FuriosaSmiReturnCodeOk {
+	if ret := binding.FuriosaSmiGetDeviceUtilization(*d.observerInstance, d.handle, &out); ret != binding.FuriosaSmiReturnCodeOk {
 		return nil, ToError(ret)
 	}
 

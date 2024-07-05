@@ -59,12 +59,16 @@ typedef enum {
   FURIOSA_SMI_RETURN_CODE_CONTEXT_ERROR,
 } FuriosaSmiReturnCode;
 
+typedef struct FuriosaSmiObserver FuriosaSmiObserver;
+
 typedef uint32_t FuriosaSmiDeviceHandle;
 
 typedef struct {
   uint32_t count;
   FuriosaSmiDeviceHandle device_handles[FURIOSA_SMI_MAX_DEVICE_HANDLE_SIZE];
 } FuriosaSmiDeviceHandles;
+
+typedef FuriosaSmiObserver* FuriosaSmiObserverInstance;
 
 typedef struct {
   FuriosaSmiArch arch;
@@ -148,11 +152,11 @@ typedef struct {
   double ambient;
 } FuriosaSmiDeviceTemperature;
 
-FuriosaSmiReturnCode furiosa_smi_init(void);
-
-FuriosaSmiReturnCode furiosa_smi_shutdown(void);
-
 FuriosaSmiReturnCode furiosa_smi_get_device_handles(FuriosaSmiDeviceHandles *out_handles);
+
+FuriosaSmiReturnCode furiosa_smi_create_observer(FuriosaSmiObserverInstance *out_observer_instance);
+
+FuriosaSmiReturnCode furiosa_smi_destroy_observer(FuriosaSmiObserverInstance *p_observer_instance);
 
 FuriosaSmiReturnCode furiosa_smi_get_device_handle_by_uuid(const char *uuid,
                                                            FuriosaSmiDeviceHandle *out_handle);
@@ -180,7 +184,8 @@ FuriosaSmiReturnCode furiosa_smi_get_device_error_info(FuriosaSmiDeviceHandle ha
 
 FuriosaSmiReturnCode furiosa_smi_get_driver_info(FuriosaSmiDriverInfo *out_driver_info);
 
-FuriosaSmiReturnCode furiosa_smi_get_device_utilization(FuriosaSmiDeviceHandle handle,
+FuriosaSmiReturnCode furiosa_smi_get_device_utilization(FuriosaSmiObserverInstance observer_instance,
+                                                        FuriosaSmiDeviceHandle handle,
                                                         FuriosaSmiDeviceUtilization *out_utilization_info);
 
 FuriosaSmiReturnCode furiosa_smi_get_device_power_consumption(FuriosaSmiDeviceHandle handle,

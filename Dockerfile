@@ -1,4 +1,4 @@
-FROM ghcr.io/furiosa-ai/furiosa-smi:latest as smi
+FROM registry.furiosa.ai/furiosa/furiosa-smi:latest as smi
 
 FROM golang:1.21.7-bookworm
 

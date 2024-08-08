@@ -1,4 +1,4 @@
-name: Build & Push devel container image for new tag
+name: Build & Push devel container image to ghcr
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - '*'
 
 jobs:
-  docker_publish:
+  ghcr_docker_publish:
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v4

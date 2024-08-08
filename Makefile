@@ -61,11 +61,19 @@ example:
 
 .PHONY: base
 base:
-	docker build . -t ghcr.io/furiosa-ai/libfuriosa-kubernetes:devel --progress=plain --platform=linux/amd64
+	docker build . -t registry.furiosa.ai/furiosa/libfuriosa-kubernetes:devel --progress=plain --platform=linux/amd64
 
 .PHONY: base-no-cache
 base-no-cache:
-	docker build . --no-cache -t ghcr.io/furiosa-ai/libfuriosa-kubernetes:devel --progress=plain --platform=linux/amd64
+	docker build . --no-cache -t registry.furiosa.ai/furiosa/libfuriosa-kubernetes:devel --progress=plain --platform=linux/amd64
+
+.PHONY: base-rel
+base-rel:
+	docker build . -t registry.furiosa.ai/furiosa/libfuriosa-kubernetes:latest --progress=plain --platform=linux/amd64
+
+.PHONY: base-no-cache-rel
+base-no-cache-rel:
+	docker build . --no-cache -t registry.furiosa.ai/furiosa/libfuriosa-kubernetes:latest --progress=plain --platform=linux/amd64
 
 .PHONY: furiosa-smi-go-boilerplate
 furiosa-smi-go-boilerplate:

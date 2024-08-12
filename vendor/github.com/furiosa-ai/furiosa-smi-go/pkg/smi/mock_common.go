@@ -135,15 +135,15 @@ func (m *staticMockDeviceErrorInfo) DeviceErrorCount() uint32 {
 }
 
 type staticMockPeUtilization struct {
-	cores      []uint32
+	core       uint32
 	timeWindow uint32
 	usage      float64
 }
 
 var _ PeUtilization = new(staticMockPeUtilization)
 
-func (m *staticMockPeUtilization) Cores() []uint32 {
-	return m.cores
+func (m *staticMockPeUtilization) Core() uint32 {
+	return m.core
 }
 
 func (m *staticMockPeUtilization) TimeWindowMill() uint32 {

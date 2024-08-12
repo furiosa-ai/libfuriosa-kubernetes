@@ -22,22 +22,6 @@ func FuriosaSmiGetDeviceHandles(outHandles *FuriosaSmiDeviceHandles) FuriosaSmiR
 	return __v
 }
 
-func FuriosaSmiCreateObserver(outObserverInstance **FuriosaSmiObserver) FuriosaSmiReturnCode {
-	coutObserverInstance, coutObserverInstanceAllocMap := (*C.FuriosaSmiObserverInstance)(unsafe.Pointer(outObserverInstance)), cgoAllocsUnknown
-	__ret := C.furiosa_smi_create_observer(coutObserverInstance)
-	runtime.KeepAlive(coutObserverInstanceAllocMap)
-	__v := (FuriosaSmiReturnCode)(__ret)
-	return __v
-}
-
-func FuriosaSmiDestroyObserver(pObserverInstance **FuriosaSmiObserver) FuriosaSmiReturnCode {
-	cpObserverInstance, cpObserverInstanceAllocMap := (*C.FuriosaSmiObserverInstance)(unsafe.Pointer(pObserverInstance)), cgoAllocsUnknown
-	__ret := C.furiosa_smi_destroy_observer(cpObserverInstance)
-	runtime.KeepAlive(cpObserverInstanceAllocMap)
-	__v := (FuriosaSmiReturnCode)(__ret)
-	return __v
-}
-
 func FuriosaSmiGetDeviceHandleByUuid(uuid string, outHandle *FuriosaSmiDeviceHandle) FuriosaSmiReturnCode {
 	cuuid, cuuidAllocMap := unpackPCharString(uuid)
 	coutHandle, coutHandleAllocMap := (*C.FuriosaSmiDeviceHandle)(unsafe.Pointer(outHandle)), cgoAllocsUnknown
@@ -118,10 +102,38 @@ func FuriosaSmiGetDeviceErrorInfo(handle FuriosaSmiDeviceHandle, outErrorInfo *F
 	return __v
 }
 
+func FuriosaSmiGetDeviceToDeviceLinkType(handle1 FuriosaSmiDeviceHandle, handle2 FuriosaSmiDeviceHandle, outLinkType *FuriosaSmiDeviceToDeviceLinkType) FuriosaSmiReturnCode {
+	chandle1, chandle1AllocMap := (C.FuriosaSmiDeviceHandle)(handle1), cgoAllocsUnknown
+	chandle2, chandle2AllocMap := (C.FuriosaSmiDeviceHandle)(handle2), cgoAllocsUnknown
+	coutLinkType, coutLinkTypeAllocMap := (*C.FuriosaSmiDeviceToDeviceLinkType)(unsafe.Pointer(outLinkType)), cgoAllocsUnknown
+	__ret := C.furiosa_smi_get_device_to_device_link_type(chandle1, chandle2, coutLinkType)
+	runtime.KeepAlive(coutLinkTypeAllocMap)
+	runtime.KeepAlive(chandle2AllocMap)
+	runtime.KeepAlive(chandle1AllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}
+
 func FuriosaSmiGetDriverInfo(outDriverInfo *FuriosaSmiDriverInfo) FuriosaSmiReturnCode {
 	coutDriverInfo, coutDriverInfoAllocMap := (*C.FuriosaSmiDriverInfo)(unsafe.Pointer(outDriverInfo)), cgoAllocsUnknown
 	__ret := C.furiosa_smi_get_driver_info(coutDriverInfo)
 	runtime.KeepAlive(coutDriverInfoAllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}
+
+func FuriosaSmiCreateObserver(outObserverInstance **FuriosaSmiObserver) FuriosaSmiReturnCode {
+	coutObserverInstance, coutObserverInstanceAllocMap := (*C.FuriosaSmiObserverInstance)(unsafe.Pointer(outObserverInstance)), cgoAllocsUnknown
+	__ret := C.furiosa_smi_create_observer(coutObserverInstance)
+	runtime.KeepAlive(coutObserverInstanceAllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}
+
+func FuriosaSmiDestroyObserver(pObserverInstance **FuriosaSmiObserver) FuriosaSmiReturnCode {
+	cpObserverInstance, cpObserverInstanceAllocMap := (*C.FuriosaSmiObserverInstance)(unsafe.Pointer(pObserverInstance)), cgoAllocsUnknown
+	__ret := C.furiosa_smi_destroy_observer(cpObserverInstance)
+	runtime.KeepAlive(cpObserverInstanceAllocMap)
 	__v := (FuriosaSmiReturnCode)(__ret)
 	return __v
 }
@@ -154,18 +166,6 @@ func FuriosaSmiGetDeviceTemperature(handle FuriosaSmiDeviceHandle, outTemperatur
 	__ret := C.furiosa_smi_get_device_temperature(chandle, coutTemperature)
 	runtime.KeepAlive(coutTemperatureAllocMap)
 	runtime.KeepAlive(chandleAllocMap)
-	__v := (FuriosaSmiReturnCode)(__ret)
-	return __v
-}
-
-func FuriosaSmiGetDeviceToDeviceLinkType(handle1 FuriosaSmiDeviceHandle, handle2 FuriosaSmiDeviceHandle, outLinkType *FuriosaSmiDeviceToDeviceLinkType) FuriosaSmiReturnCode {
-	chandle1, chandle1AllocMap := (C.FuriosaSmiDeviceHandle)(handle1), cgoAllocsUnknown
-	chandle2, chandle2AllocMap := (C.FuriosaSmiDeviceHandle)(handle2), cgoAllocsUnknown
-	coutLinkType, coutLinkTypeAllocMap := (*C.FuriosaSmiDeviceToDeviceLinkType)(unsafe.Pointer(outLinkType)), cgoAllocsUnknown
-	__ret := C.furiosa_smi_get_device_to_device_link_type(chandle1, chandle2, coutLinkType)
-	runtime.KeepAlive(coutLinkTypeAllocMap)
-	runtime.KeepAlive(chandle2AllocMap)
-	runtime.KeepAlive(chandle1AllocMap)
 	__v := (FuriosaSmiReturnCode)(__ret)
 	return __v
 }

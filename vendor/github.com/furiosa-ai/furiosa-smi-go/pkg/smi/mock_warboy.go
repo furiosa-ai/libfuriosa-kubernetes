@@ -49,7 +49,7 @@ func (m *staticWarboyMockDevice) Liveness() (bool, error) {
 func (m *staticWarboyMockDevice) DeviceUtilization() (DeviceUtilization, error) {
 	return &staticMockDeviceUtilization{
 		pe: []PeUtilization{
-			&staticMockPeUtilization{cores: []uint32{0}, timeWindow: 1000, usage: 50},
+			&staticMockPeUtilization{core: 0, timeWindow: 1000, usage: 50},
 		},
 		mem: &staticMockMemoryUtilization{},
 	}, nil

@@ -3,7 +3,7 @@ package smi
 import "github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
 
 type PeUtilization interface {
-	Cores() []uint32
+	Core() uint32
 	TimeWindowMill() uint32
 	PeUsagePercentage() float64
 }
@@ -20,12 +20,8 @@ func newPeUtilization(raw binding.FuriosaSmiPeUtilization) PeUtilization {
 	}
 }
 
-func (p *peUtilization) Cores() (ret []uint32) {
-	for i := uint32(0); i < p.raw.CoreCount; i++ {
-		ret = append(ret, p.raw.Cores[i])
-	}
-
-	return
+func (p *peUtilization) Core() uint32 {
+	return p.raw.Core
 }
 
 func (p *peUtilization) TimeWindowMill() uint32 {

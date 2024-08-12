@@ -43,17 +43,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 
 	for remainingCnt > 0 {
 		// Step 1: Use Best Fit Bin Packing algorithm to select candidates.
-		minDiff := math.MaxInt32
-		selectedTopologyHintKey := ""
-		for key, partialCandidates := range candidatesByHintMap {
-			diff := len(partialCandidates) - remainingCnt
-			if diff >= 0 && diff < minDiff {
-				minDiff = diff
-				selectedTopologyHintKey = key
-			}
-		}
-
-		// If Step 1 failed to find proper candidates, `selectedTopologyHintKey` will be empty.
+		selectedTopologyHintKey := getTopologyHintKeyUsingBestFitBinPacking(remainingCnt, &candidatesByHintMap)
 		if selectedTopologyHintKey != "" {
 			finalizedDevices = append(finalizedDevices, candidatesByHintMap[selectedTopologyHintKey][:remainingCnt]...)
 			candidatesByHintMap[selectedTopologyHintKey] = candidatesByHintMap[selectedTopologyHintKey][remainingCnt:]
@@ -62,19 +52,40 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 		}
 
 		// Step 2: Find candidates which have the largest length.
-		maxLen := 0
-		selectedTopologyHintKey = ""
-		for key, partialCandidates := range candidatesByHintMap {
-			if selectedTopologyHintKey == "" || len(partialCandidates) > maxLen {
-				maxLen = len(partialCandidates)
-				selectedTopologyHintKey = key
-			}
-		}
-
+		selectedTopologyHintKey = getLargestLengthCandidatesTopologyHintKey(&candidatesByHintMap)
 		finalizedDevices = append(finalizedDevices, candidatesByHintMap[selectedTopologyHintKey]...)
 		remainingCnt -= len(candidatesByHintMap[selectedTopologyHintKey])
 		delete(candidatesByHintMap, selectedTopologyHintKey)
 	}
 
 	return finalizedDevices
+}
+
+// getTopologyHintKeyUsingBestFitBinPacking uses Best Fit Bin Packing algorithm to select candidates key
+func getTopologyHintKeyUsingBestFitBinPacking(remainingCnt int, candidatesByHintMap *map[string]DeviceSet) string {
+	minDiff := math.MaxInt32
+	topologyHintKey := ""
+	for key, candidates := range *candidatesByHintMap {
+		diff := len(candidates) - remainingCnt
+		if diff >= 0 && diff < minDiff {
+			minDiff = diff
+			topologyHintKey = key
+		}
+	}
+
+	return topologyHintKey
+}
+
+// getLargestLengthCandidatesTopologyHintKey selects candidates key which has the largest length
+func getLargestLengthCandidatesTopologyHintKey(candidatesByHintMap *map[string]DeviceSet) string {
+	maxLen := 0
+	topologyHintKey := ""
+	for key, candidates := range *candidatesByHintMap {
+		if topologyHintKey == "" || len(candidates) > maxLen {
+			maxLen = len(candidates)
+			topologyHintKey = key
+		}
+	}
+
+	return topologyHintKey
 }

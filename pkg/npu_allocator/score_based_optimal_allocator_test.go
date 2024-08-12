@@ -1,7 +1,7 @@
 package npu_allocator
 
 import (
-	furiosaSmi "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 	"reflect"
 	"strconv"
 	"testing"
@@ -933,12 +933,12 @@ func TestAllocation(t *testing.T) {
 func TestPopulateTopologyMatrix(t *testing.T) {
 	tests := []struct {
 		description string
-		input       []furiosaSmi.Device
+		input       []smi.Device
 		expected    topologyMatrix
 	}{
 		{
 			description: "test 8 npu configuration",
-			input:       furiosaSmi.GetStaticMockDevices(furiosaSmi.ArchWarboy),
+			input:       smi.GetStaticMockDevices(smi.ArchWarboy),
 			expected: topologyMatrix{
 				"0000:27:00.0": {
 					"0000:27:00.0": 70,

@@ -14,7 +14,7 @@ func generateSameBoardMockDeviceSet(amount int, topologyHintKey string) DeviceSe
 	for i := range iter.N(amount) {
 		devices = append(devices, &mockDevice{
 			id:              fmt.Sprintf("%s_%2d", id.String(), i),
-			topologyHintKey: fmt.Sprintf("%s", topologyHintKey),
+			topologyHintKey: topologyHintKey,
 		})
 	}
 
@@ -85,6 +85,7 @@ func TestGetTopologyHintKeyUsingBestFitBinPacking(t *testing.T) {
 	}
 }
 
+// TestGetLargestLengthCandidatesTopologyHintKey tests whether `getLargestLengthCandidatesTopologyHintKey()` is picking the TopologyHintKey correctly or not.
 func TestGetLargestLengthCandidatesTopologyHintKey(t *testing.T) {
 	tests := []struct {
 		description      string

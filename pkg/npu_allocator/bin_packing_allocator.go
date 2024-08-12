@@ -10,7 +10,7 @@ var _ NpuAllocator = (*binPackingNpuAllocator)(nil)
 
 type binPackingNpuAllocator struct{}
 
-func NewBinPackingNpuAllocator(devices []smi.Device) (NpuAllocator, error) {
+func NewBinPackingNpuAllocator(_ []smi.Device) (NpuAllocator, error) {
 	return &binPackingNpuAllocator{}, nil
 }
 
@@ -47,7 +47,6 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 		if selectedTopologyHintKey != "" {
 			finalizedDevices = append(finalizedDevices, candidatesByHintMap[selectedTopologyHintKey][:remainingCnt]...)
 			candidatesByHintMap[selectedTopologyHintKey] = candidatesByHintMap[selectedTopologyHintKey][remainingCnt:]
-			remainingCnt = 0
 			break
 		}
 

@@ -3,6 +3,7 @@ package npu_allocator
 import (
 	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 	"math"
+	"sort"
 )
 
 var _ NpuAllocator = (*binPackingNpuAllocator)(nil)
@@ -22,6 +23,10 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 
 	// candidates contains devices in `available` set, excluding `required` set.
 	candidates := available.Difference(required)
+	sort.Slice(candidates, func(i, j int) bool {
+		return candidates[i].ID() < candidates[j].ID()
+	})
+
 	candidatesByHintMap := make(map[string]DeviceSet) // construct map by TopologyHintKey and DeviceSet
 	for _, candidate := range candidates {
 		topologyHintKey := candidate.TopologyHintKey()

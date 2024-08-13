@@ -202,30 +202,30 @@ func TestAllocationOfBinPackingAllocator(t *testing.T) {
 			description: "must pick '01' which is the target for best fit bin packing algorithm",
 			available: func() DeviceSet {
 				devices := make(DeviceSet, 0)
-				devices = append(devices, mockDevices[0]...)
-				devices = append(devices, mockDevices[1]...)
-				devices = append(devices, mockDevices[2]...)
-				devices = append(devices, mockDevices[3]...)
-				devices = append(devices, mockDevices[4]...)
-				devices = append(devices, mockDevices[5]...)
-				devices = append(devices, mockDevices[6]...)
-				devices = append(devices, mockDevices[7]...)
+				devices = devices.Union(mockDevices[0])
+				devices = devices.Union(mockDevices[1])
+				devices = devices.Union(mockDevices[2])
+				devices = devices.Union(mockDevices[3])
+				devices = devices.Union(mockDevices[4])
+				devices = devices.Union(mockDevices[5])
+				devices = devices.Union(mockDevices[6])
+				devices = devices.Union(mockDevices[7])
 
 				return devices
 			}(),
 			required: func() DeviceSet {
 				devices := make(DeviceSet, 0)
-				devices = append(devices, mockDevices[0]...)
-				devices = append(devices, mockDevices[2]...)
+				devices = devices.Union(mockDevices[0])
+				devices = devices.Union(mockDevices[2])
 
 				return devices
 			}(),
 			request: 5,
 			expectedIn: func() DeviceSet {
 				devices := make(DeviceSet, 0)
-				devices = append(devices, mockDevices[0]...)
-				devices = append(devices, mockDevices[2]...)
-				devices = append(devices, mockDevices[1]...)
+				devices = devices.Union(mockDevices[0])
+				devices = devices.Union(mockDevices[2])
+				devices = devices.Union(mockDevices[1])
 
 				return devices
 			}(),
@@ -234,30 +234,30 @@ func TestAllocationOfBinPackingAllocator(t *testing.T) {
 			description: "must pick '07' which is the target for best fit bin packing algorithm",
 			available: func() DeviceSet {
 				devices := make(DeviceSet, 0)
-				devices = append(devices, mockDevices[0]...)
-				devices = append(devices, mockDevices[1]...)
-				devices = append(devices, mockDevices[2]...)
-				devices = append(devices, mockDevices[3]...)
-				devices = append(devices, mockDevices[4]...)
-				devices = append(devices, mockDevices[5]...)
-				devices = append(devices, mockDevices[6]...)
-				devices = append(devices, mockDevices[7]...)
+				devices = devices.Union(mockDevices[0])
+				devices = devices.Union(mockDevices[1])
+				devices = devices.Union(mockDevices[2])
+				devices = devices.Union(mockDevices[3])
+				devices = devices.Union(mockDevices[4])
+				devices = devices.Union(mockDevices[5])
+				devices = devices.Union(mockDevices[6])
+				devices = devices.Union(mockDevices[7])
 
 				return devices
 			}(),
 			required: func() DeviceSet {
 				devices := make(DeviceSet, 0)
-				devices = append(devices, mockDevices[0]...)
-				devices = append(devices, mockDevices[2]...)
+				devices = devices.Union(mockDevices[0])
+				devices = devices.Union(mockDevices[2])
 
 				return devices
 			}(),
 			request: 12,
 			expectedIn: func() DeviceSet {
 				devices := make(DeviceSet, 0)
-				devices = append(devices, mockDevices[0]...)
-				devices = append(devices, mockDevices[2]...)
-				devices = append(devices, mockDevices[7]...)
+				devices = devices.Union(mockDevices[0])
+				devices = devices.Union(mockDevices[2])
+				devices = devices.Union(mockDevices[7])
 
 				return devices
 			}(),
@@ -266,31 +266,31 @@ func TestAllocationOfBinPackingAllocator(t *testing.T) {
 			description: "must pick '03', '07' which is the target for best fit bin packing algorithm",
 			available: func() DeviceSet {
 				devices := make(DeviceSet, 0)
-				devices = append(devices, mockDevices[0]...)
-				devices = append(devices, mockDevices[1]...)
-				devices = append(devices, mockDevices[2]...)
-				devices = append(devices, mockDevices[3]...)
-				devices = append(devices, mockDevices[4]...)
-				devices = append(devices, mockDevices[5]...)
-				devices = append(devices, mockDevices[6]...)
-				devices = append(devices, mockDevices[7]...)
+				devices = devices.Union(mockDevices[0])
+				devices = devices.Union(mockDevices[1])
+				devices = devices.Union(mockDevices[2])
+				devices = devices.Union(mockDevices[3])
+				devices = devices.Union(mockDevices[4])
+				devices = devices.Union(mockDevices[5])
+				devices = devices.Union(mockDevices[6])
+				devices = devices.Union(mockDevices[7])
 
 				return devices
 			}(),
 			required: func() DeviceSet {
 				devices := make(DeviceSet, 0)
-				devices = append(devices, mockDevices[0]...)
-				devices = append(devices, mockDevices[2]...)
+				devices = devices.Union(mockDevices[0])
+				devices = devices.Union(mockDevices[2])
 
 				return devices
 			}(),
 			request: 15,
 			expectedIn: func() DeviceSet {
 				devices := make(DeviceSet, 0)
-				devices = append(devices, mockDevices[0]...)
-				devices = append(devices, mockDevices[2]...)
-				devices = append(devices, mockDevices[7]...)
-				devices = append(devices, mockDevices[3]...)
+				devices = devices.Union(mockDevices[0])
+				devices = devices.Union(mockDevices[2])
+				devices = devices.Union(mockDevices[7])
+				devices = devices.Union(mockDevices[3])
 
 				return devices
 			}(),

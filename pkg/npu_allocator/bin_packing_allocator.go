@@ -1,6 +1,7 @@
 package npu_allocator
 
 import (
+	"fmt"
 	"math"
 	"sort"
 
@@ -16,6 +17,8 @@ func NewBinPackingNpuAllocator(_ []smi.Device) (NpuAllocator, error) {
 }
 
 func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSet, request int) DeviceSet {
+	fmt.Printf("available: %d, required: %d, request: %d\n", len(available), len(required), request)
+
 	subsetLen := request - len(required)
 	// If subsetLen is zero, it means pre-allocated devices already satisfies device request quantity.
 	if subsetLen == 0 {
@@ -40,20 +43,20 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 
 	// finalizedDevices contains finalized allocated devices.
 	finalizedDevices := make(DeviceSet, 0, request)
-	finalizedDevices = append(finalizedDevices, required...)
+	finalizedDevices = finalizedDevices.Union(required)
 
 	for subsetLen > 0 {
 		// Step 1: Use Best Fit Bin Packing algorithm to select difference.
 		selectedTopologyHintKey := getTopologyHintKeyUsingBestFitBinPacking(subsetLen, differenceByHintMap)
 		if selectedTopologyHintKey != "" {
-			finalizedDevices = append(finalizedDevices, differenceByHintMap[selectedTopologyHintKey][:subsetLen]...)
+			finalizedDevices = finalizedDevices.Union(differenceByHintMap[selectedTopologyHintKey][:subsetLen])
 			differenceByHintMap[selectedTopologyHintKey] = differenceByHintMap[selectedTopologyHintKey][subsetLen:]
 			break
 		}
 
 		// Step 2: Find difference which have the largest length.
 		selectedTopologyHintKey = getLargestLengthDifferenceTopologyHintKey(differenceByHintMap)
-		finalizedDevices = append(finalizedDevices, differenceByHintMap[selectedTopologyHintKey]...)
+		finalizedDevices = finalizedDevices.Union(differenceByHintMap[selectedTopologyHintKey])
 		subsetLen -= len(differenceByHintMap[selectedTopologyHintKey])
 		delete(differenceByHintMap, selectedTopologyHintKey)
 	}

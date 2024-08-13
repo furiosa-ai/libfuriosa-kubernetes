@@ -16,9 +16,9 @@ func NewBinPackingNpuAllocator(_ []smi.Device) (NpuAllocator, error) {
 }
 
 func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSet, request int) DeviceSet {
-	remainingCnt := request - len(required)
-	// If remainingCnt is zero, it means pre-allocated devices already satisfies device request quantity.
-	if remainingCnt == 0 {
+	subsetLen := request - len(required)
+	// If subsetLen is zero, it means pre-allocated devices already satisfies device request quantity.
+	if subsetLen == 0 {
 		return required
 	}
 
@@ -42,19 +42,19 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	finalizedDevices := make(DeviceSet, 0, request)
 	finalizedDevices = append(finalizedDevices, required...)
 
-	for remainingCnt > 0 {
+	for subsetLen > 0 {
 		// Step 1: Use Best Fit Bin Packing algorithm to select candidates.
-		selectedTopologyHintKey := getTopologyHintKeyUsingBestFitBinPacking(remainingCnt, &candidatesByHintMap)
+		selectedTopologyHintKey := getTopologyHintKeyUsingBestFitBinPacking(subsetLen, &candidatesByHintMap)
 		if selectedTopologyHintKey != "" {
-			finalizedDevices = append(finalizedDevices, candidatesByHintMap[selectedTopologyHintKey][:remainingCnt]...)
-			candidatesByHintMap[selectedTopologyHintKey] = candidatesByHintMap[selectedTopologyHintKey][remainingCnt:]
+			finalizedDevices = append(finalizedDevices, candidatesByHintMap[selectedTopologyHintKey][:subsetLen]...)
+			candidatesByHintMap[selectedTopologyHintKey] = candidatesByHintMap[selectedTopologyHintKey][subsetLen:]
 			break
 		}
 
 		// Step 2: Find candidates which have the largest length.
 		selectedTopologyHintKey = getLargestLengthCandidatesTopologyHintKey(&candidatesByHintMap)
 		finalizedDevices = append(finalizedDevices, candidatesByHintMap[selectedTopologyHintKey]...)
-		remainingCnt -= len(candidatesByHintMap[selectedTopologyHintKey])
+		subsetLen -= len(candidatesByHintMap[selectedTopologyHintKey])
 		delete(candidatesByHintMap, selectedTopologyHintKey)
 	}
 
@@ -62,11 +62,11 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 }
 
 // getTopologyHintKeyUsingBestFitBinPacking uses Best Fit Bin Packing algorithm to select candidates key
-func getTopologyHintKeyUsingBestFitBinPacking(remainingCnt int, candidatesByHintMap *map[string]DeviceSet) string {
+func getTopologyHintKeyUsingBestFitBinPacking(subsetLen int, candidatesByHintMap *map[string]DeviceSet) string {
 	minDiff := math.MaxInt32
 	topologyHintKey := ""
 	for key, candidates := range *candidatesByHintMap {
-		diff := len(candidates) - remainingCnt
+		diff := len(candidates) - subsetLen
 		if diff >= 0 && diff < minDiff {
 			minDiff = diff
 			topologyHintKey = key

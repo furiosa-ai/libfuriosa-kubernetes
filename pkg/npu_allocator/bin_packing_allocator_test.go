@@ -27,7 +27,7 @@ func TestGetTopologyHintKeyUsingBestFitBinPacking(t *testing.T) {
 	tests := []struct {
 		description      string
 		devicesByHintMap map[string]DeviceSet
-		remainingCnt     int
+		subsetLen        int
 		expectedIn       []string
 	}{
 		{
@@ -42,8 +42,8 @@ func TestGetTopologyHintKeyUsingBestFitBinPacking(t *testing.T) {
 
 				return deviceMap
 			}(),
-			remainingCnt: 5,
-			expectedIn:   []string{"02"},
+			subsetLen:  5,
+			expectedIn: []string{"02"},
 		},
 		{
 			description: "must pick '04' which is the target for best fit bin packing algorithm",
@@ -57,8 +57,8 @@ func TestGetTopologyHintKeyUsingBestFitBinPacking(t *testing.T) {
 
 				return deviceMap
 			}(),
-			remainingCnt: 5,
-			expectedIn:   []string{"04"},
+			subsetLen:  5,
+			expectedIn: []string{"04"},
 		},
 		{
 			description: "must not pick any key because none of them has sufficient size for requested remaining cnt",
@@ -72,15 +72,15 @@ func TestGetTopologyHintKeyUsingBestFitBinPacking(t *testing.T) {
 
 				return deviceMap
 			}(),
-			remainingCnt: 7,
-			expectedIn:   []string{""},
+			subsetLen:  7,
+			expectedIn: []string{""},
 		},
 	}
 
 	t.Parallel()
 	for _, tc := range tests {
 		t.Run(tc.description, func(subT *testing.T) {
-			actual := getTopologyHintKeyUsingBestFitBinPacking(tc.remainingCnt, &tc.devicesByHintMap)
+			actual := getTopologyHintKeyUsingBestFitBinPacking(tc.subsetLen, &tc.devicesByHintMap)
 			assert.Contains(subT, tc.expectedIn, actual)
 		})
 	}

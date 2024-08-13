@@ -1,10 +1,11 @@
 package npu_allocator
 
 import (
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 	"reflect"
 	"strconv"
 	"testing"
+
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 )
 
 func buildMockDeviceSet(start, end int) DeviceSet {

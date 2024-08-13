@@ -1,9 +1,10 @@
 package npu_allocator
 
 import (
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 	"math"
 	"sort"
+
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 )
 
 var _ NpuAllocator = (*binPackingNpuAllocator)(nil)

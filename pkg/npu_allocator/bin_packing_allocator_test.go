@@ -2,10 +2,11 @@ package npu_allocator
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/bradfitz/iter"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func generateSameBoardMockDeviceSet(amount int, topologyHintKey string) DeviceSet {

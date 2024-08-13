@@ -86,8 +86,8 @@ func TestGetTopologyHintKeyUsingBestFitBinPacking(t *testing.T) {
 	}
 }
 
-// TestGetLargestLengthCandidatesTopologyHintKey tests whether `getLargestLengthCandidatesTopologyHintKey()` is picking the TopologyHintKey correctly or not.
-func TestGetLargestLengthCandidatesTopologyHintKey(t *testing.T) {
+// TestGetLargestLengthDifferenceTopologyHintKey tests whether `getLargestLengthDifferenceTopologyHintKey()` is picking the TopologyHintKey correctly or not.
+func TestGetLargestLengthDifferenceTopologyHintKey(t *testing.T) {
 	tests := []struct {
 		description      string
 		devicesByHintMap map[string]DeviceSet
@@ -140,7 +140,7 @@ func TestGetLargestLengthCandidatesTopologyHintKey(t *testing.T) {
 	t.Parallel()
 	for _, tc := range tests {
 		t.Run(tc.description, func(subT *testing.T) {
-			actual := getLargestLengthCandidatesTopologyHintKey(&tc.devicesByHintMap)
+			actual := getLargestLengthDifferenceTopologyHintKey(&tc.devicesByHintMap)
 			assert.Contains(subT, tc.expectedIn, actual)
 		})
 	}

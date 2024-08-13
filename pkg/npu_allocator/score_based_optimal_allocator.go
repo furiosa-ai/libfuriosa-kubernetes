@@ -50,14 +50,14 @@ func populateTopologyMatrix(devices []smi.Device) (topologyMatrix, error) {
 }
 
 func NewScoreBasedOptimalNpuAllocator(devices []smi.Device) (NpuAllocator, error) {
-	matrix, err := populateTopologyMatrix(devices)
+	topologyHintMatrix, err := populateTopologyMatrix(devices)
 	if err != nil {
 		return nil, err
 	}
 
 	return newScoreBasedOptimalNpuAllocator(
 		func(device1, device2 Device) uint {
-			if innerMap, exists := matrix[device1.TopologyHintKey()]; exists {
+			if innerMap, exists := topologyHintMatrix[device1.TopologyHintKey()]; exists {
 				if score, exists := innerMap[device2.TopologyHintKey()]; exists {
 					return score
 				}

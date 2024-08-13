@@ -14,7 +14,7 @@ type scoreBasedOptimalNpuAllocator struct {
 }
 
 func populateTopologyMatrix(devices []smi.Device) (topologyMatrix, error) {
-	matrix := make(topologyMatrix)
+	topologyHintMatrix := make(topologyMatrix)
 	deviceToDeviceInfo := make(map[smi.Device]smi.DeviceInfo)
 
 	for _, device := range devices {
@@ -38,15 +38,15 @@ func populateTopologyMatrix(devices []smi.Device) (topologyMatrix, error) {
 				key1, key2 = key2, key1
 			}
 
-			if _, ok := matrix[key1]; !ok {
-				matrix[key1] = make(map[string]uint)
+			if _, ok := topologyHintMatrix[key1]; !ok {
+				topologyHintMatrix[key1] = make(map[string]uint)
 			}
 
-			matrix[key1][key2] = uint(linkType)
+			topologyHintMatrix[key1][key2] = uint(linkType)
 		}
 	}
 
-	return matrix, nil
+	return topologyHintMatrix, nil
 }
 
 func NewScoreBasedOptimalNpuAllocator(devices []smi.Device) (NpuAllocator, error) {

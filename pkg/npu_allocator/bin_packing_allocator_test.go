@@ -80,7 +80,7 @@ func TestGetTopologyHintKeyUsingBestFitBinPacking(t *testing.T) {
 	t.Parallel()
 	for _, tc := range tests {
 		t.Run(tc.description, func(subT *testing.T) {
-			actual := getTopologyHintKeyUsingBestFitBinPacking(tc.subsetLen, &tc.devicesByHintMap)
+			actual := getTopologyHintKeyUsingBestFitBinPacking(tc.subsetLen, tc.devicesByHintMap)
 			assert.Contains(subT, tc.expectedIn, actual)
 		})
 	}
@@ -140,7 +140,7 @@ func TestGetLargestLengthDifferenceTopologyHintKey(t *testing.T) {
 	t.Parallel()
 	for _, tc := range tests {
 		t.Run(tc.description, func(subT *testing.T) {
-			actual := getLargestLengthDifferenceTopologyHintKey(&tc.devicesByHintMap)
+			actual := getLargestLengthDifferenceTopologyHintKey(tc.devicesByHintMap)
 			assert.Contains(subT, tc.expectedIn, actual)
 		})
 	}

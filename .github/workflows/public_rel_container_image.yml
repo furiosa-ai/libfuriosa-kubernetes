@@ -9,7 +9,7 @@ jobs:
   public_build_push:
     runs-on: "ubuntu-latest"
     env:
-      PUBLIC_REGISTRY_URL: "registry.furiosa.ai"
+      PUBLIC_REGISTRY_URL: "registry.corp.furiosa.ai"
       PUBLIC_IMAGE_NAME: "furiosa/libfuriosa-kubernetes"
     steps:
       - uses: actions/checkout@v4

@@ -1,0 +1,49 @@
+name: Golang Build & Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - synchronize
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout `furiosa-smi`
+        uses: actions/checkout@v4
+        with:
+          repository: furiosa-ai/furiosa-smi
+          token: ${{ secrets.TOKEN_FOR_CLONE_ANOTHER_REPO}}
+          path: furiosa-smi
+      - name: Install `furiosa-smi`
+        run: |
+          cd furiosa-smi
+          rustup component add clippy rustfmt
+          cargo build
+          make install
+      - name: Checkout `libfuriosa-kubernetes`
+        uses: actions/checkout@v4
+      - name: Setup Go v1.22.6
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.22.6
+      - name: Display Go version
+        run: go version
+      - name: Run `golangci-lint`
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.59.1
+      - name: Run `make build`
+        run: make build
+      - name: Run `make test`
+        run: make test

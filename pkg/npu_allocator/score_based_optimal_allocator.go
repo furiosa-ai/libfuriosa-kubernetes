@@ -44,8 +44,7 @@ func populateTopologyHintMatrixForScoreBasedAllocator(smiDevices []smi.Device) (
 				return nil, err
 			}
 
-			key1 := TopologyHintKey(pciBusID1)
-			key2 := TopologyHintKey(pciBusID2)
+			key1, key2 := TopologyHintKey(pciBusID1), TopologyHintKey(pciBusID2)
 			if key1 > key2 {
 				key1, key2 = key2, key1
 			}
@@ -87,8 +86,13 @@ func NewScoreBasedOptimalNpuAllocator(devices []smi.Device) (NpuAllocator, error
 	}
 
 	hintProvider := func(device1, device2 Device) uint {
-		if innerMap, innerMapExists := topologyHintMatrix[device1.GetTopologyHintKey()]; innerMapExists {
-			if score, scoreExists := innerMap[device2.GetTopologyHintKey()]; scoreExists {
+		key1, key2 := device1.GetTopologyHintKey(), device2.GetTopologyHintKey()
+		if key1 > key2 {
+			key1, key2 = key2, key1
+		}
+
+		if innerMap, innerMapExists := topologyHintMatrix[key1]; innerMapExists {
+			if score, scoreExists := innerMap[key2]; scoreExists {
 				return score
 			}
 		}

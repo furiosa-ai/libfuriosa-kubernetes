@@ -7,7 +7,7 @@ github.com/davecgh/go-spew/spew
 # github.com/google/uuid v1.6.0
 ## explicit
 github.com/google/uuid
-# github.com/jedib0t/go-pretty/v6 v6.5.3
+# github.com/jedib0t/go-pretty/v6 v6.5.9
 ## explicit; go 1.17
 github.com/jedib0t/go-pretty/v6/table
 github.com/jedib0t/go-pretty/v6/text
@@ -23,11 +23,11 @@ github.com/rivo/uniseg
 # github.com/stretchr/testify v1.9.0
 ## explicit; go 1.17
 github.com/stretchr/testify/assert
-# golang.org/x/sys v0.16.0
+# golang.org/x/sys v0.17.0
 ## explicit; go 1.18
 golang.org/x/sys/windows
-# gonum.org/v1/gonum v0.14.0
-## explicit; go 1.20
+# gonum.org/v1/gonum v0.15.0
+## explicit; go 1.21
 gonum.org/v1/gonum/stat/combin
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit

@@ -22,6 +22,11 @@ func (m *mockDevice) GetTopologyHintKey() TopologyHintKey {
 	return m.topologyHintKey
 }
 
+func (m *mockDevice) CalculateDistanceToOtherDevice(other Device) uint {
+	// TODO(@hoony9x-furiosa-ai): make this method to use TopologyHintMatrix?
+	return 0
+}
+
 func (m *mockDevice) Equal(target Device) bool {
 	if _, isMockDevicePtr := target.(*mockDevice); !isMockDevicePtr {
 		return false

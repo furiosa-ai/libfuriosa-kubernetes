@@ -3,16 +3,54 @@ package npu_allocator
 import (
 	"fmt"
 	"math"
-
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 )
 
 var _ NpuAllocator = (*binPackingNpuAllocator)(nil)
 
-type binPackingNpuAllocator struct{}
+type binPackingNpuAllocator struct {
+	hintProvider TopologyHintProvider
+}
 
-func NewBinPackingNpuAllocator(_ []smi.Device) (NpuAllocator, error) {
-	return &binPackingNpuAllocator{}, nil
+func populateTopologyHintMatrixForBinPackingAllocator(devices DeviceSet) (TopologyHintMatrix, error) {
+	topologyHintMatrix := make(TopologyHintMatrix)
+
+	for _, device1 := range devices {
+		for _, device2 := range devices {
+			distance := device1.CalculateDistanceToOtherDevice(device2)
+
+			key1, key2 := device1.GetTopologyHintKey(), device2.GetTopologyHintKey()
+			if key1 > key2 {
+				key1, key2 = key2, key1
+			}
+
+			if _, exists := topologyHintMatrix[key1]; !exists {
+				topologyHintMatrix[key1] = make(map[TopologyHintKey]uint)
+			}
+
+			topologyHintMatrix[key1][key2] = distance
+		}
+	}
+
+	return topologyHintMatrix, nil
+}
+
+func NewBinPackingNpuAllocator(devices DeviceSet) (NpuAllocator, error) {
+	topologyHintMatrix, err := populateTopologyHintMatrixForBinPackingAllocator(devices)
+	if err != nil {
+		return nil, err
+	}
+
+	hintProvider := func(device1, device2 Device) uint {
+		if innerMap, innerMapExists := topologyHintMatrix[device1.GetTopologyHintKey()]; innerMapExists {
+			if score, scoreExists := innerMap[device2.GetTopologyHintKey()]; scoreExists {
+				return score
+			}
+		}
+
+		return 0
+	}
+
+	return &binPackingNpuAllocator{hintProvider: hintProvider}, nil
 }
 
 func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSet, request int) DeviceSet {

@@ -11,8 +11,51 @@ type scoreBasedOptimalNpuAllocator struct {
 	hintProvider TopologyHintProvider
 }
 
-func topologyHintProviderForScoreBasedAllocator(topologyHintMatrix TopologyHintMatrix) TopologyHintProvider {
-	return func(device1, device2 Device) uint {
+// populateTopologyHintMatrixForScoreBasedAllocator generates TopologyHintMatrix using list of smi.Device.
+func populateTopologyHintMatrixForScoreBasedAllocator(smiDevices []smi.Device) (TopologyHintMatrix, error) {
+	topologyHintMatrix := make(TopologyHintMatrix)
+	deviceToDeviceInfo := make(map[smi.Device]smi.DeviceInfo)
+
+	for _, device := range smiDevices {
+		deviceInfo, err := device.DeviceInfo()
+		if err != nil {
+			return nil, err
+		}
+		deviceToDeviceInfo[device] = deviceInfo
+	}
+
+	for device1, deviceInfo1 := range deviceToDeviceInfo {
+		for device2, deviceInfo2 := range deviceToDeviceInfo {
+			linkType, err := device1.GetDeviceToDeviceLinkType(device2)
+			if err != nil {
+				return nil, err
+			}
+
+			// FIXME(@hoony9x-furiosa-ai): Please see https://linear.app/furiosa-ai/issue/CN-60
+			key1 := TopologyHintKey(deviceInfo1.BDF())
+			key2 := TopologyHintKey(deviceInfo2.BDF())
+			if key1 > key2 {
+				key1, key2 = key2, key1
+			}
+
+			if _, ok := topologyHintMatrix[key1]; !ok {
+				topologyHintMatrix[key1] = make(map[TopologyHintKey]uint)
+			}
+
+			topologyHintMatrix[key1][key2] = uint(linkType)
+		}
+	}
+
+	return topologyHintMatrix, nil
+}
+
+func NewScoreBasedOptimalNpuAllocator(devices []smi.Device) (NpuAllocator, error) {
+	topologyHintMatrix, err := populateTopologyHintMatrixForScoreBasedAllocator(devices)
+	if err != nil {
+		return nil, err
+	}
+
+	hintProvider := func(device1, device2 Device) uint {
 		if innerMap, innerMapExists := topologyHintMatrix[device1.GetTopologyHintKey()]; innerMapExists {
 			if score, scoreExists := innerMap[device2.GetTopologyHintKey()]; scoreExists {
 				return score
@@ -21,15 +64,8 @@ func topologyHintProviderForScoreBasedAllocator(topologyHintMatrix TopologyHintM
 
 		return 0
 	}
-}
 
-func NewScoreBasedOptimalNpuAllocator(devices []smi.Device) (NpuAllocator, error) {
-	topologyHintMatrix, err := populateTopologyHintMatrix(devices)
-	if err != nil {
-		return nil, err
-	}
-
-	return newScoreBasedOptimalNpuAllocator(topologyHintProviderForScoreBasedAllocator(topologyHintMatrix)), nil
+	return newScoreBasedOptimalNpuAllocator(hintProvider), nil
 }
 
 func NewMockScoreBasedOptimalNpuAllocator(mockHintProvider TopologyHintProvider) (NpuAllocator, error) {

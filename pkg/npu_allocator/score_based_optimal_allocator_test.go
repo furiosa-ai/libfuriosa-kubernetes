@@ -935,12 +935,12 @@ func TestPopulateTopologyMatrix(t *testing.T) {
 	tests := []struct {
 		description string
 		input       []smi.Device
-		expected    topologyMatrix
+		expected    TopologyHintMatrix
 	}{
 		{
 			description: "test 8 npu configuration",
 			input:       smi.GetStaticMockDevices(smi.ArchWarboy),
-			expected: topologyMatrix{
+			expected: TopologyHintMatrix{
 				"0000:27:00.0": {
 					"0000:27:00.0": 70,
 					"0000:2a:00.0": 30,

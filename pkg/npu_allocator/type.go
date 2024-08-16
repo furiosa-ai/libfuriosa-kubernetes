@@ -2,11 +2,53 @@ package npu_allocator
 
 import (
 	"sort"
+
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 )
 
 // TopologyHintProvider takes two devices as argument return topology hint.
 // The hint would be score, distance, preference of two devices.
 type TopologyHintProvider func(device1, device2 Device) uint
+
+// TopologyHintMatrix provides score of each device to device based on device link type.
+type TopologyHintMatrix map[string]map[string]uint
+
+// populateTopologyMatrix generates TopologyHintMatrix using provided list of smi.Device.
+func populateTopologyMatrix(smiDevices []smi.Device) (TopologyHintMatrix, error) {
+	topologyHintMatrix := make(TopologyHintMatrix)
+	deviceToDeviceInfo := make(map[smi.Device]smi.DeviceInfo)
+
+	for _, device := range smiDevices {
+		deviceInfo, err := device.DeviceInfo()
+		if err != nil {
+			return nil, err
+		}
+		deviceToDeviceInfo[device] = deviceInfo
+	}
+
+	for device1, deviceInfo1 := range deviceToDeviceInfo {
+		for device2, deviceInfo2 := range deviceToDeviceInfo {
+			linkType, err := device1.GetDeviceToDeviceLinkType(device2)
+			if err != nil {
+				return nil, err
+			}
+
+			key1 := deviceInfo1.BDF()
+			key2 := deviceInfo2.BDF()
+			if key1 > key2 {
+				key1, key2 = key2, key1
+			}
+
+			if _, ok := topologyHintMatrix[key1]; !ok {
+				topologyHintMatrix[key1] = make(map[string]uint)
+			}
+
+			topologyHintMatrix[key1][key2] = uint(linkType)
+		}
+	}
+
+	return topologyHintMatrix, nil
+}
 
 type NpuAllocator interface {
 	Allocate(available DeviceSet, required DeviceSet, size int) DeviceSet

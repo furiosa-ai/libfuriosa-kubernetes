@@ -2,21 +2,68 @@ package npu_allocator
 
 import (
 	"sort"
+
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 )
 
 // TopologyHintProvider takes two devices as argument return topology hint.
 // The hint would be score, distance, preference of two devices.
 type TopologyHintProvider func(device1, device2 Device) uint
 
+// TopologyHintKey is named type of string, used for TopologyHintMatrix
+type TopologyHintKey string
+
+// TopologyHintMatrix provides score of device to device based on smi.Device smi.LinkType.
+type TopologyHintMatrix map[string]map[string]uint
+
+// populateTopologyHintMatrix generates TopologyHintMatrix using list of smi.Device.
+func populateTopologyHintMatrix(smiDevices []smi.Device) (TopologyHintMatrix, error) {
+	topologyHintMatrix := make(TopologyHintMatrix)
+	deviceToDeviceInfo := make(map[smi.Device]smi.DeviceInfo)
+
+	for _, device := range smiDevices {
+		deviceInfo, err := device.DeviceInfo()
+		if err != nil {
+			return nil, err
+		}
+		deviceToDeviceInfo[device] = deviceInfo
+	}
+
+	for device1, deviceInfo1 := range deviceToDeviceInfo {
+		for device2, deviceInfo2 := range deviceToDeviceInfo {
+			linkType, err := device1.GetDeviceToDeviceLinkType(device2)
+			if err != nil {
+				return nil, err
+			}
+
+			key1 := deviceInfo1.BDF()
+			key2 := deviceInfo2.BDF()
+			if key1 > key2 {
+				key1, key2 = key2, key1
+			}
+
+			if _, ok := topologyHintMatrix[key1]; !ok {
+				topologyHintMatrix[key1] = make(map[string]uint)
+			}
+
+			topologyHintMatrix[key1][key2] = uint(linkType)
+		}
+	}
+
+	return topologyHintMatrix, nil
+}
+
 type NpuAllocator interface {
 	Allocate(available DeviceSet, required DeviceSet, size int) DeviceSet
 }
 
 type Device interface {
-	// ID returns a unique ID of Device to identify the device.
-	ID() string
-	// TopologyHintKey returns unique key to retrieve TopologyHint using TopologyHintProvider.
-	TopologyHintKey() string
+	// GetID returns a unique ID of Device to identify the device.
+	GetID() string
+
+	// GetTopologyHintKey returns unique key to retrieve TopologyHint using TopologyHintProvider.
+	GetTopologyHintKey() string
+
 	// Equal check whether source Device is identical to the target Device.
 	Equal(target Device) bool
 }
@@ -31,11 +78,11 @@ func (source DeviceSet) Contains(target DeviceSet) bool {
 
 	visited := map[string]bool{}
 	for _, device := range source {
-		visited[device.ID()] = true
+		visited[device.GetID()] = true
 	}
 
 	for _, device := range target {
-		if _, ok := visited[device.ID()]; !ok {
+		if _, ok := visited[device.GetID()]; !ok {
 			return false
 		}
 	}
@@ -46,7 +93,7 @@ func (source DeviceSet) Contains(target DeviceSet) bool {
 // Sort sorts source DeviceSet.
 func (source DeviceSet) Sort() {
 	sort.Slice(source, func(i, j int) bool {
-		return source[i].ID() < source[j].ID()
+		return source[i].GetID() < source[j].GetID()
 	})
 }
 
@@ -58,11 +105,11 @@ func (source DeviceSet) Equal(target DeviceSet) bool {
 
 	visited := make(map[string]string)
 	for _, device := range source {
-		visited[device.ID()] = device.TopologyHintKey()
+		visited[device.GetID()] = device.GetTopologyHintKey()
 	}
 
 	for _, device := range target {
-		if visited[device.ID()] != device.TopologyHintKey() {
+		if visited[device.GetID()] != device.GetTopologyHintKey() {
 			return false
 		}
 	}
@@ -86,11 +133,11 @@ func (source DeviceSet) Union(target DeviceSet) (union DeviceSet) {
 	union = append(union, source...)
 	visited := map[string]bool{}
 	for _, device := range source {
-		visited[device.ID()] = true
+		visited[device.GetID()] = true
 	}
 
 	for _, device := range target {
-		if _, ok := visited[device.ID()]; !ok {
+		if _, ok := visited[device.GetID()]; !ok {
 			union = append(union, device)
 		}
 	}

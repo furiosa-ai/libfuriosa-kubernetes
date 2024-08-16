@@ -14,11 +14,11 @@ type mockDevice struct {
 	topologyHintKey string
 }
 
-func (m *mockDevice) ID() string {
+func (m *mockDevice) GetID() string {
 	return m.id
 }
 
-func (m *mockDevice) TopologyHintKey() string {
+func (m *mockDevice) GetTopologyHintKey() string {
 	return m.topologyHintKey
 }
 
@@ -27,7 +27,7 @@ func (m *mockDevice) Equal(target Device) bool {
 		return false
 	}
 
-	if m.id == target.ID() && m.topologyHintKey == target.TopologyHintKey() {
+	if m.id == target.GetID() && m.topologyHintKey == target.GetTopologyHintKey() {
 		return true
 	}
 

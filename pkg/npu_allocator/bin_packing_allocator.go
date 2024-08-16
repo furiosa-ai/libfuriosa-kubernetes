@@ -27,9 +27,9 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	// difference contains devices in `available` set, excluding `required` set.
 	difference := available.Difference(required)
 
-	differenceByHintMap := make(map[string]DeviceSet) // construct map by TopologyHintKey and DeviceSet
+	differenceByHintMap := make(map[string]DeviceSet) // construct map by GetTopologyHintKey and DeviceSet
 	for _, device := range difference {
-		topologyHintKey := device.TopologyHintKey()
+		topologyHintKey := device.GetTopologyHintKey()
 		if _, ok := differenceByHintMap[topologyHintKey]; !ok {
 			differenceByHintMap[topologyHintKey] = make(DeviceSet, 0)
 		}

@@ -392,8 +392,8 @@ func TestGenerateNonDuplicatedDeviceSet(t *testing.T) {
 
 func mockTopologyHintProvider(hints map[string]map[string]uint) TopologyHintProvider {
 	return func(device1, device2 Device) uint {
-		topologyHintKey1 := device1.TopologyHintKey()
-		topologyHintKey2 := device2.TopologyHintKey()
+		topologyHintKey1 := device1.GetTopologyHintKey()
+		topologyHintKey2 := device2.GetTopologyHintKey()
 
 		if topologyHintKey1 > topologyHintKey2 {
 			topologyHintKey1, topologyHintKey2 = topologyHintKey2, topologyHintKey1
@@ -923,7 +923,7 @@ func TestAllocation(t *testing.T) {
 		tc.expected.Sort()
 
 		for idx, actual := range actualResult {
-			if actual.ID() != tc.expected[idx].ID() || actual.TopologyHintKey() != tc.expected[idx].TopologyHintKey() {
+			if actual.GetID() != tc.expected[idx].GetID() || actual.GetTopologyHintKey() != tc.expected[idx].GetTopologyHintKey() {
 				t.Errorf("expected %v but got %v", actual.(*mockDevice), tc.expected[idx].(*mockDevice))
 				break
 			}
@@ -935,12 +935,12 @@ func TestPopulateTopologyMatrix(t *testing.T) {
 	tests := []struct {
 		description string
 		input       []smi.Device
-		expected    topologyMatrix
+		expected    TopologyHintMatrix
 	}{
 		{
 			description: "test 8 npu configuration",
 			input:       smi.GetStaticMockDevices(smi.ArchWarboy),
-			expected: topologyMatrix{
+			expected: TopologyHintMatrix{
 				"0000:27:00.0": {
 					"0000:27:00.0": 70,
 					"0000:2a:00.0": 30,
@@ -998,7 +998,7 @@ func TestPopulateTopologyMatrix(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		actual, _ := populateTopologyMatrix(tc.input)
+		actual, _ := populateTopologyHintMatrix(tc.input)
 
 		if !reflect.DeepEqual(actual, tc.expected) {
 			t.Errorf("expected %v but got %v", tc.expected, actual)

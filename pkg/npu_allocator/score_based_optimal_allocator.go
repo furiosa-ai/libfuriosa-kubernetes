@@ -7,58 +7,20 @@ import (
 
 var _ NpuAllocator = (*scoreBasedOptimalNpuAllocator)(nil)
 
-type topologyMatrix map[string]map[string]uint
-
 type scoreBasedOptimalNpuAllocator struct {
 	hintProvider TopologyHintProvider
 }
 
-func populateTopologyMatrix(devices []smi.Device) (topologyMatrix, error) {
-	topologyHintMatrix := make(topologyMatrix)
-	deviceToDeviceInfo := make(map[smi.Device]smi.DeviceInfo)
-
-	for _, device := range devices {
-		deviceInfo, err := device.DeviceInfo()
-		if err != nil {
-			return nil, err
-		}
-		deviceToDeviceInfo[device] = deviceInfo
-	}
-
-	for device1, deviceInfo1 := range deviceToDeviceInfo {
-		for device2, deviceInfo2 := range deviceToDeviceInfo {
-			linkType, err := device1.GetDeviceToDeviceLinkType(device2)
-			if err != nil {
-				return nil, err
-			}
-
-			key1 := deviceInfo1.BDF()
-			key2 := deviceInfo2.BDF()
-			if key1 > key2 {
-				key1, key2 = key2, key1
-			}
-
-			if _, ok := topologyHintMatrix[key1]; !ok {
-				topologyHintMatrix[key1] = make(map[string]uint)
-			}
-
-			topologyHintMatrix[key1][key2] = uint(linkType)
-		}
-	}
-
-	return topologyHintMatrix, nil
-}
-
 func NewScoreBasedOptimalNpuAllocator(devices []smi.Device) (NpuAllocator, error) {
-	topologyHintMatrix, err := populateTopologyMatrix(devices)
+	topologyHintMatrix, err := populateTopologyHintMatrix(devices)
 	if err != nil {
 		return nil, err
 	}
 
 	return newScoreBasedOptimalNpuAllocator(
 		func(device1, device2 Device) uint {
-			if innerMap, exists := topologyHintMatrix[device1.TopologyHintKey()]; exists {
-				if score, exists := innerMap[device2.TopologyHintKey()]; exists {
+			if innerMap, exists := topologyHintMatrix[device1.GetTopologyHintKey()]; exists {
+				if score, exists := innerMap[device2.GetTopologyHintKey()]; exists {
 					return score
 				}
 			}

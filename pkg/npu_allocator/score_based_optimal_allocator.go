@@ -34,18 +34,18 @@ func populateTopologyHintMatrixForScoreBasedAllocator(smiDevices []smi.Device) (
 				return nil, err
 			}
 
-			busID1, err := parseBusIDFromBDF(deviceInfo1.BDF())
+			pciBusID1, err := parseBusIDFromBDF(deviceInfo1.BDF())
 			if err != nil {
 				return nil, err
 			}
 
-			busID2, err := parseBusIDFromBDF(deviceInfo2.BDF())
+			pciBusID2, err := parseBusIDFromBDF(deviceInfo2.BDF())
 			if err != nil {
 				return nil, err
 			}
 
-			key1 := TopologyHintKey(busID1)
-			key2 := TopologyHintKey(busID2)
+			key1 := TopologyHintKey(pciBusID1)
+			key2 := TopologyHintKey(pciBusID2)
 			if key1 > key2 {
 				key1, key2 = key2, key1
 			}

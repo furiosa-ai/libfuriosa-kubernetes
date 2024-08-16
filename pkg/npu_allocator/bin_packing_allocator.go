@@ -16,7 +16,7 @@ func populateTopologyHintMatrixForBinPackingAllocator(devices DeviceSet) (Topolo
 
 	for _, device1 := range devices {
 		for _, device2 := range devices {
-			distance := device1.CalculateDistanceToOtherDevice(device2)
+			score := device1.CalculateScoreToOtherDevice(device2)
 
 			key1, key2 := device1.GetTopologyHintKey(), device2.GetTopologyHintKey()
 			if key1 > key2 {
@@ -27,7 +27,7 @@ func populateTopologyHintMatrixForBinPackingAllocator(devices DeviceSet) (Topolo
 				topologyHintMatrix[key1] = make(map[TopologyHintKey]uint)
 			}
 
-			topologyHintMatrix[key1][key2] = distance
+			topologyHintMatrix[key1][key2] = score
 		}
 	}
 

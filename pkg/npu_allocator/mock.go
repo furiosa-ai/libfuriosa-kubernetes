@@ -22,7 +22,7 @@ func (m *mockDevice) GetTopologyHintKey() TopologyHintKey {
 	return m.topologyHintKey
 }
 
-func (m *mockDevice) CalculateDistanceToOtherDevice(other Device) uint {
+func (m *mockDevice) CalculateScoreToOtherDevice(other Device) uint {
 	// TODO(@hoony9x-furiosa-ai): make this method to use TopologyHintMatrix?
 	return 0
 }

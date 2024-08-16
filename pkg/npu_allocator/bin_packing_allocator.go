@@ -39,7 +39,13 @@ func NewBinPackingNpuAllocator(devices DeviceSet) (NpuAllocator, error) {
 		return nil, err
 	}
 
-	hintProvider := func(device1, device2 Device) uint {
+	return &binPackingNpuAllocator{
+		hintProvider: newTopologyHintProviderForBinPackingAllocator(topologyHintMatrix),
+	}, nil
+}
+
+func newTopologyHintProviderForBinPackingAllocator(topologyHintMatrix TopologyHintMatrix) TopologyHintProvider {
+	return func(device1, device2 Device) uint {
 		key1, key2 := device1.GetTopologyHintKey(), device2.GetTopologyHintKey()
 		if key1 > key2 {
 			key1, key2 = key2, key1
@@ -53,8 +59,6 @@ func NewBinPackingNpuAllocator(devices DeviceSet) (NpuAllocator, error) {
 
 		return 0
 	}
-
-	return &binPackingNpuAllocator{hintProvider: hintProvider}, nil
 }
 
 func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSet, request int) DeviceSet {

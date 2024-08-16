@@ -27,7 +27,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	// difference contains devices in `available` set, excluding `required` set.
 	difference := available.Difference(required)
 
-	differenceByHintMap := make(map[string]DeviceSet) // construct map by GetTopologyHintKey and DeviceSet
+	differenceByHintMap := make(map[TopologyHintKey]DeviceSet) // construct map by GetTopologyHintKey and DeviceSet
 	for _, device := range difference {
 		topologyHintKey := device.GetTopologyHintKey()
 		if _, ok := differenceByHintMap[topologyHintKey]; !ok {
@@ -61,9 +61,9 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 }
 
 // getTopologyHintKeyUsingBestFitBinPacking uses Best Fit Bin Packing algorithm to select difference key
-func getTopologyHintKeyUsingBestFitBinPacking(subsetLen int, differenceByHintMap map[string]DeviceSet) string {
+func getTopologyHintKeyUsingBestFitBinPacking(subsetLen int, differenceByHintMap map[TopologyHintKey]DeviceSet) TopologyHintKey {
 	minDiff := math.MaxInt32
-	topologyHintKey := ""
+	var topologyHintKey TopologyHintKey = ""
 	for key, difference := range differenceByHintMap {
 		diff := len(difference) - subsetLen
 		if diff >= 0 && diff < minDiff {
@@ -76,9 +76,9 @@ func getTopologyHintKeyUsingBestFitBinPacking(subsetLen int, differenceByHintMap
 }
 
 // getLargestLengthDifferenceTopologyHintKey selects difference key which has the largest length
-func getLargestLengthDifferenceTopologyHintKey(differenceByHintMap map[string]DeviceSet) string {
+func getLargestLengthDifferenceTopologyHintKey(differenceByHintMap map[TopologyHintKey]DeviceSet) TopologyHintKey {
 	maxLen := 0
-	topologyHintKey := ""
+	var topologyHintKey TopologyHintKey = ""
 	for key, difference := range differenceByHintMap {
 		if topologyHintKey == "" || len(difference) > maxLen {
 			maxLen = len(difference)

@@ -13,7 +13,7 @@ func buildMockDeviceSet(start, end int) DeviceSet {
 	for i := start; i <= end; i++ {
 		result = append(result, &mockDevice{
 			id:              strconv.Itoa(i),
-			topologyHintKey: strconv.Itoa(i),
+			topologyHintKey: TopologyHintKey(strconv.Itoa(i)),
 		})
 	}
 
@@ -390,7 +390,7 @@ func TestGenerateNonDuplicatedDeviceSet(t *testing.T) {
 	}
 }
 
-func mockTopologyHintProvider(hints map[string]map[string]uint) TopologyHintProvider {
+func mockTopologyHintProvider(hints TopologyHintMatrix) TopologyHintProvider {
 	return func(device1, device2 Device) uint {
 		topologyHintKey1 := device1.GetTopologyHintKey()
 		topologyHintKey2 := device2.GetTopologyHintKey()
@@ -407,8 +407,8 @@ func mockTopologyHintProvider(hints map[string]map[string]uint) TopologyHintProv
 	}
 }
 
-func buildStaticHintMatrixForTwoSocketBalancedConfig() map[string]map[string]uint {
-	return map[string]map[string]uint{
+func buildStaticHintMatrixForTwoSocketBalancedConfig() TopologyHintMatrix {
+	return TopologyHintMatrix{
 		"0": {"0": 70, "1": 30, "2": 20, "3": 20, "4": 10, "5": 10, "6": 10, "7": 10},
 		"1": {"1": 70, "2": 20, "3": 20, "4": 10, "5": 10, "6": 10, "7": 10},
 		"2": {"2": 70, "3": 30, "4": 10, "5": 10, "6": 10, "7": 10},
@@ -428,7 +428,7 @@ func TestAllocation(t *testing.T) {
 		available   DeviceSet
 		required    DeviceSet
 		request     int
-		hints       map[string]map[string]uint
+		hints       TopologyHintMatrix
 		expected    DeviceSet
 	}{
 		{

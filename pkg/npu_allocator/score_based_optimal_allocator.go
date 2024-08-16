@@ -11,22 +11,25 @@ type scoreBasedOptimalNpuAllocator struct {
 	hintProvider TopologyHintProvider
 }
 
+func topologyHintProviderForScoreBasedAllocator(topologyHintMatrix TopologyHintMatrix) TopologyHintProvider {
+	return func(device1, device2 Device) uint {
+		if innerMap, innerMapExists := topologyHintMatrix[device1.GetTopologyHintKey()]; innerMapExists {
+			if score, scoreExists := innerMap[device2.GetTopologyHintKey()]; scoreExists {
+				return score
+			}
+		}
+
+		return 0
+	}
+}
+
 func NewScoreBasedOptimalNpuAllocator(devices []smi.Device) (NpuAllocator, error) {
 	topologyHintMatrix, err := populateTopologyHintMatrix(devices)
 	if err != nil {
 		return nil, err
 	}
 
-	return newScoreBasedOptimalNpuAllocator(
-		func(device1, device2 Device) uint {
-			if innerMap, exists := topologyHintMatrix[device1.GetTopologyHintKey()]; exists {
-				if score, exists := innerMap[device2.GetTopologyHintKey()]; exists {
-					return score
-				}
-			}
-
-			return 0
-		}), nil
+	return newScoreBasedOptimalNpuAllocator(topologyHintProviderForScoreBasedAllocator(topologyHintMatrix)), nil
 }
 
 func NewMockScoreBasedOptimalNpuAllocator(mockHintProvider TopologyHintProvider) (NpuAllocator, error) {

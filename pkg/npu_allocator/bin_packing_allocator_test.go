@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func generateSameBoardMockDeviceSet(amount int, topologyHintKey string) DeviceSet {
+func generateSameBoardMockDeviceSet(amount int, topologyHintKey TopologyHintKey) DeviceSet {
 	id, _ := uuid.NewUUID()
 	devices := make(DeviceSet, 0, amount)
 	for i := range iter.N(amount) {
@@ -26,14 +26,14 @@ func generateSameBoardMockDeviceSet(amount int, topologyHintKey string) DeviceSe
 func TestGetTopologyHintKeyUsingBestFitBinPacking(t *testing.T) {
 	tests := []struct {
 		description      string
-		devicesByHintMap map[string]DeviceSet
+		devicesByHintMap map[TopologyHintKey]DeviceSet
 		subsetLen        int
-		expectedIn       []string
+		expectedIn       []TopologyHintKey
 	}{
 		{
 			description: "must pick '02' which is the target for best fit bin packing algorithm",
-			devicesByHintMap: func() map[string]DeviceSet {
-				deviceMap := make(map[string]DeviceSet)
+			devicesByHintMap: func() map[TopologyHintKey]DeviceSet {
+				deviceMap := make(map[TopologyHintKey]DeviceSet)
 				deviceMap["00"] = generateSameBoardMockDeviceSet(8, "00")
 				deviceMap["01"] = generateSameBoardMockDeviceSet(7, "01")
 				deviceMap["02"] = generateSameBoardMockDeviceSet(6, "02")
@@ -43,12 +43,12 @@ func TestGetTopologyHintKeyUsingBestFitBinPacking(t *testing.T) {
 				return deviceMap
 			}(),
 			subsetLen:  5,
-			expectedIn: []string{"02"},
+			expectedIn: []TopologyHintKey{"02"},
 		},
 		{
 			description: "must pick '04' which is the target for best fit bin packing algorithm",
-			devicesByHintMap: func() map[string]DeviceSet {
-				deviceMap := make(map[string]DeviceSet)
+			devicesByHintMap: func() map[TopologyHintKey]DeviceSet {
+				deviceMap := make(map[TopologyHintKey]DeviceSet)
 				deviceMap["00"] = generateSameBoardMockDeviceSet(8, "00")
 				deviceMap["01"] = generateSameBoardMockDeviceSet(7, "01")
 				deviceMap["02"] = generateSameBoardMockDeviceSet(6, "02")
@@ -58,12 +58,12 @@ func TestGetTopologyHintKeyUsingBestFitBinPacking(t *testing.T) {
 				return deviceMap
 			}(),
 			subsetLen:  5,
-			expectedIn: []string{"04"},
+			expectedIn: []TopologyHintKey{"04"},
 		},
 		{
 			description: "must not pick any key because none of them has sufficient size for requested remaining cnt",
-			devicesByHintMap: func() map[string]DeviceSet {
-				deviceMap := make(map[string]DeviceSet)
+			devicesByHintMap: func() map[TopologyHintKey]DeviceSet {
+				deviceMap := make(map[TopologyHintKey]DeviceSet)
 				deviceMap["00"] = generateSameBoardMockDeviceSet(5, "00")
 				deviceMap["01"] = generateSameBoardMockDeviceSet(4, "01")
 				deviceMap["02"] = generateSameBoardMockDeviceSet(3, "02")
@@ -73,7 +73,7 @@ func TestGetTopologyHintKeyUsingBestFitBinPacking(t *testing.T) {
 				return deviceMap
 			}(),
 			subsetLen:  7,
-			expectedIn: []string{""},
+			expectedIn: []TopologyHintKey{""},
 		},
 	}
 
@@ -90,13 +90,13 @@ func TestGetTopologyHintKeyUsingBestFitBinPacking(t *testing.T) {
 func TestGetLargestLengthDifferenceTopologyHintKey(t *testing.T) {
 	tests := []struct {
 		description      string
-		devicesByHintMap map[string]DeviceSet
-		expectedIn       []string
+		devicesByHintMap map[TopologyHintKey]DeviceSet
+		expectedIn       []TopologyHintKey
 	}{
 		{
 			description: "must pick '02' which is the target for best fit bin packing algorithm",
-			devicesByHintMap: func() map[string]DeviceSet {
-				deviceMap := make(map[string]DeviceSet)
+			devicesByHintMap: func() map[TopologyHintKey]DeviceSet {
+				deviceMap := make(map[TopologyHintKey]DeviceSet)
 				deviceMap["00"] = generateSameBoardMockDeviceSet(8, "00")
 				deviceMap["01"] = generateSameBoardMockDeviceSet(7, "01")
 				deviceMap["02"] = generateSameBoardMockDeviceSet(6, "02")
@@ -105,12 +105,12 @@ func TestGetLargestLengthDifferenceTopologyHintKey(t *testing.T) {
 
 				return deviceMap
 			}(),
-			expectedIn: []string{"00"},
+			expectedIn: []TopologyHintKey{"00"},
 		},
 		{
 			description: "must pick '04' which is the target for best fit bin packing algorithm",
-			devicesByHintMap: func() map[string]DeviceSet {
-				deviceMap := make(map[string]DeviceSet)
+			devicesByHintMap: func() map[TopologyHintKey]DeviceSet {
+				deviceMap := make(map[TopologyHintKey]DeviceSet)
 				deviceMap["00"] = generateSameBoardMockDeviceSet(1, "00")
 				deviceMap["01"] = generateSameBoardMockDeviceSet(5, "01")
 				deviceMap["02"] = generateSameBoardMockDeviceSet(2, "02")
@@ -119,12 +119,12 @@ func TestGetLargestLengthDifferenceTopologyHintKey(t *testing.T) {
 
 				return deviceMap
 			}(),
-			expectedIn: []string{"01"},
+			expectedIn: []TopologyHintKey{"01"},
 		},
 		{
 			description: "must not pick any key because none of them has sufficient size for requested remaining cnt",
-			devicesByHintMap: func() map[string]DeviceSet {
-				deviceMap := make(map[string]DeviceSet)
+			devicesByHintMap: func() map[TopologyHintKey]DeviceSet {
+				deviceMap := make(map[TopologyHintKey]DeviceSet)
 				deviceMap["00"] = generateSameBoardMockDeviceSet(3, "00")
 				deviceMap["01"] = generateSameBoardMockDeviceSet(3, "01")
 				deviceMap["02"] = generateSameBoardMockDeviceSet(4, "02")
@@ -133,7 +133,7 @@ func TestGetLargestLengthDifferenceTopologyHintKey(t *testing.T) {
 
 				return deviceMap
 			}(),
-			expectedIn: []string{"02", "03", "04"},
+			expectedIn: []TopologyHintKey{"02", "03", "04"},
 		},
 	}
 

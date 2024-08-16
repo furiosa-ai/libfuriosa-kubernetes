@@ -14,7 +14,7 @@ type TopologyHintProvider func(device1, device2 Device) uint
 type TopologyHintKey string
 
 // TopologyHintMatrix provides score of device to device based on smi.Device smi.LinkType.
-type TopologyHintMatrix map[string]map[string]uint
+type TopologyHintMatrix map[TopologyHintKey]map[TopologyHintKey]uint
 
 // populateTopologyHintMatrix generates TopologyHintMatrix using list of smi.Device.
 func populateTopologyHintMatrix(smiDevices []smi.Device) (TopologyHintMatrix, error) {
@@ -36,14 +36,15 @@ func populateTopologyHintMatrix(smiDevices []smi.Device) (TopologyHintMatrix, er
 				return nil, err
 			}
 
-			key1 := deviceInfo1.BDF()
-			key2 := deviceInfo2.BDF()
+			// FIXME(@hoony9x-furiosa-ai): Please see https://linear.app/furiosa-ai/issue/CN-60
+			key1 := TopologyHintKey(deviceInfo1.BDF())
+			key2 := TopologyHintKey(deviceInfo2.BDF())
 			if key1 > key2 {
 				key1, key2 = key2, key1
 			}
 
 			if _, ok := topologyHintMatrix[key1]; !ok {
-				topologyHintMatrix[key1] = make(map[string]uint)
+				topologyHintMatrix[key1] = make(map[TopologyHintKey]uint)
 			}
 
 			topologyHintMatrix[key1][key2] = uint(linkType)
@@ -62,7 +63,7 @@ type Device interface {
 	GetID() string
 
 	// GetTopologyHintKey returns unique key to retrieve TopologyHint using TopologyHintProvider.
-	GetTopologyHintKey() string
+	GetTopologyHintKey() TopologyHintKey
 
 	// Equal check whether source Device is identical to the target Device.
 	Equal(target Device) bool
@@ -103,7 +104,7 @@ func (source DeviceSet) Equal(target DeviceSet) bool {
 		return false
 	}
 
-	visited := make(map[string]string)
+	visited := make(map[string]TopologyHintKey)
 	for _, device := range source {
 		visited[device.GetID()] = device.GetTopologyHintKey()
 	}

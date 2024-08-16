@@ -1,7 +1,6 @@
 package npu_allocator
 
 import (
-	"fmt"
 	"math"
 )
 
@@ -59,8 +58,6 @@ func NewBinPackingNpuAllocator(devices DeviceSet) (NpuAllocator, error) {
 }
 
 func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSet, request int) DeviceSet {
-	fmt.Printf("available: %d, required: %d, request: %d\n", len(available), len(required), request)
-
 	subsetLen := request - len(required)
 	// If subsetLen is zero, it means pre-allocated devices already satisfies device request quantity.
 	if subsetLen == 0 {

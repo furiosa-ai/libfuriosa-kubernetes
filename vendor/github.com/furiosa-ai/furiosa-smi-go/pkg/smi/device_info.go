@@ -1,6 +1,6 @@
 package smi
 
-import "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi/binding"
+import "github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
 
 type DeviceInfo interface {
 	Arch() Arch
@@ -28,46 +28,46 @@ func newDeviceInfo(raw binding.FuriosaSmiDeviceInfo) DeviceInfo {
 	}
 }
 
-func (d deviceInfo) Arch() Arch {
+func (d *deviceInfo) Arch() Arch {
 	return Arch(d.raw.Arch)
 }
 
-func (d deviceInfo) CoreNum() uint32 {
+func (d *deviceInfo) CoreNum() uint32 {
 	return d.raw.CoreNum
 }
 
-func (d deviceInfo) NumaNode() uint32 {
+func (d *deviceInfo) NumaNode() uint32 {
 	return d.raw.NumaNode
 }
 
-func (d deviceInfo) Name() string {
+func (d *deviceInfo) Name() string {
 	return byteBufferToString(d.raw.Name[:])
 }
 
-func (d deviceInfo) Serial() string {
+func (d *deviceInfo) Serial() string {
 	return byteBufferToString(d.raw.Serial[:])
 }
 
-func (d deviceInfo) UUID() string {
+func (d *deviceInfo) UUID() string {
 	return byteBufferToString(d.raw.Uuid[:])
 }
 
-func (d deviceInfo) BDF() string {
+func (d *deviceInfo) BDF() string {
 	return byteBufferToString(d.raw.Bdf[:])
 }
 
-func (d deviceInfo) Major() uint16 {
+func (d *deviceInfo) Major() uint16 {
 	return d.raw.Major
 }
 
-func (d deviceInfo) Minor() uint16 {
+func (d *deviceInfo) Minor() uint16 {
 	return d.raw.Minor
 }
 
-func (d deviceInfo) FirmwareVersion() VersionInfo {
-	return newVersionInfo(d.raw.DriverVersion)
+func (d *deviceInfo) FirmwareVersion() VersionInfo {
+	return newVersionInfo(d.raw.FirmwareVersion)
 }
 
-func (d deviceInfo) DriverVersion() VersionInfo {
+func (d *deviceInfo) DriverVersion() VersionInfo {
 	return newVersionInfo(d.raw.DriverVersion)
 }

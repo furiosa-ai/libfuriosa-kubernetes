@@ -3,7 +3,7 @@ package npu_allocator
 import (
 	"sync"
 
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
+	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
 )
 
 var _ NpuAllocator = (*binPackingNpuAllocator)(nil)

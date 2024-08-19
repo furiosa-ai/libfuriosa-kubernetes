@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
+	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
 	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/util"
 	"github.com/stretchr/testify/assert"
 )

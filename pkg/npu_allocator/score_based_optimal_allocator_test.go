@@ -954,7 +954,7 @@ func TestPopulateTopologyMatrix(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		actual, _ := populateTopologyHintMatrixForScoreBasedAllocator(tc.input)
+		actual, _ := populateTopologyHintMatrixFromSMIDevices(tc.input)
 
 		if !reflect.DeepEqual(actual, tc.expected) {
 			t.Errorf("expected %v but got %v", tc.expected, actual)

@@ -60,6 +60,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	allocatedDevices = allocatedDevices.Union(required)
 
 	for subsetLen > 0 {
+		// select best scored devices at every iteration, until subsetLen reaches 0.
 		selectedDevices := b.selectBestScoredDevices(subsetLen, allocatedDevices, differenceByHintMap)
 		subsetLen -= len(selectedDevices)
 		allocatedDevices = allocatedDevices.Union(selectedDevices)
@@ -68,7 +69,12 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	return allocatedDevices
 }
 
-func (b *binPackingNpuAllocator) selectBestScoredDevices(subsetLen int, allocatedDevices DeviceSet, remainingDevicesByHintMap map[TopologyHintKey]DeviceSet) DeviceSet {
+// selectBestScoredDevices selects devices which get the largest score with previouslyAllocatedDevices.
+func (b *binPackingNpuAllocator) selectBestScoredDevices(
+	maxSelectLength int,
+	previouslyAllocatedDevices DeviceSet,
+	remainingDevicesByHintMap map[TopologyHintKey]DeviceSet,
+) DeviceSet {
 	var highestScore uint = 0
 	var selectedHintKey TopologyHintKey = ""
 
@@ -81,11 +87,11 @@ func (b *binPackingNpuAllocator) selectBestScoredDevices(subsetLen int, allocate
 			defer wg.Done()
 
 			partialDevices := devices
-			if len(devices) > subsetLen {
-				partialDevices = devices[:subsetLen]
+			if len(partialDevices) > maxSelectLength {
+				partialDevices = devices[:maxSelectLength]
 			}
 
-			score := b.scoreDeviceSet(partialDevices.Union(allocatedDevices))
+			score := b.scoreDeviceSet(previouslyAllocatedDevices.Union(partialDevices))
 
 			lock.Lock()
 			if selectedHintKey == "" || highestScore < score {
@@ -99,14 +105,15 @@ func (b *binPackingNpuAllocator) selectBestScoredDevices(subsetLen int, allocate
 	wg.Wait()
 
 	selectedDevices := remainingDevicesByHintMap[selectedHintKey]
-	if len(selectedDevices) > subsetLen {
-		selectedDevices = selectedDevices[:subsetLen]
-		remainingDevicesByHintMap[selectedHintKey] = remainingDevicesByHintMap[selectedHintKey][subsetLen:]
+	if len(selectedDevices) > maxSelectLength {
+		// if length of selected device is longer than maxSelectLength, cut it.
+		selectedDevices = selectedDevices[:maxSelectLength]
+		remainingDevicesByHintMap[selectedHintKey] = remainingDevicesByHintMap[selectedHintKey][maxSelectLength:]
 	} else {
 		delete(remainingDevicesByHintMap, selectedHintKey)
 	}
 
-	return allocatedDevices.Union(selectedDevices)
+	return previouslyAllocatedDevices.Union(selectedDevices)
 }
 
 // scoreDeviceSet returns total sum of scores for each pair of devices.

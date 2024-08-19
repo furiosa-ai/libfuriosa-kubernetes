@@ -45,14 +45,14 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 
 	// difference contains devices in `available` set, excluding `required` set.
 	difference := available.Difference(required)
-	remainingDevicesByHintMap := make(map[TopologyHintKey]DeviceSet)
+	differenceByHintMap := make(map[TopologyHintKey]DeviceSet)
 	for _, device := range difference {
 		topologyHintKey := device.GetTopologyHintKey()
-		if _, ok := remainingDevicesByHintMap[topologyHintKey]; !ok {
-			remainingDevicesByHintMap[topologyHintKey] = make(DeviceSet, 0)
+		if _, ok := differenceByHintMap[topologyHintKey]; !ok {
+			differenceByHintMap[topologyHintKey] = make(DeviceSet, 0)
 		}
 
-		remainingDevicesByHintMap[topologyHintKey] = append(remainingDevicesByHintMap[topologyHintKey], device)
+		differenceByHintMap[topologyHintKey] = append(differenceByHintMap[topologyHintKey], device)
 	}
 
 	// finalizedDevices contains finalized allocated devices.
@@ -60,7 +60,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	finalizedDevices = finalizedDevices.Union(required)
 
 	for subsetLen > 0 {
-		selectedDevices := b.selectBestScoredDevices(subsetLen, finalizedDevices, remainingDevicesByHintMap)
+		selectedDevices := b.selectBestScoredDevices(subsetLen, finalizedDevices, differenceByHintMap)
 		subsetLen -= len(selectedDevices)
 		finalizedDevices = finalizedDevices.Union(selectedDevices)
 	}

@@ -1,6 +1,12 @@
 package npu_allocator
 
-import "sync"
+import (
+	"fmt"
+	"regexp"
+	"sync"
+
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
+)
 
 var _ NpuAllocator = (*binPackingNpuAllocator)(nil)
 
@@ -8,19 +14,63 @@ type binPackingNpuAllocator struct {
 	hintProvider TopologyHintProvider
 }
 
-func populateTopologyHintMatrixForBinPackingAllocator(devices DeviceSet) (TopologyHintMatrix, error) {
+func populateTopologyHintMatrixForBinPackingAllocator(smiDevices []smi.Device) (TopologyHintMatrix, error) {
 	topologyHintMatrix := make(TopologyHintMatrix)
+	deviceToDeviceInfo := make(map[smi.Device]smi.DeviceInfo)
 
-	for _, device1 := range devices {
-		for _, device2 := range devices {
-			score := device1.CalculateScoreToOtherDevice(device2)
+	for _, device := range smiDevices {
+		deviceInfo, err := device.DeviceInfo()
+		if err != nil {
+			return nil, err
+		}
 
-			key1, key2 := device1.GetTopologyHintKey(), device2.GetTopologyHintKey()
+		deviceToDeviceInfo[device] = deviceInfo
+	}
+
+	// parseBusIDFromBDF parses bdf and returns PCI bus ID.
+	parseBusIDFromBDF := func(bdf string) (string, error) {
+		bdfPattern := `^(?P<domain>[0-9a-fA-F]{1,4}):(?P<bus>[0-9a-fA-F]+):(?P<function>[0-9a-fA-F]+\.[0-9])$`
+		subExpKeyBus := "bus"
+		bdfRegExp := regexp.MustCompile(bdfPattern)
+
+		matches := bdfRegExp.FindStringSubmatch(bdf)
+		if matches == nil {
+			return "", fmt.Errorf("couldn't parse the given string %s with bdf regex pattern: %s", bdf, bdfPattern)
+		}
+
+		subExpIndex := bdfRegExp.SubexpIndex(subExpKeyBus)
+		if subExpIndex == -1 {
+			return "", fmt.Errorf("couldn't parse bus id from the given bdf expression %s", bdf)
+		}
+
+		return matches[subExpIndex], nil
+	}
+
+	for device1, deviceInfo1 := range deviceToDeviceInfo {
+		for device2, deviceInfo2 := range deviceToDeviceInfo {
+			linkType, err := device1.GetDeviceToDeviceLinkType(device2)
+			if err != nil {
+				return nil, err
+			}
+
+			score := uint(linkType)
+
+			pciBusID1, err := parseBusIDFromBDF(deviceInfo1.BDF())
+			if err != nil {
+				return nil, err
+			}
+
+			pciBusID2, err := parseBusIDFromBDF(deviceInfo2.BDF())
+			if err != nil {
+				return nil, err
+			}
+
+			key1, key2 := TopologyHintKey(pciBusID1), TopologyHintKey(pciBusID2)
 			if key1 > key2 {
 				key1, key2 = key2, key1
 			}
 
-			if _, exists := topologyHintMatrix[key1]; !exists {
+			if _, ok := topologyHintMatrix[key1]; !ok {
 				topologyHintMatrix[key1] = make(map[TopologyHintKey]uint)
 			}
 
@@ -31,8 +81,8 @@ func populateTopologyHintMatrixForBinPackingAllocator(devices DeviceSet) (Topolo
 	return topologyHintMatrix, nil
 }
 
-func NewBinPackingNpuAllocator(devices DeviceSet) (NpuAllocator, error) {
-	topologyHintMatrix, err := populateTopologyHintMatrixForBinPackingAllocator(devices)
+func NewBinPackingNpuAllocator(smiDevices []smi.Device) (NpuAllocator, error) {
+	topologyHintMatrix, err := populateTopologyHintMatrixForBinPackingAllocator(smiDevices)
 	if err != nil {
 		return nil, err
 	}

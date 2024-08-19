@@ -27,6 +27,25 @@ func populateTopologyHintMatrixForScoreBasedAllocator(smiDevices []smi.Device) (
 		deviceToDeviceInfo[device] = deviceInfo
 	}
 
+	// parseBusIDFromBDF parses bdf and returns PCI bus ID.
+	parseBusIDFromBDF := func(bdf string) (string, error) {
+		bdfPattern := `^(?P<domain>[0-9a-fA-F]{1,4}):(?P<bus>[0-9a-fA-F]+):(?P<function>[0-9a-fA-F]+\.[0-9])$`
+		subExpKeyBus := "bus"
+		bdfRegExp := regexp.MustCompile(bdfPattern)
+
+		matches := bdfRegExp.FindStringSubmatch(bdf)
+		if matches == nil {
+			return "", fmt.Errorf("couldn't parse the given string %s with bdf regex pattern: %s", bdf, bdfPattern)
+		}
+
+		subExpIndex := bdfRegExp.SubexpIndex(subExpKeyBus)
+		if subExpIndex == -1 {
+			return "", fmt.Errorf("couldn't parse bus id from the given bdf expression %s", bdf)
+		}
+
+		return matches[subExpIndex], nil
+	}
+
 	for device1, deviceInfo1 := range deviceToDeviceInfo {
 		for device2, deviceInfo2 := range deviceToDeviceInfo {
 			linkType, err := device1.GetDeviceToDeviceLinkType(device2)
@@ -58,25 +77,6 @@ func populateTopologyHintMatrixForScoreBasedAllocator(smiDevices []smi.Device) (
 	}
 
 	return topologyHintMatrix, nil
-}
-
-// parseBusIDFromBDF parses bdf and returns PCI bus ID.
-func parseBusIDFromBDF(bdf string) (string, error) {
-	bdfPattern := `^(?P<domain>[0-9a-fA-F]{1,4}):(?P<bus>[0-9a-fA-F]+):(?P<function>[0-9a-fA-F]+\.[0-9])$`
-	subExpKeyBus := "bus"
-	bdfRegExp := regexp.MustCompile(bdfPattern)
-
-	matches := bdfRegExp.FindStringSubmatch(bdf)
-	if matches == nil {
-		return "", fmt.Errorf("couldn't parse the given string %s with bdf regex pattern: %s", bdf, bdfPattern)
-	}
-
-	subExpIndex := bdfRegExp.SubexpIndex(subExpKeyBus)
-	if subExpIndex == -1 {
-		return "", fmt.Errorf("couldn't parse bus id from the given bdf expression %s", bdf)
-	}
-
-	return matches[subExpIndex], nil
 }
 
 func NewScoreBasedOptimalNpuAllocator(devices []smi.Device) (NpuAllocator, error) {

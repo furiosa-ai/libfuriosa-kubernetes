@@ -25,11 +25,6 @@ type Device interface {
 	// GetTopologyHintKey returns unique key to retrieve TopologyHint using TopologyHintProvider.
 	GetTopologyHintKey() TopologyHintKey
 
-	// CalculateScoreToOtherDevice returns score between self and other device.
-	// It can be calculated based on topology.
-	// Higher score means lower distance between two devices.
-	CalculateScoreToOtherDevice(other Device) uint
-
 	// Equal checks whether source Device is identical to the target Device.
 	Equal(target Device) bool
 }

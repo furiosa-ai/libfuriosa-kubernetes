@@ -55,20 +55,20 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 		differenceByHintMap[topologyHintKey] = append(differenceByHintMap[topologyHintKey], device)
 	}
 
-	// finalizedDevices contains finalized allocated devices.
-	finalizedDevices := make(DeviceSet, 0, request)
-	finalizedDevices = finalizedDevices.Union(required)
+	// allocatedDevices contains finalized allocated devices.
+	allocatedDevices := make(DeviceSet, 0, request)
+	allocatedDevices = allocatedDevices.Union(required)
 
 	for subsetLen > 0 {
-		selectedDevices := b.selectBestScoredDevices(subsetLen, finalizedDevices, differenceByHintMap)
+		selectedDevices := b.selectBestScoredDevices(subsetLen, allocatedDevices, differenceByHintMap)
 		subsetLen -= len(selectedDevices)
-		finalizedDevices = finalizedDevices.Union(selectedDevices)
+		allocatedDevices = allocatedDevices.Union(selectedDevices)
 	}
 
-	return finalizedDevices
+	return allocatedDevices
 }
 
-func (b *binPackingNpuAllocator) selectBestScoredDevices(subsetLen int, finalizedDevices DeviceSet, remainingDevicesByHintMap map[TopologyHintKey]DeviceSet) DeviceSet {
+func (b *binPackingNpuAllocator) selectBestScoredDevices(subsetLen int, allocatedDevices DeviceSet, remainingDevicesByHintMap map[TopologyHintKey]DeviceSet) DeviceSet {
 	var highestScore uint = 0
 	var selectedHintKey TopologyHintKey = ""
 
@@ -85,7 +85,7 @@ func (b *binPackingNpuAllocator) selectBestScoredDevices(subsetLen int, finalize
 				partialDevices = devices[:subsetLen]
 			}
 
-			score := b.scoreDeviceSet(partialDevices.Union(finalizedDevices))
+			score := b.scoreDeviceSet(partialDevices.Union(allocatedDevices))
 
 			lock.Lock()
 			if selectedHintKey == "" || highestScore < score {
@@ -106,7 +106,7 @@ func (b *binPackingNpuAllocator) selectBestScoredDevices(subsetLen int, finalize
 		delete(remainingDevicesByHintMap, selectedHintKey)
 	}
 
-	return finalizedDevices.Union(selectedDevices)
+	return allocatedDevices.Union(selectedDevices)
 }
 
 // scoreDeviceSet returns total sum of scores for each pair of devices.

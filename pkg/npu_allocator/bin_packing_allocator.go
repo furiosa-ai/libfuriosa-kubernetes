@@ -68,24 +68,6 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	return finalizedDevices
 }
 
-// scoreDeviceSet returns total sum of scores for each pair of devices.
-func (b *binPackingNpuAllocator) scoreDeviceSet(deviceSet DeviceSet) uint {
-	var total uint = 0
-	for i := 0; i < len(deviceSet); i++ {
-		for j := i + 1; j < len(deviceSet); j++ {
-			total += b.scoreDevicePair(deviceSet[i], deviceSet[j])
-		}
-	}
-
-	return total
-}
-
-// scoreDevicePair returns score based on distance between two devices.
-// Higher score means lower distance.
-func (b *binPackingNpuAllocator) scoreDevicePair(device1 Device, device2 Device) uint {
-	return b.hintProvider(device1, device2)
-}
-
 func (b *binPackingNpuAllocator) selectBestScoredDevices(subsetLen int, finalizedDevices DeviceSet, remainingDevicesByHintMap map[TopologyHintKey]DeviceSet) DeviceSet {
 	var highestScore uint = 0
 	var selectedHintKey TopologyHintKey = ""
@@ -125,4 +107,22 @@ func (b *binPackingNpuAllocator) selectBestScoredDevices(subsetLen int, finalize
 	}
 
 	return finalizedDevices.Union(selectedDevices)
+}
+
+// scoreDeviceSet returns total sum of scores for each pair of devices.
+func (b *binPackingNpuAllocator) scoreDeviceSet(deviceSet DeviceSet) uint {
+	var total uint = 0
+	for i := 0; i < len(deviceSet); i++ {
+		for j := i + 1; j < len(deviceSet); j++ {
+			total += b.scoreDevicePair(deviceSet[i], deviceSet[j])
+		}
+	}
+
+	return total
+}
+
+// scoreDevicePair returns score based on distance between two devices.
+// Higher score means lower distance.
+func (b *binPackingNpuAllocator) scoreDevicePair(device1 Device, device2 Device) uint {
+	return b.hintProvider(device1, device2)
 }

@@ -1,6 +1,6 @@
 package smi
 
-import "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi/binding"
+import "github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
 
 type DeviceFile interface {
 	Cores() []uint32
@@ -19,7 +19,7 @@ func newDeviceFile(raw binding.FuriosaSmiDeviceFile) DeviceFile {
 	}
 }
 
-func (d deviceFile) Cores() []uint32 {
+func (d *deviceFile) Cores() []uint32 {
 	var cores []uint32
 
 	for i := d.raw.CoreStart; i <= d.raw.CoreEnd; i++ {
@@ -29,6 +29,6 @@ func (d deviceFile) Cores() []uint32 {
 	return cores
 }
 
-func (d deviceFile) Path() string {
+func (d *deviceFile) Path() string {
 	return byteBufferToString(d.raw.Path[:])
 }

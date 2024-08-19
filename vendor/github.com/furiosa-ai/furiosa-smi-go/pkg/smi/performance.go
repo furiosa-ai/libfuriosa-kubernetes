@@ -1,6 +1,6 @@
 package smi
 
-import "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi/binding"
+import "github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
 
 type PeUtilization interface {
 	Cores() []uint32
@@ -20,7 +20,7 @@ func newPeUtilization(raw binding.FuriosaSmiPeUtilization) PeUtilization {
 	}
 }
 
-func (p peUtilization) Cores() (ret []uint32) {
+func (p *peUtilization) Cores() (ret []uint32) {
 	for i := uint32(0); i < p.raw.CoreCount; i++ {
 		ret = append(ret, p.raw.Cores[i])
 	}
@@ -28,11 +28,11 @@ func (p peUtilization) Cores() (ret []uint32) {
 	return
 }
 
-func (p peUtilization) TimeWindowMill() uint32 {
+func (p *peUtilization) TimeWindowMill() uint32 {
 	return p.raw.TimeWindowMil
 }
 
-func (p peUtilization) PeUsagePercentage() float64 {
+func (p *peUtilization) PeUsagePercentage() float64 {
 	return p.raw.PeUsagePercentage
 }
 
@@ -53,11 +53,11 @@ type memoryUtilization struct {
 	raw binding.FuriosaSmiMemoryUtilization
 }
 
-func (m memoryUtilization) TotalBytes() uint64 {
+func (m *memoryUtilization) TotalBytes() uint64 {
 	return m.raw.TotalBytes
 }
 
-func (m memoryUtilization) InUseBytes() uint64 {
+func (m *memoryUtilization) InUseBytes() uint64 {
 	return m.raw.InUseBytes
 }
 
@@ -78,7 +78,7 @@ func newDeviceUtilization(raw binding.FuriosaSmiDeviceUtilization) DeviceUtiliza
 	}
 }
 
-func (d deviceUtilization) PeUtilization() (ret []PeUtilization) {
+func (d *deviceUtilization) PeUtilization() (ret []PeUtilization) {
 	for i := uint32(0); i < d.raw.PeCount; i++ {
 		ret = append(ret, newPeUtilization(d.raw.Pe[i]))
 	}
@@ -86,7 +86,7 @@ func (d deviceUtilization) PeUtilization() (ret []PeUtilization) {
 	return
 }
 
-func (d deviceUtilization) MemoryUtilization() MemoryUtilization {
+func (d *deviceUtilization) MemoryUtilization() MemoryUtilization {
 	return newMemoryUtilization(d.raw.Memory)
 }
 
@@ -107,10 +107,10 @@ func newDeviceTemperature(raw binding.FuriosaSmiDeviceTemperature) DeviceTempera
 	}
 }
 
-func (d deviceTemperature) SocPeak() float64 {
+func (d *deviceTemperature) SocPeak() float64 {
 	return d.raw.SocPeak
 }
 
-func (d deviceTemperature) Ambient() float64 {
+func (d *deviceTemperature) Ambient() float64 {
 	return d.raw.Ambient
 }

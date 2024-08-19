@@ -1,8 +1,6 @@
 package smi
 
-import (
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi/binding"
-)
+import "github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
 
 type Arch uint32
 

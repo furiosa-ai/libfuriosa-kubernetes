@@ -86,11 +86,11 @@ type staticMockDeviceFile struct {
 
 var _ DeviceFile = new(staticMockDeviceFile)
 
-func (m staticMockDeviceFile) Cores() []uint32 {
+func (m *staticMockDeviceFile) Cores() []uint32 {
 	return m.cores
 }
 
-func (m staticMockDeviceFile) Path() string {
+func (m *staticMockDeviceFile) Path() string {
 	return m.path
 }
 
@@ -98,40 +98,40 @@ type staticMockDeviceErrorInfo struct{}
 
 var _ DeviceErrorInfo = new(staticMockDeviceErrorInfo)
 
-func (m staticMockDeviceErrorInfo) AxiPostErrorCount() uint32 {
-	return 0
+func (m *staticMockDeviceErrorInfo) AxiPostErrorCount() uint32 {
+	return 1
 }
 
-func (m staticMockDeviceErrorInfo) AxiFetchErrorCount() uint32 {
-	return 0
+func (m *staticMockDeviceErrorInfo) AxiFetchErrorCount() uint32 {
+	return 2
 }
 
-func (m staticMockDeviceErrorInfo) AxiDiscardErrorCount() uint32 {
-	return 0
+func (m *staticMockDeviceErrorInfo) AxiDiscardErrorCount() uint32 {
+	return 3
 }
 
-func (m staticMockDeviceErrorInfo) AxiDoorbellErrorCount() uint32 {
-	return 0
+func (m *staticMockDeviceErrorInfo) AxiDoorbellErrorCount() uint32 {
+	return 4
 }
 
-func (m staticMockDeviceErrorInfo) PciePostErrorCount() uint32 {
-	return 0
+func (m *staticMockDeviceErrorInfo) PciePostErrorCount() uint32 {
+	return 5
 }
 
-func (m staticMockDeviceErrorInfo) PcieFetchErrorCount() uint32 {
-	return 0
+func (m *staticMockDeviceErrorInfo) PcieFetchErrorCount() uint32 {
+	return 6
 }
 
-func (m staticMockDeviceErrorInfo) PcieDiscardErrorCount() uint32 {
-	return 0
+func (m *staticMockDeviceErrorInfo) PcieDiscardErrorCount() uint32 {
+	return 7
 }
 
-func (m staticMockDeviceErrorInfo) PcieDoorbellErrorCount() uint32 {
-	return 0
+func (m *staticMockDeviceErrorInfo) PcieDoorbellErrorCount() uint32 {
+	return 8
 }
 
-func (m staticMockDeviceErrorInfo) DeviceErrorCount() uint32 {
-	return 0
+func (m *staticMockDeviceErrorInfo) DeviceErrorCount() uint32 {
+	return 9
 }
 
 type staticMockPeUtilization struct {
@@ -142,15 +142,15 @@ type staticMockPeUtilization struct {
 
 var _ PeUtilization = new(staticMockPeUtilization)
 
-func (m staticMockPeUtilization) Cores() []uint32 {
+func (m *staticMockPeUtilization) Cores() []uint32 {
 	return m.cores
 }
 
-func (m staticMockPeUtilization) TimeWindowMill() uint32 {
+func (m *staticMockPeUtilization) TimeWindowMill() uint32 {
 	return m.timeWindow
 }
 
-func (m staticMockPeUtilization) PeUsagePercentage() float64 {
+func (m *staticMockPeUtilization) PeUsagePercentage() float64 {
 	return m.usage
 }
 
@@ -158,11 +158,11 @@ type staticMockMemoryUtilization struct{}
 
 var _ MemoryUtilization = new(staticMockMemoryUtilization)
 
-func (m staticMockMemoryUtilization) TotalBytes() uint64 {
+func (m *staticMockMemoryUtilization) TotalBytes() uint64 {
 	return 0
 }
 
-func (m staticMockMemoryUtilization) InUseBytes() uint64 {
+func (m *staticMockMemoryUtilization) InUseBytes() uint64 {
 	return 0
 }
 
@@ -173,11 +173,11 @@ type staticMockDeviceUtilization struct {
 
 var _ DeviceUtilization = new(staticMockDeviceUtilization)
 
-func (m staticMockDeviceUtilization) PeUtilization() []PeUtilization {
+func (m *staticMockDeviceUtilization) PeUtilization() []PeUtilization {
 	return m.pe
 }
 
-func (m staticMockDeviceUtilization) MemoryUtilization() MemoryUtilization {
+func (m *staticMockDeviceUtilization) MemoryUtilization() MemoryUtilization {
 	return m.mem
 }
 
@@ -185,12 +185,12 @@ type staticMockDeviceTemperature struct{}
 
 var _ DeviceTemperature = new(staticMockDeviceTemperature)
 
-func (m staticMockDeviceTemperature) SocPeak() float64 {
-	return 0
+func (m *staticMockDeviceTemperature) SocPeak() float64 {
+	return 20
 }
 
-func (m staticMockDeviceTemperature) Ambient() float64 {
-	return 0
+func (m *staticMockDeviceTemperature) Ambient() float64 {
+	return 10
 }
 
 func newStaticMockVersionInfo(arch Arch, major, minor, patch uint32, metadata string) VersionInfo {
@@ -213,23 +213,23 @@ type staticMockVersionInfo struct {
 
 var _ VersionInfo = new(staticMockVersionInfo)
 
-func (m staticMockVersionInfo) Arch() Arch {
+func (m *staticMockVersionInfo) Arch() Arch {
 	return m.arch
 }
 
-func (m staticMockVersionInfo) Major() uint32 {
+func (m *staticMockVersionInfo) Major() uint32 {
 	return m.major
 }
 
-func (m staticMockVersionInfo) Minor() uint32 {
+func (m *staticMockVersionInfo) Minor() uint32 {
 	return m.minor
 }
 
-func (m staticMockVersionInfo) Patch() uint32 {
+func (m *staticMockVersionInfo) Patch() uint32 {
 	return m.patch
 }
 
-func (m staticMockVersionInfo) Metadata() string {
+func (m *staticMockVersionInfo) Metadata() string {
 	return m.metadata
 }
 

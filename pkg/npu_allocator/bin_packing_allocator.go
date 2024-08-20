@@ -33,7 +33,17 @@ func NewBinPackingNpuAllocator(smiDevices []smi.Device) (NpuAllocator, error) {
 		return 0
 	}
 
-	return &binPackingNpuAllocator{hintProvider: hintProvider}, nil
+	return newBinPackingNpuAllocator(hintProvider), nil
+}
+
+func NewMockBinPackingNpuAllocator(mockHintProvider TopologyHintProvider) (NpuAllocator, error) {
+	return newBinPackingNpuAllocator(mockHintProvider), nil
+}
+
+func newBinPackingNpuAllocator(hintProvider TopologyHintProvider) NpuAllocator {
+	return &binPackingNpuAllocator{
+		hintProvider: hintProvider,
+	}
 }
 
 func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSet, request int) DeviceSet {
@@ -75,7 +85,7 @@ func (b *binPackingNpuAllocator) selectBestScoredDevices(
 	previouslyAllocatedDevices DeviceSet,
 	remainingDevicesByHintMap map[TopologyHintKey]DeviceSet,
 ) DeviceSet {
-	var highestScore uint = 0
+	var highestScoreAvg float64 = 0.0
 	var selectedHintKey TopologyHintKey = ""
 
 	wg := new(sync.WaitGroup)
@@ -91,11 +101,13 @@ func (b *binPackingNpuAllocator) selectBestScoredDevices(
 				partialDevices = devices[:maxSelectLength]
 			}
 
-			score := b.scoreDeviceSet(previouslyAllocatedDevices.Union(partialDevices))
+			scoringTargetDevices := previouslyAllocatedDevices.Union(partialDevices)
+			scoreSum := b.scoreDeviceSet(scoringTargetDevices)
+			scoreAvg := float64(scoreSum) / float64(len(scoringTargetDevices))
 
 			lock.Lock()
-			if selectedHintKey == "" || highestScore < score {
-				highestScore = score
+			if selectedHintKey == "" || highestScoreAvg < scoreAvg {
+				highestScoreAvg = scoreAvg
 				selectedHintKey = topologyHintKey
 			}
 			lock.Unlock()

@@ -71,7 +71,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 
 	for subsetLen > 0 {
 		// select best scored devices at every iteration, until subsetLen reaches 0.
-		selectedDevices := b.selectBestScoredDevices(subsetLen, allocatedDevices, differenceByHintMap)
+		selectedDevices := b.selectBestScoredNewDevices(subsetLen, allocatedDevices, differenceByHintMap)
 		subsetLen -= len(selectedDevices)
 		allocatedDevices = allocatedDevices.Union(selectedDevices)
 	}
@@ -79,8 +79,9 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	return allocatedDevices
 }
 
-// selectBestScoredDevices selects devices which get the largest score with previouslyAllocatedDevices.
-func (b *binPackingNpuAllocator) selectBestScoredDevices(
+// selectBestScoredNewDevices selects devices which get the largest score with previouslyAllocatedDevices.
+// It only returns newly selected devices, not including previously allocated devices.
+func (b *binPackingNpuAllocator) selectBestScoredNewDevices(
 	maxSelectLength int,
 	previouslyAllocatedDevices DeviceSet,
 	remainingDevicesByHintMap map[TopologyHintKey]DeviceSet,
@@ -125,7 +126,7 @@ func (b *binPackingNpuAllocator) selectBestScoredDevices(
 		delete(remainingDevicesByHintMap, selectedHintKey)
 	}
 
-	return previouslyAllocatedDevices.Union(selectedDevices)
+	return selectedDevices
 }
 
 // scoreDeviceSet returns total sum of scores for each pair of devices.

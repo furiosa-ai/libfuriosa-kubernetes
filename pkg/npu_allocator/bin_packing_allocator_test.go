@@ -7,8 +7,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var (
-	mockHintMatrix = TopologyHintMatrix{
+func generateSameBoardMockDeviceSet(start int, end int, hintKey TopologyHintKey) DeviceSet {
+	devices := make(DeviceSet, 0, end-start+1)
+	for i := start; i < end; i++ {
+		devices = append(devices, NewMockDevice(fmt.Sprintf("%s-%02d", hintKey, i), hintKey))
+	}
+
+	return devices
+}
+
+// TestSelectBestScoredDevices tests binPackingNpuAllocator.selectBestScoredNewDevices().
+//   - It only tests single trial, not the final version of total allocated devices.
+func TestSelectBestScoredDevices(t *testing.T) {
+	mockHintMatrix := TopologyHintMatrix{
 		"0": {"0": 70, "1": 30, "2": 20, "3": 20, "4": 10, "5": 10, "6": 10, "7": 10},
 		"1": {"1": 70, "2": 20, "3": 20, "4": 10, "5": 10, "6": 10, "7": 10},
 		"2": {"2": 70, "3": 30, "4": 10, "5": 10, "6": 10, "7": 10},
@@ -19,7 +30,7 @@ var (
 		"7": {"7": 70},
 	}
 
-	mockHintProvider = func(device1, device2 Device) uint {
+	mockHintProvider := func(device1, device2 Device) uint {
 		key1, key2 := device1.GetTopologyHintKey(), device2.GetTopologyHintKey()
 		if key1 > key2 {
 			key1, key2 = key2, key1
@@ -33,20 +44,7 @@ var (
 
 		return 0
 	}
-)
 
-func generateSameBoardMockDeviceSet(start int, end int, hintKey TopologyHintKey) DeviceSet {
-	devices := make(DeviceSet, 0, end-start+1)
-	for i := start; i < end; i++ {
-		devices = append(devices, NewMockDevice(fmt.Sprintf("%s-%2d", hintKey, i), hintKey))
-	}
-
-	return devices
-}
-
-// TestSelectBestScoredDevices tests binPackingNpuAllocator.selectBestScoredDevices().
-//   - It only tests single trial, not the final version of total allocated devices.
-func TestSelectBestScoredDevices(t *testing.T) {
 	mockBinPackingAllocator, _ := NewMockBinPackingNpuAllocator(mockHintProvider)
 	sut := mockBinPackingAllocator.(*binPackingNpuAllocator)
 
@@ -112,7 +110,7 @@ func TestSelectBestScoredDevices(t *testing.T) {
 				"7": generateSameBoardMockDeviceSet(0, 4, "7"),
 			},
 			expectedIn:             []TopologyHintKey{"1"},
-			expectedSelectedLength: 5, // existing 1, new selection 4
+			expectedSelectedLength: 4, // new selection 4
 		},
 		{
 			description:     "7 devices from hintKey '3' must be picked",
@@ -135,7 +133,7 @@ func TestSelectBestScoredDevices(t *testing.T) {
 				"7": generateSameBoardMockDeviceSet(0, 8, "7"),
 			},
 			expectedIn:             []TopologyHintKey{"1", "2", "3"},
-			expectedSelectedLength: 16, // existing 9, new selection 7
+			expectedSelectedLength: 7, // new selection 7
 		},
 		{
 			description:     "7 devices from hintKey '0' must be picked",
@@ -158,14 +156,14 @@ func TestSelectBestScoredDevices(t *testing.T) {
 				"7": generateSameBoardMockDeviceSet(0, 8, "7"),
 			},
 			expectedIn:             []TopologyHintKey{"0", "1"},
-			expectedSelectedLength: 16, // existing 9, new selection 7
+			expectedSelectedLength: 7, // new selection 7
 		},
 	}
 
 	t.Parallel()
 	for _, tc := range tests {
 		t.Run(tc.description, func(subT *testing.T) {
-			selectedDevices := sut.selectBestScoredDevices(tc.maxSelectLength, tc.previouslyAllocatedDevices, tc.remainingDevicesByHintMap)
+			selectedDevices := sut.selectBestScoredNewDevices(tc.maxSelectLength, tc.previouslyAllocatedDevices, tc.remainingDevicesByHintMap)
 
 			assert.Equal(subT, tc.expectedSelectedLength, len(selectedDevices))
 			for _, device := range selectedDevices {

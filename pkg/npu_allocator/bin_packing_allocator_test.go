@@ -349,3 +349,53 @@ func TestBinPackingNpuAllocator_Warboy(t *testing.T) {
 		})
 	}
 }
+
+// TestBinPackingNpuAllocator_RNGD tests NpuAllocator.Allocate for RNGD arch with single core strategy.
+func TestBinPackingNpuAllocator_RNGD(t *testing.T) {
+	// FIXME: due to bug exists in smi package, it is not possible to write tests for RNGD right now.
+	//  Please fix it after https://github.com/furiosa-ai/libfuriosa-kubernetes/pull/45 PR is merged.
+	//  ---
+	//  panic: interface conversion: smi.Device is smi.staticRngdMockDevice, not *smi.staticRngdMockDevice [recovered]
+	//        panic: interface conversion: smi.Device is smi.staticRngdMockDevice, not *smi.staticRngdMockDevice
+
+	//mockSMIDevices := smi.GetStaticMockDevices(smi.ArchRngd) // we have total 8 mock devices
+	//sut, _ := NewBinPackingNpuAllocator(mockSMIDevices)
+	//
+	//// assume we have warboy with single core strategy.
+	//// therefore, each smi device will have 2 cores, which will generate 2 mock devices by each iteration.
+	//// after this iteration, we will have total 16 mock devices.
+	//// nodeIdx of each mock devices will be like below.
+	//// [
+	////   0, 0, 0, 0, 0, 0, 0, 0,
+	////   1, 1, 1, 1, 1, 1, 1, 1,
+	////   2, 2, 2, 2, 2, 2, 2, 2,
+	////   3, 3, 3, 3, 3, 3, 3, 3,
+	////   4, 4, 4, 4, 4, 4, 4, 4,
+	////   5, 5, 5, 5, 5, 5, 5, 5,
+	////   6, 6, 6, 6, 6, 6, 6, 6,
+	////   7, 7, 7, 7, 7, 7, 7, 7,
+	//// ].
+	//mockDevices := make(DeviceSet, 0)
+	//for _, smiDevice := range mockSMIDevices {
+	//	deviceInfo, _ := smiDevice.DeviceInfo()
+	//	pciBusID, _ := parseBusIDFromBDF(deviceInfo.BDF())
+	//	mockDevices = mockDevices.Union(generateSameBoardMockDeviceSet(0, 8, TopologyHintKey(pciBusID)))
+	//}
+	//
+	//tests := []struct {
+	//	description      string
+	//	available        DeviceSet
+	//	required         DeviceSet
+	//	request          int
+	//	verificationFunc func(DeviceSet) error
+	//}{}
+	//
+	//t.Parallel()
+	//for _, tc := range tests {
+	//	t.Run(tc.description, func(subT *testing.T) {
+	//		allocatedDevices := sut.Allocate(tc.available, tc.required, tc.request)
+	//		assert.Equal(subT, tc.request, len(allocatedDevices))
+	//		assert.NoError(subT, tc.verificationFunc(allocatedDevices))
+	//	})
+	//}
+}

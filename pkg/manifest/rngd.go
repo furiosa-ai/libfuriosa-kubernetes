@@ -2,10 +2,10 @@ package manifest
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/bradfitz/iter"
 	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
-	"path/filepath"
 )
 
 const (

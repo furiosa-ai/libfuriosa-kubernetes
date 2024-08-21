@@ -292,7 +292,7 @@ func TestDeviceSetSort(t *testing.T) {
 	for _, tc := range tests {
 		tc.source.Sort()
 		for idx, sourceDevice := range tc.source {
-			if sourceDevice.ID() != tc.expected[idx].ID() || sourceDevice.TopologyHintKey() != tc.expected[idx].TopologyHintKey() {
+			if sourceDevice.GetID() != tc.expected[idx].GetID() || sourceDevice.GetTopologyHintKey() != tc.expected[idx].GetTopologyHintKey() {
 				t.Errorf("expected %v but got %v", sourceDevice.(*mockDevice), tc.expected[idx].(*mockDevice))
 				break
 			}

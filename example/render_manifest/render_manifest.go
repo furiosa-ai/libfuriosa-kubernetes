@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/manifest"
 	"os"
 
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/manifest"
 	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 )
 

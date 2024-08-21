@@ -1,24 +1,22 @@
 package npu_allocator
 
 import (
-	furiosaSmi "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
-
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 	"gonum.org/v1/gonum/stat/combin"
 )
 
 var _ NpuAllocator = (*scoreBasedOptimalNpuAllocator)(nil)
 
-type topologyMatrix map[string]map[string]uint
-
 type scoreBasedOptimalNpuAllocator struct {
 	hintProvider TopologyHintProvider
 }
 
-func populateTopologyMatrix(devices []furiosaSmi.Device) (topologyMatrix, error) {
-	topologyMatrix := make(topologyMatrix)
-	deviceToDeviceInfo := make(map[furiosaSmi.Device]furiosaSmi.DeviceInfo)
+// populateTopologyHintMatrixForScoreBasedAllocator generates TopologyHintMatrix using list of smi.Device.
+func populateTopologyHintMatrixForScoreBasedAllocator(smiDevices []smi.Device) (TopologyHintMatrix, error) {
+	topologyHintMatrix := make(TopologyHintMatrix)
+	deviceToDeviceInfo := make(map[smi.Device]smi.DeviceInfo)
 
-	for _, device := range devices {
+	for _, device := range smiDevices {
 		deviceInfo, err := device.DeviceInfo()
 		if err != nil {
 			return nil, err
@@ -33,39 +31,54 @@ func populateTopologyMatrix(devices []furiosaSmi.Device) (topologyMatrix, error)
 				return nil, err
 			}
 
-			key1 := deviceInfo1.BDF()
-			key2 := deviceInfo2.BDF()
+			pciBusID1, err := ParseBusIDFromBDF(deviceInfo1.BDF())
+			if err != nil {
+				return nil, err
+			}
+
+			pciBusID2, err := ParseBusIDFromBDF(deviceInfo2.BDF())
+			if err != nil {
+				return nil, err
+			}
+
+			key1, key2 := TopologyHintKey(pciBusID1), TopologyHintKey(pciBusID2)
 			if key1 > key2 {
 				key1, key2 = key2, key1
 			}
 
-			if _, ok := topologyMatrix[key1]; !ok {
-				topologyMatrix[key1] = make(map[string]uint)
+			if _, ok := topologyHintMatrix[key1]; !ok {
+				topologyHintMatrix[key1] = make(map[TopologyHintKey]uint)
 			}
 
-			topologyMatrix[key1][key2] = uint(linkType)
+			topologyHintMatrix[key1][key2] = uint(linkType)
 		}
 	}
 
-	return topologyMatrix, nil
+	return topologyHintMatrix, nil
 }
 
-func NewScoreBasedOptimalNpuAllocator(devices []furiosaSmi.Device) (NpuAllocator, error) {
-	topologyMatrix, err := populateTopologyMatrix(devices)
+func NewScoreBasedOptimalNpuAllocator(devices []smi.Device) (NpuAllocator, error) {
+	topologyHintMatrix, err := populateTopologyHintMatrixForScoreBasedAllocator(devices)
 	if err != nil {
 		return nil, err
 	}
 
-	return newScoreBasedOptimalNpuAllocator(
-		func(device1, device2 Device) uint {
-			if innerMap, exists := topologyMatrix[device1.TopologyHintKey()]; exists {
-				if score, exists := innerMap[device2.TopologyHintKey()]; exists {
-					return score
-				}
-			}
+	hintProvider := func(device1, device2 Device) uint {
+		key1, key2 := device1.GetTopologyHintKey(), device2.GetTopologyHintKey()
+		if key1 > key2 {
+			key1, key2 = key2, key1
+		}
 
-			return 0
-		}), nil
+		if innerMap, innerMapExists := topologyHintMatrix[key1]; innerMapExists {
+			if score, scoreExists := innerMap[key2]; scoreExists {
+				return score
+			}
+		}
+
+		return 0
+	}
+
+	return newScoreBasedOptimalNpuAllocator(hintProvider), nil
 }
 
 func NewMockScoreBasedOptimalNpuAllocator(mockHintProvider TopologyHintProvider) (NpuAllocator, error) {

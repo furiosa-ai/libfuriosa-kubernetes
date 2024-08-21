@@ -2,7 +2,7 @@ package npu_allocator
 
 var _ Device = (*mockDevice)(nil)
 
-func NewMockDevice(id string, topologyHintKey string) Device {
+func NewMockDevice(id string, topologyHintKey TopologyHintKey) Device {
 	return &mockDevice{
 		id:              id,
 		topologyHintKey: topologyHintKey,
@@ -11,14 +11,14 @@ func NewMockDevice(id string, topologyHintKey string) Device {
 
 type mockDevice struct {
 	id              string
-	topologyHintKey string
+	topologyHintKey TopologyHintKey
 }
 
-func (m *mockDevice) ID() string {
+func (m *mockDevice) GetID() string {
 	return m.id
 }
 
-func (m *mockDevice) TopologyHintKey() string {
+func (m *mockDevice) GetTopologyHintKey() TopologyHintKey {
 	return m.topologyHintKey
 }
 
@@ -27,7 +27,7 @@ func (m *mockDevice) Equal(target Device) bool {
 		return false
 	}
 
-	if m.id == target.ID() && m.topologyHintKey == target.TopologyHintKey() {
+	if m.id == target.GetID() && m.topologyHintKey == target.GetTopologyHintKey() {
 		return true
 	}
 

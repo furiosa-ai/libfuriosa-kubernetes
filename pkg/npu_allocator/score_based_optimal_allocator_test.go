@@ -1,10 +1,11 @@
 package npu_allocator
 
 import (
-	furiosaSmi "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 	"reflect"
 	"strconv"
 	"testing"
+
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 )
 
 func buildMockDeviceSet(start, end int) DeviceSet {
@@ -12,7 +13,7 @@ func buildMockDeviceSet(start, end int) DeviceSet {
 	for i := start; i <= end; i++ {
 		result = append(result, &mockDevice{
 			id:              strconv.Itoa(i),
-			topologyHintKey: strconv.Itoa(i),
+			topologyHintKey: TopologyHintKey(strconv.Itoa(i)),
 		})
 	}
 
@@ -389,10 +390,10 @@ func TestGenerateNonDuplicatedDeviceSet(t *testing.T) {
 	}
 }
 
-func mockTopologyHintProvider(hints map[string]map[string]uint) TopologyHintProvider {
+func mockTopologyHintProvider(hints TopologyHintMatrix) TopologyHintProvider {
 	return func(device1, device2 Device) uint {
-		topologyHintKey1 := device1.TopologyHintKey()
-		topologyHintKey2 := device2.TopologyHintKey()
+		topologyHintKey1 := device1.GetTopologyHintKey()
+		topologyHintKey2 := device2.GetTopologyHintKey()
 
 		if topologyHintKey1 > topologyHintKey2 {
 			topologyHintKey1, topologyHintKey2 = topologyHintKey2, topologyHintKey1
@@ -406,8 +407,8 @@ func mockTopologyHintProvider(hints map[string]map[string]uint) TopologyHintProv
 	}
 }
 
-func buildStaticHintMatrixForTwoSocketBalancedConfig() map[string]map[string]uint {
-	return map[string]map[string]uint{
+func buildStaticHintMatrixForTwoSocketBalancedConfig() TopologyHintMatrix {
+	return TopologyHintMatrix{
 		"0": {"0": 70, "1": 30, "2": 20, "3": 20, "4": 10, "5": 10, "6": 10, "7": 10},
 		"1": {"1": 70, "2": 20, "3": 20, "4": 10, "5": 10, "6": 10, "7": 10},
 		"2": {"2": 70, "3": 30, "4": 10, "5": 10, "6": 10, "7": 10},
@@ -427,7 +428,7 @@ func TestAllocation(t *testing.T) {
 		available   DeviceSet
 		required    DeviceSet
 		request     int
-		hints       map[string]map[string]uint
+		hints       TopologyHintMatrix
 		expected    DeviceSet
 	}{
 		{
@@ -922,7 +923,7 @@ func TestAllocation(t *testing.T) {
 		tc.expected.Sort()
 
 		for idx, actual := range actualResult {
-			if actual.ID() != tc.expected[idx].ID() || actual.TopologyHintKey() != tc.expected[idx].TopologyHintKey() {
+			if actual.GetID() != tc.expected[idx].GetID() || actual.GetTopologyHintKey() != tc.expected[idx].GetTopologyHintKey() {
 				t.Errorf("expected %v but got %v", actual.(*mockDevice), tc.expected[idx].(*mockDevice))
 				break
 			}
@@ -933,71 +934,27 @@ func TestAllocation(t *testing.T) {
 func TestPopulateTopologyMatrix(t *testing.T) {
 	tests := []struct {
 		description string
-		input       []furiosaSmi.Device
-		expected    topologyMatrix
+		input       []smi.Device
+		expected    TopologyHintMatrix
 	}{
 		{
 			description: "test 8 npu configuration",
-			input:       furiosaSmi.GetStaticMockDevices(furiosaSmi.ArchWarboy),
-			expected: topologyMatrix{
-				"0000:27:00.0": {
-					"0000:27:00.0": 70,
-					"0000:2a:00.0": 30,
-					"0000:51:00.0": 20,
-					"0000:57:00.0": 20,
-					"0000:9e:00.0": 10,
-					"0000:a4:00.0": 10,
-					"0000:c7:00.0": 10,
-					"0000:ca:00.0": 10,
-				},
-				"0000:2a:00.0": {
-					"0000:2a:00.0": 70,
-					"0000:51:00.0": 20,
-					"0000:57:00.0": 20,
-					"0000:9e:00.0": 10,
-					"0000:a4:00.0": 10,
-					"0000:c7:00.0": 10,
-					"0000:ca:00.0": 10,
-				},
-				"0000:51:00.0": {
-					"0000:51:00.0": 70,
-					"0000:57:00.0": 30,
-					"0000:9e:00.0": 10,
-					"0000:a4:00.0": 10,
-					"0000:c7:00.0": 10,
-					"0000:ca:00.0": 10,
-				},
-				"0000:57:00.0": {
-					"0000:57:00.0": 70,
-					"0000:9e:00.0": 10,
-					"0000:a4:00.0": 10,
-					"0000:c7:00.0": 10,
-					"0000:ca:00.0": 10,
-				},
-				"0000:9e:00.0": {
-					"0000:9e:00.0": 70,
-					"0000:a4:00.0": 30,
-					"0000:c7:00.0": 20,
-					"0000:ca:00.0": 20,
-				},
-				"0000:a4:00.0": {
-					"0000:a4:00.0": 70,
-					"0000:c7:00.0": 20,
-					"0000:ca:00.0": 20,
-				},
-				"0000:c7:00.0": {
-					"0000:c7:00.0": 70,
-					"0000:ca:00.0": 30,
-				},
-				"0000:ca:00.0": {
-					"0000:ca:00.0": 70,
-				},
+			input:       smi.GetStaticMockDevices(smi.ArchWarboy),
+			expected: TopologyHintMatrix{
+				"27": {"27": 70, "2a": 30, "51": 20, "57": 20, "9e": 10, "a4": 10, "c7": 10, "ca": 10},
+				"2a": {"2a": 70, "51": 20, "57": 20, "9e": 10, "a4": 10, "c7": 10, "ca": 10},
+				"51": {"51": 70, "57": 30, "9e": 10, "a4": 10, "c7": 10, "ca": 10},
+				"57": {"57": 70, "9e": 10, "a4": 10, "c7": 10, "ca": 10},
+				"9e": {"9e": 70, "a4": 30, "c7": 20, "ca": 20},
+				"a4": {"a4": 70, "c7": 20, "ca": 20},
+				"c7": {"c7": 70, "ca": 30},
+				"ca": {"ca": 70},
 			},
 		},
 	}
 
 	for _, tc := range tests {
-		actual, _ := populateTopologyMatrix(tc.input)
+		actual, _ := populateTopologyHintMatrixForScoreBasedAllocator(tc.input)
 
 		if !reflect.DeepEqual(actual, tc.expected) {
 			t.Errorf("expected %v but got %v", tc.expected, actual)

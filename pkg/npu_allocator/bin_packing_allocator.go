@@ -1,6 +1,7 @@
 package npu_allocator
 
 import (
+	"container/list"
 	"sync"
 
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
@@ -30,88 +31,111 @@ func newBinPackingNpuAllocator(hintProvider TopologyHintProvider) NpuAllocator {
 }
 
 func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSet, request int) DeviceSet {
-	subsetLen := request - len(required)
-	// If subsetLen is zero, it means pre-allocated devices already satisfies device request quantity.
-	if subsetLen <= 0 {
+	// If 'request - len(required)' is zero, it means pre-allocated devices already satisfies device request quantity.
+	if request-len(required) <= 0 {
 		return required
 	}
 
-	// difference contains devices in `available` set, excluding `required` set.
-	difference := available.Difference(required)
-	differenceByHintMap := make(map[TopologyHintKey]DeviceSet)
-	for _, device := range difference {
-		topologyHintKey := device.GetTopologyHintKey()
-		if _, ok := differenceByHintMap[topologyHintKey]; !ok {
-			differenceByHintMap[topologyHintKey] = make(DeviceSet, 0)
-		}
-
-		differenceByHintMap[topologyHintKey] = append(differenceByHintMap[topologyHintKey], device)
+	deviceIdToDeviceMap := make(map[string]Device)
+	for _, device := range available {
+		deviceIdToDeviceMap[device.GetID()] = device
 	}
 
-	// allocatedDevices contains finalized allocated devices.
-	allocatedDevices := make(DeviceSet, 0, request)
-	allocatedDevices = allocatedDevices.Union(required)
-
-	for subsetLen > 0 {
-		// select best scored devices at every iteration, until subsetLen reaches 0.
-		selectedDevices := b.selectBestScoredNewDevices(subsetLen, allocatedDevices, differenceByHintMap)
-		subsetLen -= len(selectedDevices)
-		allocatedDevices = allocatedDevices.Union(selectedDevices)
-	}
-
-	return allocatedDevices
-}
-
-// selectBestScoredNewDevices selects devices which get the largest score with previouslyAllocatedDevices.
-// It only returns newly selected devices, not including previously allocated devices.
-func (b *binPackingNpuAllocator) selectBestScoredNewDevices(
-	maxSelectLength int,
-	previouslyAllocatedDevices DeviceSet,
-	remainingDevicesByHintMap map[TopologyHintKey]DeviceSet,
-) DeviceSet {
-	var highestScoreAvg = 0.0
-	var selectedHintKey TopologyHintKey = ""
+	var highestScore uint = 0
+	var bestDevices DeviceSet = nil
 
 	wg := new(sync.WaitGroup)
 	lock := new(sync.Mutex)
 
-	for topologyHintKey, devices := range remainingDevicesByHintMap {
+	allocatedDevicesQueue := list.New()
+	allocatedDevicesQueue.PushBack(required)
+
+	for allocatedDevicesQueue.Len() > 0 {
+		allocatedDevices := allocatedDevicesQueue.Remove(allocatedDevicesQueue.Front()).(DeviceSet)
+		if len(allocatedDevices) == request {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				scoreSum := scoreDeviceSet(b.hintProvider, allocatedDevices)
+
+				lock.Lock()
+				defer lock.Unlock()
+
+				if bestDevices == nil || scoreSum > highestScore {
+					highestScore = scoreSum
+					bestDevices = allocatedDevices
+				}
+			}()
+		} else {
+			selectedDevices := b.selectBestScoredNewDevices(allocatedDevices, deviceIdToDeviceMap)
+			for _, selectedDevice := range selectedDevices {
+				nextAllocatedDevices := make(DeviceSet, len(allocatedDevices), len(allocatedDevices)+1)
+				copy(nextAllocatedDevices, allocatedDevices)
+				nextAllocatedDevices = append(nextAllocatedDevices, selectedDevice)
+
+				allocatedDevicesQueue.PushBack(nextAllocatedDevices)
+			}
+		}
+	}
+
+	wg.Wait()
+
+	return bestDevices
+}
+
+// selectBestScoredNewDevices selects devices which have the largest scoreSum with alreadyAllocatedDevices.
+// It only returns newly selected devices, not including previously allocated devices.
+// If some devices have same scoreSum, more than 1 device can be returned.
+func (b *binPackingNpuAllocator) selectBestScoredNewDevices(
+	alreadyAllocatedDevices DeviceSet,
+	deviceIdToDeviceMap map[string]Device,
+) DeviceSet {
+	var highestScoreSum uint = 0
+	var selectedDevices DeviceSet = nil
+
+	allocatedDeviceIdMap := make(map[string]Device)
+	for _, device := range alreadyAllocatedDevices {
+		allocatedDeviceIdMap[device.GetID()] = device
+	}
+
+	wg := new(sync.WaitGroup)
+	lock := new(sync.Mutex)
+
+	for deviceId, device := range deviceIdToDeviceMap {
+		// If deviceId belongs to the already allocated device, skip it.
+		if _, ok := allocatedDeviceIdMap[deviceId]; ok {
+			continue
+		}
+
 		// FIXME: Starting from go 1.22, below single line of codes can be removed.
 		// Please see https://github.com/furiosa-ai/cloud-native-toolkit/issues/1#issuecomment-2301123405
-		hintKey, devs := topologyHintKey, devices
+		targetDevice := device
 
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 
-			partialDevices := devs
-			if len(partialDevices) > maxSelectLength {
-				partialDevices = devs[:maxSelectLength]
-			}
+			scoringTargetDevices := make(DeviceSet, len(alreadyAllocatedDevices), len(alreadyAllocatedDevices)+1)
+			copy(scoringTargetDevices, alreadyAllocatedDevices)
+			scoringTargetDevices = append(scoringTargetDevices, targetDevice)
 
-			scoringTargetDevices := previouslyAllocatedDevices.Union(partialDevices)
 			scoreSum := scoreDeviceSet(b.hintProvider, scoringTargetDevices)
-			scoreAvg := float64(scoreSum) / float64(len(scoringTargetDevices))
 
 			lock.Lock()
-			if selectedHintKey == "" || highestScoreAvg < scoreAvg {
-				highestScoreAvg = scoreAvg
-				selectedHintKey = hintKey
+			defer lock.Unlock()
+
+			if selectedDevices == nil || scoreSum > highestScoreSum {
+				highestScoreSum = scoreSum
+
+				selectedDevices = make(DeviceSet, 0, 1)
+				selectedDevices = append(selectedDevices, targetDevice)
+			} else if scoreSum == highestScoreSum {
+				selectedDevices = append(selectedDevices, targetDevice)
 			}
-			lock.Unlock()
 		}()
 	}
 
 	wg.Wait()
-
-	selectedDevices := remainingDevicesByHintMap[selectedHintKey]
-	if len(selectedDevices) > maxSelectLength {
-		// if length of selected device is longer than maxSelectLength, cut it.
-		selectedDevices = selectedDevices[:maxSelectLength]
-		remainingDevicesByHintMap[selectedHintKey] = remainingDevicesByHintMap[selectedHintKey][maxSelectLength:]
-	} else {
-		delete(remainingDevicesByHintMap, selectedHintKey)
-	}
 
 	return selectedDevices
 }

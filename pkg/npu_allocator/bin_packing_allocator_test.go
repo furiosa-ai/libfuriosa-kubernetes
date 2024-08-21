@@ -186,7 +186,7 @@ func TestBinPackingNpuAllocator_Warboy(t *testing.T) {
 	mockDevices := make(DeviceSet, 0)
 	for _, smiDevice := range mockSMIDevices {
 		deviceInfo, _ := smiDevice.DeviceInfo()
-		pciBusID, _ := parseBusIDFromBDF(deviceInfo.BDF())
+		pciBusID, _ := ParseBusIDFromBDF(deviceInfo.BDF())
 		mockDevices = mockDevices.Union(generateSameBoardMockDeviceSet(0, 2, TopologyHintKey(pciBusID)))
 	}
 

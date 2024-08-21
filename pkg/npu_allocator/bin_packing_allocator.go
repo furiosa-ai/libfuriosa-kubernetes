@@ -86,20 +86,24 @@ func (b *binPackingNpuAllocator) selectBestScoredNewDevices(
 	previouslyAllocatedDevices DeviceSet,
 	remainingDevicesByHintMap map[TopologyHintKey]DeviceSet,
 ) DeviceSet {
-	var highestScoreAvg float64 = 0.0
+	var highestScoreAvg = 0.0
 	var selectedHintKey TopologyHintKey = ""
 
 	wg := new(sync.WaitGroup)
 	lock := new(sync.Mutex)
 
 	for topologyHintKey, devices := range remainingDevicesByHintMap {
+		// FIXME: Starting from go 1.22, below single line of codes can be removed.
+		// Please see https://github.com/furiosa-ai/cloud-native-toolkit/issues/1#issuecomment-2301123405
+		hintKey, devs := topologyHintKey, devices
+
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 
-			partialDevices := devices
+			partialDevices := devs
 			if len(partialDevices) > maxSelectLength {
-				partialDevices = devices[:maxSelectLength]
+				partialDevices = devs[:maxSelectLength]
 			}
 
 			scoringTargetDevices := previouslyAllocatedDevices.Union(partialDevices)
@@ -109,7 +113,7 @@ func (b *binPackingNpuAllocator) selectBestScoredNewDevices(
 			lock.Lock()
 			if selectedHintKey == "" || highestScoreAvg < scoreAvg {
 				highestScoreAvg = scoreAvg
-				selectedHintKey = topologyHintKey
+				selectedHintKey = hintKey
 			}
 			lock.Unlock()
 		}()

@@ -65,7 +65,7 @@ func (d deviceInfo) Minor() uint16 {
 }
 
 func (d deviceInfo) FirmwareVersion() VersionInfo {
-	return newVersionInfo(d.raw.FirmwareVersion)
+	return newVersionInfo(d.raw.DriverVersion)
 }
 
 func (d deviceInfo) DriverVersion() VersionInfo {

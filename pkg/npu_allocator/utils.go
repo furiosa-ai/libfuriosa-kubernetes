@@ -1,19 +1,8 @@
 package npu_allocator
 
 import (
-	"fmt"
-	"regexp"
-
 	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
-)
-
-const (
-	bdfPattern   = `^(?P<domain>[0-9a-fA-F]{1,4}):(?P<bus>[0-9a-fA-F]+):(?P<function>[0-9a-fA-F]+\.[0-9])$`
-	subExpKeyBus = "bus"
-)
-
-var (
-	bdfRegExp = regexp.MustCompile(bdfPattern)
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/util"
 )
 
 // populateTopologyHintMatrixFromSMIDevices generates TopologyHintMatrix using list of smi.Device.
@@ -39,12 +28,12 @@ func populateTopologyHintMatrixFromSMIDevices(smiDevices []smi.Device) (Topology
 
 			score := uint(linkType)
 
-			pciBusID1, err := ParseBusIDFromBDF(deviceInfo1.BDF())
+			pciBusID1, err := util.ParseBusIDFromBDF(deviceInfo1.BDF())
 			if err != nil {
 				return nil, err
 			}
 
-			pciBusID2, err := ParseBusIDFromBDF(deviceInfo2.BDF())
+			pciBusID2, err := util.ParseBusIDFromBDF(deviceInfo2.BDF())
 			if err != nil {
 				return nil, err
 			}
@@ -63,19 +52,4 @@ func populateTopologyHintMatrixFromSMIDevices(smiDevices []smi.Device) (Topology
 	}
 
 	return topologyHintMatrix, nil
-}
-
-// ParseBusIDFromBDF parses bdf and returns PCI bus ID.
-func ParseBusIDFromBDF(bdf string) (string, error) {
-	matches := bdfRegExp.FindStringSubmatch(bdf)
-	if matches == nil {
-		return "", fmt.Errorf("couldn't parse the given string %s with bdf regex pattern: %s", bdf, bdfPattern)
-	}
-
-	subExpIndex := bdfRegExp.SubexpIndex(subExpKeyBus)
-	if subExpIndex == -1 {
-		return "", fmt.Errorf("couldn't parse bus id from the given bdf expression %s", bdf)
-	}
-
-	return matches[subExpIndex], nil
 }

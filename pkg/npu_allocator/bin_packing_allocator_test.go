@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -186,7 +187,7 @@ func TestBinPackingNpuAllocator_Warboy(t *testing.T) {
 	mockDevices := make(DeviceSet, 0)
 	for _, smiDevice := range mockSMIDevices {
 		deviceInfo, _ := smiDevice.DeviceInfo()
-		pciBusID, _ := ParseBusIDFromBDF(deviceInfo.BDF())
+		pciBusID, _ := util.ParseBusIDFromBDF(deviceInfo.BDF())
 		mockDevices = mockDevices.Union(generateSameBoardMockDeviceSet(0, 2, TopologyHintKey(pciBusID)))
 	}
 

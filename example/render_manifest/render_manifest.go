@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/manifest"
-
 	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 )
 

@@ -1,9 +1,6 @@
 package npu_allocator
 
 import (
-	"fmt"
-	"regexp"
-
 	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 	"gonum.org/v1/gonum/stat/combin"
 )
@@ -34,12 +31,12 @@ func populateTopologyHintMatrixForScoreBasedAllocator(smiDevices []smi.Device) (
 				return nil, err
 			}
 
-			pciBusID1, err := parseBusIDFromBDF(deviceInfo1.BDF())
+			pciBusID1, err := ParseBusIDFromBDF(deviceInfo1.BDF())
 			if err != nil {
 				return nil, err
 			}
 
-			pciBusID2, err := parseBusIDFromBDF(deviceInfo2.BDF())
+			pciBusID2, err := ParseBusIDFromBDF(deviceInfo2.BDF())
 			if err != nil {
 				return nil, err
 			}
@@ -58,25 +55,6 @@ func populateTopologyHintMatrixForScoreBasedAllocator(smiDevices []smi.Device) (
 	}
 
 	return topologyHintMatrix, nil
-}
-
-// parseBusIDFromBDF parses bdf and returns PCI bus ID.
-func parseBusIDFromBDF(bdf string) (string, error) {
-	bdfPattern := `^(?P<domain>[0-9a-fA-F]{1,4}):(?P<bus>[0-9a-fA-F]+):(?P<function>[0-9a-fA-F]+\.[0-9])$`
-	subExpKeyBus := "bus"
-	bdfRegExp := regexp.MustCompile(bdfPattern)
-
-	matches := bdfRegExp.FindStringSubmatch(bdf)
-	if matches == nil {
-		return "", fmt.Errorf("couldn't parse the given string %s with bdf regex pattern: %s", bdf, bdfPattern)
-	}
-
-	subExpIndex := bdfRegExp.SubexpIndex(subExpKeyBus)
-	if subExpIndex == -1 {
-		return "", fmt.Errorf("couldn't parse bus id from the given bdf expression %s", bdf)
-	}
-
-	return matches[subExpIndex], nil
 }
 
 func NewScoreBasedOptimalNpuAllocator(devices []smi.Device) (NpuAllocator, error) {

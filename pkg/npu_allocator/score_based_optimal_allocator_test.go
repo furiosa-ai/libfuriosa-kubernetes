@@ -390,23 +390,6 @@ func TestGenerateNonDuplicatedDeviceSet(t *testing.T) {
 	}
 }
 
-func mockTopologyHintProvider(hints TopologyHintMatrix) TopologyHintProvider {
-	return func(device1, device2 Device) uint {
-		topologyHintKey1 := device1.GetTopologyHintKey()
-		topologyHintKey2 := device2.GetTopologyHintKey()
-
-		if topologyHintKey1 > topologyHintKey2 {
-			topologyHintKey1, topologyHintKey2 = topologyHintKey2, topologyHintKey1
-		}
-
-		if hint, ok := hints[topologyHintKey1][topologyHintKey2]; ok {
-			return hint
-		}
-
-		return 0
-	}
-}
-
 func buildStaticHintMatrixForTwoSocketBalancedConfig() TopologyHintMatrix {
 	return TopologyHintMatrix{
 		"0": {"0": 70, "1": 30, "2": 20, "3": 20, "4": 10, "5": 10, "6": 10, "7": 10},
@@ -912,7 +895,7 @@ func TestAllocation(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		allocator, _ := NewMockScoreBasedOptimalNpuAllocator(mockTopologyHintProvider(tc.hints))
+		allocator, _ := NewMockScoreBasedOptimalNpuAllocator(getGenericHintProvider(tc.hints))
 		actualResult := allocator.Allocate(tc.available, tc.required, tc.request)
 
 		if len(actualResult) != len(tc.expected) {
@@ -954,7 +937,7 @@ func TestPopulateTopologyMatrix(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		actual, _ := populateTopologyHintMatrixFromSMIDevices(tc.input)
+		actual, _ := populateTopologyHintMatrix(tc.input)
 
 		if !reflect.DeepEqual(actual, tc.expected) {
 			t.Errorf("expected %v but got %v", tc.expected, actual)

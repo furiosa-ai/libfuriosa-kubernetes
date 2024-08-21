@@ -32,22 +32,7 @@ func TestSelectBestScoredDevices(t *testing.T) {
 		"7": {"7": 70},
 	}
 
-	mockHintProvider := func(device1, device2 Device) uint {
-		key1, key2 := device1.GetTopologyHintKey(), device2.GetTopologyHintKey()
-		if key1 > key2 {
-			key1, key2 = key2, key1
-		}
-
-		if innerMap, innerMapExists := mockHintMatrix[key1]; innerMapExists {
-			if score, scoreExists := innerMap[key2]; scoreExists {
-				return score
-			}
-		}
-
-		return 0
-	}
-
-	mockBinPackingAllocator, _ := NewMockBinPackingNpuAllocator(mockHintProvider)
+	mockBinPackingAllocator, _ := NewMockBinPackingNpuAllocator(getGenericHintProvider(mockHintMatrix))
 	sut := mockBinPackingAllocator.(*binPackingNpuAllocator)
 
 	tests := []struct {

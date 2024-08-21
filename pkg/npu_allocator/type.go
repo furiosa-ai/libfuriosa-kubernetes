@@ -4,16 +4,6 @@ import (
 	"sort"
 )
 
-// TopologyHintProvider takes two devices as argument return topology hint.
-// The hint would be score, distance, preference of two devices.
-type TopologyHintProvider func(device1, device2 Device) uint
-
-// TopologyHintKey is named type of string, used for TopologyHintMatrix
-type TopologyHintKey string
-
-// TopologyHintMatrix provides score of device to device based on smi.Device smi.LinkType.
-type TopologyHintMatrix map[TopologyHintKey]map[TopologyHintKey]uint
-
 type NpuAllocator interface {
 	Allocate(available DeviceSet, required DeviceSet, size int) DeviceSet
 }

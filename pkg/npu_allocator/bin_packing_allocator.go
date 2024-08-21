@@ -13,27 +13,12 @@ type binPackingNpuAllocator struct {
 }
 
 func NewBinPackingNpuAllocator(smiDevices []smi.Device) (NpuAllocator, error) {
-	topologyHintMatrix, err := populateTopologyHintMatrixFromSMIDevices(smiDevices)
+	topologyHintMatrix, err := populateTopologyHintMatrix(smiDevices)
 	if err != nil {
 		return nil, err
 	}
 
-	hintProvider := func(device1, device2 Device) uint {
-		key1, key2 := device1.GetTopologyHintKey(), device2.GetTopologyHintKey()
-		if key1 > key2 {
-			key1, key2 = key2, key1
-		}
-
-		if innerMap, innerMapExists := topologyHintMatrix[key1]; innerMapExists {
-			if score, scoreExists := innerMap[key2]; scoreExists {
-				return score
-			}
-		}
-
-		return 0
-	}
-
-	return newBinPackingNpuAllocator(hintProvider), nil
+	return newBinPackingNpuAllocator(getGenericHintProvider(topologyHintMatrix)), nil
 }
 
 func NewMockBinPackingNpuAllocator(mockHintProvider TopologyHintProvider) (NpuAllocator, error) {
@@ -41,9 +26,7 @@ func NewMockBinPackingNpuAllocator(mockHintProvider TopologyHintProvider) (NpuAl
 }
 
 func newBinPackingNpuAllocator(hintProvider TopologyHintProvider) NpuAllocator {
-	return &binPackingNpuAllocator{
-		hintProvider: hintProvider,
-	}
+	return &binPackingNpuAllocator{hintProvider: hintProvider}
 }
 
 func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSet, request int) DeviceSet {
@@ -107,7 +90,7 @@ func (b *binPackingNpuAllocator) selectBestScoredNewDevices(
 			}
 
 			scoringTargetDevices := previouslyAllocatedDevices.Union(partialDevices)
-			scoreSum := b.scoreDeviceSet(scoringTargetDevices)
+			scoreSum := scoreDeviceSet(b.hintProvider, scoringTargetDevices)
 			scoreAvg := float64(scoreSum) / float64(len(scoringTargetDevices))
 
 			lock.Lock()
@@ -131,22 +114,4 @@ func (b *binPackingNpuAllocator) selectBestScoredNewDevices(
 	}
 
 	return selectedDevices
-}
-
-// scoreDeviceSet returns total sum of scores for each pair of devices.
-func (b *binPackingNpuAllocator) scoreDeviceSet(deviceSet DeviceSet) uint {
-	var total uint = 0
-	for i := 0; i < len(deviceSet); i++ {
-		for j := i + 1; j < len(deviceSet); j++ {
-			total += b.scoreDevicePair(deviceSet[i], deviceSet[j])
-		}
-	}
-
-	return total
-}
-
-// scoreDevicePair returns score based on distance between two devices.
-// Higher score means lower distance.
-func (b *binPackingNpuAllocator) scoreDevicePair(device1 Device, device2 Device) uint {
-	return b.hintProvider(device1, device2)
 }

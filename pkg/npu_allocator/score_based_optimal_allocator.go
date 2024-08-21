@@ -12,27 +12,12 @@ type scoreBasedOptimalNpuAllocator struct {
 }
 
 func NewScoreBasedOptimalNpuAllocator(devices []smi.Device) (NpuAllocator, error) {
-	topologyHintMatrix, err := populateTopologyHintMatrixFromSMIDevices(devices)
+	topologyHintMatrix, err := populateTopologyHintMatrix(devices)
 	if err != nil {
 		return nil, err
 	}
 
-	hintProvider := func(device1, device2 Device) uint {
-		key1, key2 := device1.GetTopologyHintKey(), device2.GetTopologyHintKey()
-		if key1 > key2 {
-			key1, key2 = key2, key1
-		}
-
-		if innerMap, innerMapExists := topologyHintMatrix[key1]; innerMapExists {
-			if score, scoreExists := innerMap[key2]; scoreExists {
-				return score
-			}
-		}
-
-		return 0
-	}
-
-	return newScoreBasedOptimalNpuAllocator(hintProvider), nil
+	return newScoreBasedOptimalNpuAllocator(getGenericHintProvider(topologyHintMatrix)), nil
 }
 
 func NewMockScoreBasedOptimalNpuAllocator(mockHintProvider TopologyHintProvider) (NpuAllocator, error) {
@@ -66,10 +51,10 @@ func (n *scoreBasedOptimalNpuAllocator) Allocate(available DeviceSet, required D
 	// score all survived device set
 	// initialize with the first element to prevent edge case that score of all element in the filtered list is zero.
 	var bestSet = combinations[0]
-	var highestScore = n.scoreDeviceSet(bestSet)
+	var highestScore = scoreDeviceSet(n.hintProvider, bestSet)
 
 	for _, set := range combinations {
-		if score := n.scoreDeviceSet(set); score > highestScore {
+		if score := scoreDeviceSet(n.hintProvider, set); score > highestScore {
 			bestSet = set
 			highestScore = score
 		}
@@ -96,23 +81,4 @@ func generateKDeviceSet(devices DeviceSet, size int) (result []DeviceSet) {
 	}
 
 	return result
-}
-
-func (n *scoreBasedOptimalNpuAllocator) scoreDeviceSet(deviceSet DeviceSet) uint {
-	total := uint(0)
-
-	// calculate total score using distance of  two device
-	for i, d1 := range deviceSet {
-		for j, d2 := range deviceSet {
-			if j > i {
-				total += n.scoreDevicePair(d1, d2)
-			}
-		}
-	}
-
-	return total
-}
-
-func (n *scoreBasedOptimalNpuAllocator) scoreDevicePair(device1 Device, device2 Device) uint {
-	return n.hintProvider(device1, device2)
 }

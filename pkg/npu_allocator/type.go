@@ -25,7 +25,7 @@ type Device interface {
 	// GetTopologyHintKey returns unique key to retrieve TopologyHint using TopologyHintProvider.
 	GetTopologyHintKey() TopologyHintKey
 
-	// Equal check whether source Device is identical to the target Device.
+	// Equal checks whether source Device is identical to the target Device.
 	Equal(target Device) bool
 }
 

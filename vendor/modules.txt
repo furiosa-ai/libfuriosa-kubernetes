@@ -4,9 +4,6 @@ github.com/bradfitz/iter
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
-# github.com/google/uuid v1.6.0
-## explicit
-github.com/google/uuid
 # github.com/jedib0t/go-pretty/v6 v6.5.9
 ## explicit; go 1.17
 github.com/jedib0t/go-pretty/v6/table

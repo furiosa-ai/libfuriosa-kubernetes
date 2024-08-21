@@ -4,7 +4,6 @@ go 1.22.6
 
 require (
 	github.com/bradfitz/iter v0.0.0-20191230175014-e8f45d346db8
-	github.com/google/uuid v1.6.0
 	github.com/jedib0t/go-pretty/v6 v6.5.9
 	github.com/stretchr/testify v1.9.0
 	gonum.org/v1/gonum v0.15.0

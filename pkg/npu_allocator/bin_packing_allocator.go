@@ -1,33 +1,61 @@
 package npu_allocator
 
 import (
-	"fmt"
-	"math"
+	"sync"
 
 	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 )
 
 var _ NpuAllocator = (*binPackingNpuAllocator)(nil)
 
-type binPackingNpuAllocator struct{}
+type binPackingNpuAllocator struct {
+	hintProvider TopologyHintProvider
+}
 
-func NewBinPackingNpuAllocator(_ []smi.Device) (NpuAllocator, error) {
-	return &binPackingNpuAllocator{}, nil
+func NewBinPackingNpuAllocator(smiDevices []smi.Device) (NpuAllocator, error) {
+	topologyHintMatrix, err := populateTopologyHintMatrixFromSMIDevices(smiDevices)
+	if err != nil {
+		return nil, err
+	}
+
+	hintProvider := func(device1, device2 Device) uint {
+		key1, key2 := device1.GetTopologyHintKey(), device2.GetTopologyHintKey()
+		if key1 > key2 {
+			key1, key2 = key2, key1
+		}
+
+		if innerMap, innerMapExists := topologyHintMatrix[key1]; innerMapExists {
+			if score, scoreExists := innerMap[key2]; scoreExists {
+				return score
+			}
+		}
+
+		return 0
+	}
+
+	return newBinPackingNpuAllocator(hintProvider), nil
+}
+
+func NewMockBinPackingNpuAllocator(mockHintProvider TopologyHintProvider) (NpuAllocator, error) {
+	return newBinPackingNpuAllocator(mockHintProvider), nil
+}
+
+func newBinPackingNpuAllocator(hintProvider TopologyHintProvider) NpuAllocator {
+	return &binPackingNpuAllocator{
+		hintProvider: hintProvider,
+	}
 }
 
 func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSet, request int) DeviceSet {
-	fmt.Printf("available: %d, required: %d, request: %d\n", len(available), len(required), request)
-
 	subsetLen := request - len(required)
 	// If subsetLen is zero, it means pre-allocated devices already satisfies device request quantity.
-	if subsetLen == 0 {
+	if subsetLen <= 0 {
 		return required
 	}
 
 	// difference contains devices in `available` set, excluding `required` set.
 	difference := available.Difference(required)
-
-	differenceByHintMap := make(map[TopologyHintKey]DeviceSet) // construct map by GetTopologyHintKey and DeviceSet
+	differenceByHintMap := make(map[TopologyHintKey]DeviceSet)
 	for _, device := range difference {
 		topologyHintKey := device.GetTopologyHintKey()
 		if _, ok := differenceByHintMap[topologyHintKey]; !ok {
@@ -37,54 +65,84 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 		differenceByHintMap[topologyHintKey] = append(differenceByHintMap[topologyHintKey], device)
 	}
 
-	// finalizedDevices contains finalized allocated devices.
-	finalizedDevices := make(DeviceSet, 0, request)
-	finalizedDevices = finalizedDevices.Union(required)
+	// allocatedDevices contains finalized allocated devices.
+	allocatedDevices := make(DeviceSet, 0, request)
+	allocatedDevices = allocatedDevices.Union(required)
 
 	for subsetLen > 0 {
-		// Step 1: Use Best Fit Bin Packing algorithm to select difference.
-		selectedTopologyHintKey := getTopologyHintKeyUsingBestFitBinPacking(subsetLen, differenceByHintMap)
-		if selectedTopologyHintKey != "" {
-			finalizedDevices = finalizedDevices.Union(differenceByHintMap[selectedTopologyHintKey][:subsetLen])
-			differenceByHintMap[selectedTopologyHintKey] = differenceByHintMap[selectedTopologyHintKey][subsetLen:]
-			break
-		}
-
-		// Step 2: Find difference which have the largest length.
-		selectedTopologyHintKey = getLargestLengthDifferenceTopologyHintKey(differenceByHintMap)
-		finalizedDevices = finalizedDevices.Union(differenceByHintMap[selectedTopologyHintKey])
-		subsetLen -= len(differenceByHintMap[selectedTopologyHintKey])
-		delete(differenceByHintMap, selectedTopologyHintKey)
+		// select best scored devices at every iteration, until subsetLen reaches 0.
+		selectedDevices := b.selectBestScoredNewDevices(subsetLen, allocatedDevices, differenceByHintMap)
+		subsetLen -= len(selectedDevices)
+		allocatedDevices = allocatedDevices.Union(selectedDevices)
 	}
 
-	return finalizedDevices
+	return allocatedDevices
 }
 
-// getTopologyHintKeyUsingBestFitBinPacking uses Best Fit Bin Packing algorithm to select difference key
-func getTopologyHintKeyUsingBestFitBinPacking(subsetLen int, differenceByHintMap map[TopologyHintKey]DeviceSet) TopologyHintKey {
-	minDiff := math.MaxInt32
-	var topologyHintKey TopologyHintKey = ""
-	for key, difference := range differenceByHintMap {
-		diff := len(difference) - subsetLen
-		if diff >= 0 && diff < minDiff {
-			minDiff = diff
-			topologyHintKey = key
-		}
+// selectBestScoredNewDevices selects devices which get the largest score with previouslyAllocatedDevices.
+// It only returns newly selected devices, not including previously allocated devices.
+func (b *binPackingNpuAllocator) selectBestScoredNewDevices(
+	maxSelectLength int,
+	previouslyAllocatedDevices DeviceSet,
+	remainingDevicesByHintMap map[TopologyHintKey]DeviceSet,
+) DeviceSet {
+	var highestScoreAvg float64 = 0.0
+	var selectedHintKey TopologyHintKey = ""
+
+	wg := new(sync.WaitGroup)
+	lock := new(sync.Mutex)
+
+	for topologyHintKey, devices := range remainingDevicesByHintMap {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			partialDevices := devices
+			if len(partialDevices) > maxSelectLength {
+				partialDevices = devices[:maxSelectLength]
+			}
+
+			scoringTargetDevices := previouslyAllocatedDevices.Union(partialDevices)
+			scoreSum := b.scoreDeviceSet(scoringTargetDevices)
+			scoreAvg := float64(scoreSum) / float64(len(scoringTargetDevices))
+
+			lock.Lock()
+			if selectedHintKey == "" || highestScoreAvg < scoreAvg {
+				highestScoreAvg = scoreAvg
+				selectedHintKey = topologyHintKey
+			}
+			lock.Unlock()
+		}()
 	}
 
-	return topologyHintKey
+	wg.Wait()
+
+	selectedDevices := remainingDevicesByHintMap[selectedHintKey]
+	if len(selectedDevices) > maxSelectLength {
+		// if length of selected device is longer than maxSelectLength, cut it.
+		selectedDevices = selectedDevices[:maxSelectLength]
+		remainingDevicesByHintMap[selectedHintKey] = remainingDevicesByHintMap[selectedHintKey][maxSelectLength:]
+	} else {
+		delete(remainingDevicesByHintMap, selectedHintKey)
+	}
+
+	return selectedDevices
 }
 
-// getLargestLengthDifferenceTopologyHintKey selects difference key which has the largest length
-func getLargestLengthDifferenceTopologyHintKey(differenceByHintMap map[TopologyHintKey]DeviceSet) TopologyHintKey {
-	maxLen := 0
-	var topologyHintKey TopologyHintKey = ""
-	for key, difference := range differenceByHintMap {
-		if topologyHintKey == "" || len(difference) > maxLen {
-			maxLen = len(difference)
-			topologyHintKey = key
+// scoreDeviceSet returns total sum of scores for each pair of devices.
+func (b *binPackingNpuAllocator) scoreDeviceSet(deviceSet DeviceSet) uint {
+	var total uint = 0
+	for i := 0; i < len(deviceSet); i++ {
+		for j := i + 1; j < len(deviceSet); j++ {
+			total += b.scoreDevicePair(deviceSet[i], deviceSet[j])
 		}
 	}
 
-	return topologyHintKey
+	return total
+}
+
+// scoreDevicePair returns score based on distance between two devices.
+// Higher score means lower distance.
+func (b *binPackingNpuAllocator) scoreDevicePair(device1 Device, device2 Device) uint {
+	return b.hintProvider(device1, device2)
 }

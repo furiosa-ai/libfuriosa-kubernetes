@@ -58,7 +58,7 @@ func populateTopologyHintMatrixForScoreBasedAllocator(smiDevices []smi.Device) (
 }
 
 func NewScoreBasedOptimalNpuAllocator(devices []smi.Device) (NpuAllocator, error) {
-	topologyHintMatrix, err := populateTopologyHintMatrixForScoreBasedAllocator(devices)
+	topologyHintMatrix, err := populateTopologyHintMatrixFromSMIDevices(devices)
 	if err != nil {
 		return nil, err
 	}

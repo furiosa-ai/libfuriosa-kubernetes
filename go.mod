@@ -4,7 +4,7 @@ go 1.21.3
 
 require (
 	github.com/bradfitz/iter v0.0.0-20191230175014-e8f45d346db8
-	github.com/furiosa-ai/furiosa-smi-go v0.0.0-20240816080258-7e52d8227611
+	github.com/furiosa-ai/furiosa-smi-go v0.0.1
 	github.com/jedib0t/go-pretty/v6 v6.5.9
 	gonum.org/v1/gonum v0.14.0
 )

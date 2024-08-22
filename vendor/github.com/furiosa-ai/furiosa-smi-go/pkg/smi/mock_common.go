@@ -99,39 +99,39 @@ type staticMockDeviceErrorInfo struct{}
 var _ DeviceErrorInfo = new(staticMockDeviceErrorInfo)
 
 func (m *staticMockDeviceErrorInfo) AxiPostErrorCount() uint32 {
-	return 1
+	return 0
 }
 
 func (m *staticMockDeviceErrorInfo) AxiFetchErrorCount() uint32 {
-	return 2
+	return 0
 }
 
 func (m *staticMockDeviceErrorInfo) AxiDiscardErrorCount() uint32 {
-	return 3
+	return 0
 }
 
 func (m *staticMockDeviceErrorInfo) AxiDoorbellErrorCount() uint32 {
-	return 4
+	return 0
 }
 
 func (m *staticMockDeviceErrorInfo) PciePostErrorCount() uint32 {
-	return 5
+	return 0
 }
 
 func (m *staticMockDeviceErrorInfo) PcieFetchErrorCount() uint32 {
-	return 6
+	return 0
 }
 
 func (m *staticMockDeviceErrorInfo) PcieDiscardErrorCount() uint32 {
-	return 7
+	return 0
 }
 
 func (m *staticMockDeviceErrorInfo) PcieDoorbellErrorCount() uint32 {
-	return 8
+	return 0
 }
 
 func (m *staticMockDeviceErrorInfo) DeviceErrorCount() uint32 {
-	return 9
+	return 0
 }
 
 type staticMockPeUtilization struct {

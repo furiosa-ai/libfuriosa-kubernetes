@@ -2,8 +2,8 @@ github.com/bradfitz/iter v0.0.0-20191230175014-e8f45d346db8 h1:GKTyiRCL6zVf5wWaq
 github.com/bradfitz/iter v0.0.0-20191230175014-e8f45d346db8/go.mod h1:spo1JLcs67NmW1aVLEgtA8Yy1elc+X8y5SRW1sFW4Og=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/furiosa-ai/furiosa-smi-go v0.0.0-20240816080258-7e52d8227611 h1:DmZcwLDTkaA8kv6/HBp2CHIk7Xyu264tg9S0PIITLCI=
-github.com/furiosa-ai/furiosa-smi-go v0.0.0-20240816080258-7e52d8227611/go.mod h1:YnieyZILbBekDzi1uKzrK6cedp/fYCatUVYpNdbHYCo=
+github.com/furiosa-ai/furiosa-smi-go v0.0.1 h1:ra1jqWqZTYZj057Oz9tKoBGi8iW0EUWGj78lGXMwfZI=
+github.com/furiosa-ai/furiosa-smi-go v0.0.1/go.mod h1:YnieyZILbBekDzi1uKzrK6cedp/fYCatUVYpNdbHYCo=
 github.com/jedib0t/go-pretty/v6 v6.5.9 h1:ACteMBRrrmm1gMsXe9PSTOClQ63IXDUt03H5U+UV8OU=
 github.com/jedib0t/go-pretty/v6 v6.5.9/go.mod h1:zbn98qrYlh95FIhwwsbIip0LYpwSG8SUOScs+v9/t0E=
 github.com/mattn/go-runewidth v0.0.15 h1:UNAjwbU9l54TA3KzvqLGxwWjHmMgBUVhBiTjelZgg3U=

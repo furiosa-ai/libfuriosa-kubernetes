@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/bradfitz/iter"
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
+	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
 	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/util"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"

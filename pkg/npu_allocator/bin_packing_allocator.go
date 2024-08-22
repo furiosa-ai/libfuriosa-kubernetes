@@ -41,8 +41,8 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 		deviceIdToDeviceMap[device.GetID()] = device
 	}
 
-	var highestScore uint = 0
-	var bestDevices DeviceSet = nil
+	var highestScore = scoreDeviceSet(b.hintProvider, required)
+	var bestDevices = required
 
 	wg := new(sync.WaitGroup)
 	lock := new(sync.Mutex)
@@ -61,7 +61,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 				lock.Lock()
 				defer lock.Unlock()
 
-				if bestDevices == nil || scoreSum > highestScore {
+				if scoreSum > highestScore {
 					highestScore = scoreSum
 					bestDevices = allocatedDevices
 				}

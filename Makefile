@@ -1,4 +1,5 @@
 SHELL := /bin/bash
+BASE_IMAGE := golang:1.21.3-bookworm
 
 ifeq ($(shell uname -s),Darwin)
     CGO_CFLAGS := "-I/usr/local/include"
@@ -61,19 +62,19 @@ example:
 
 .PHONY: base
 base:
-	docker build . -t registry.corp.furiosa.ai/furiosa/libfuriosa-kubernetes:devel --progress=plain --platform=linux/amd64
+	docker build . -t registry.corp.furiosa.ai/furiosa/libfuriosa-kubernetes:devel --progress=plain --platform=linux/amd64 --build-arg BASE_IMAGE=$(BASE_IMAGE)
 
 .PHONY: base-no-cache
 base-no-cache:
-	docker build . --no-cache -t registry.corp.furiosa.ai/furiosa/libfuriosa-kubernetes:devel --progress=plain --platform=linux/amd64
+	docker build . --no-cache -t registry.corp.furiosa.ai/furiosa/libfuriosa-kubernetes:devel --progress=plain --platform=linux/amd64 --build-arg BASE_IMAGE=$(BASE_IMAGE)
 
 .PHONY: base-rel
 base-rel:
-	docker build . -t registry.corp.furiosa.ai/furiosa/libfuriosa-kubernetes:latest --progress=plain --platform=linux/amd64
+	docker build . -t registry.corp.furiosa.ai/furiosa/libfuriosa-kubernetes:latest --progress=plain --platform=linux/amd64 --build-arg BASE_IMAGE=$(BASE_IMAGE)
 
 .PHONY: base-no-cache-rel
 base-no-cache-rel:
-	docker build . --no-cache -t registry.corp.furiosa.ai/furiosa/libfuriosa-kubernetes:latest --progress=plain --platform=linux/amd64
+	docker build . --no-cache -t registry.corp.furiosa.ai/furiosa/libfuriosa-kubernetes:latest --progress=plain --platform=linux/amd64 --build-arg BASE_IMAGE=$(BASE_IMAGE)
 
 .PHONY: furiosa-smi-go-boilerplate
 furiosa-smi-go-boilerplate:

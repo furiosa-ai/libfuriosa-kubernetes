@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-BASE_IMAGE := golang:1.21.3-bookworm
+BASE_IMAGE := registry.corp.furiosa.ai/furiosa/furiosa-smi:latest
 
 ifeq ($(shell uname -s),Darwin)
     CGO_CFLAGS := "-I/usr/local/include"

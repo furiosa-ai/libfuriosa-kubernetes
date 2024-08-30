@@ -1,6 +1,6 @@
 package smi
 
-import "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi/binding"
+import "github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
 
 type VersionInfo interface {
 	Arch() Arch
@@ -17,27 +17,25 @@ type versionInfo struct {
 }
 
 func newVersionInfo(raw binding.FuriosaSmiVersion) VersionInfo {
-	return &versionInfo{
-		raw: raw,
-	}
+	return &versionInfo{raw: raw}
 }
 
-func (v versionInfo) Arch() Arch {
+func (v *versionInfo) Arch() Arch {
 	return Arch(v.raw.Arch)
 }
 
-func (v versionInfo) Major() uint32 {
+func (v *versionInfo) Major() uint32 {
 	return v.raw.Major
 }
 
-func (v versionInfo) Minor() uint32 {
+func (v *versionInfo) Minor() uint32 {
 	return v.raw.Minor
 }
 
-func (v versionInfo) Patch() uint32 {
+func (v *versionInfo) Patch() uint32 {
 	return v.raw.Patch
 }
 
-func (v versionInfo) Metadata() string {
+func (v *versionInfo) Metadata() string {
 	return byteBufferToString(v.raw.Metadata[:])
 }

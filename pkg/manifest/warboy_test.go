@@ -3,9 +3,10 @@ package manifest
 import (
 	"fmt"
 	"reflect"
+	"sort"
 	"testing"
 
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
+	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
 )
 
 func newTestWarboyDevice() smi.Device {
@@ -23,10 +24,6 @@ func TestWarboyDeviceNodes(t *testing.T) {
 				{
 					ContainerPath: fmt.Sprintf(warboyMgmtFileExp, "/dev/npu0"),
 					HostPath:      fmt.Sprintf(warboyMgmtFileExp, "/dev/npu0"),
-					Permissions:   readWriteOpt,
-				}, {
-					ContainerPath: "/dev/npu0",
-					HostPath:      "/dev/npu0",
 					Permissions:   readWriteOpt,
 				}, {
 					ContainerPath: "/dev/npu0pe0",
@@ -63,6 +60,12 @@ func TestWarboyDeviceNodes(t *testing.T) {
 	for _, tc := range tests {
 		manifest, _ := NewWarboyManifest(newTestWarboyDevice())
 		actualDeviceNodes := manifest.DeviceNodes()
+		sort.Slice(tc.expectedDeviceNodes, func(i, j int) bool {
+			return tc.expectedDeviceNodes[i].ContainerPath < tc.expectedDeviceNodes[j].ContainerPath
+		})
+		sort.Slice(actualDeviceNodes, func(i, j int) bool {
+			return actualDeviceNodes[i].ContainerPath < actualDeviceNodes[j].ContainerPath
+		})
 		if !reflect.DeepEqual(actualDeviceNodes, tc.expectedDeviceNodes) {
 			t.Errorf("expected %v but got %v", tc.expectedDeviceNodes, actualDeviceNodes)
 		}
@@ -80,11 +83,6 @@ func TestWarboyMountPaths(t *testing.T) {
 				{
 					ContainerPath: warboySysClassRoot + fmt.Sprintf(warboyMgmtFileExp, "npu0"),
 					HostPath:      warboySysClassRoot + fmt.Sprintf(warboyMgmtFileExp, "npu0"),
-					Options:       []string{readOnlyOpt},
-				},
-				{
-					ContainerPath: warboySysClassRoot + "npu0",
-					HostPath:      warboySysClassRoot + "npu0",
 					Options:       []string{readOnlyOpt},
 				},
 				{
@@ -108,11 +106,6 @@ func TestWarboyMountPaths(t *testing.T) {
 					Options:       []string{readOnlyOpt},
 				},
 				{
-					ContainerPath: warboySysDevicesRoot + "npu0",
-					HostPath:      warboySysDevicesRoot + "npu0",
-					Options:       []string{readOnlyOpt},
-				},
-				{
 					ContainerPath: warboySysDevicesRoot + "npu0pe0",
 					HostPath:      warboySysDevicesRoot + "npu0pe0",
 					Options:       []string{readOnlyOpt},
@@ -133,6 +126,12 @@ func TestWarboyMountPaths(t *testing.T) {
 	for _, tc := range tests {
 		manifest, _ := NewWarboyManifest(newTestWarboyDevice())
 		actualMountPaths := manifest.MountPaths()
+		sort.Slice(tc.expectedMountPaths, func(i, j int) bool {
+			return tc.expectedMountPaths[i].ContainerPath < tc.expectedMountPaths[j].ContainerPath
+		})
+		sort.Slice(actualMountPaths, func(i, j int) bool {
+			return actualMountPaths[i].ContainerPath < actualMountPaths[j].ContainerPath
+		})
 		if !reflect.DeepEqual(actualMountPaths, tc.expectedMountPaths) {
 			t.Errorf("expected %v but got %v", tc.expectedMountPaths, actualMountPaths)
 		}

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
 	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/manifest"
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
 )
 
 func main() {

@@ -9,13 +9,13 @@ type staticRngdMockDevice struct {
 	nodeIdx int
 }
 
-func (m staticRngdMockDevice) DeviceInfo() (DeviceInfo, error) {
+func (m *staticRngdMockDevice) DeviceInfo() (DeviceInfo, error) {
 	return &staticRngdMockDeviceInfo{
 		nodeIdx: m.nodeIdx,
 	}, nil
 }
 
-func (m staticRngdMockDevice) DeviceFiles() ([]DeviceFile, error) {
+func (m *staticRngdMockDevice) DeviceFiles() ([]DeviceFile, error) {
 	return []DeviceFile{
 		&staticMockDeviceFile{
 			cores: []uint32{0},
@@ -26,57 +26,57 @@ func (m staticRngdMockDevice) DeviceFiles() ([]DeviceFile, error) {
 			path:  fmt.Sprintf("/dev/rngd/npu%dpe1", m.nodeIdx),
 		},
 		&staticMockDeviceFile{
-			cores: []uint32{1},
+			cores: []uint32{0, 1},
 			path:  fmt.Sprintf("/dev/rngd/npu%dpe0-1", m.nodeIdx),
 		},
 		&staticMockDeviceFile{
-			cores: []uint32{0},
+			cores: []uint32{2},
 			path:  fmt.Sprintf("/dev/rngd/npu%dpe2", m.nodeIdx),
 		},
 		&staticMockDeviceFile{
-			cores: []uint32{1},
+			cores: []uint32{3},
 			path:  fmt.Sprintf("/dev/rngd/npu%dpe3", m.nodeIdx),
 		},
 		&staticMockDeviceFile{
-			cores: []uint32{1},
+			cores: []uint32{2, 3},
 			path:  fmt.Sprintf("/dev/rngd/npu%dpe2-3", m.nodeIdx),
 		},
 		&staticMockDeviceFile{
-			cores: []uint32{1},
+			cores: []uint32{0, 1, 2, 3},
 			path:  fmt.Sprintf("/dev/rngd/npu%dpe0-3", m.nodeIdx),
 		},
 		&staticMockDeviceFile{
-			cores: []uint32{0},
+			cores: []uint32{4},
 			path:  fmt.Sprintf("/dev/rngd/npu%dpe4", m.nodeIdx),
 		},
 		&staticMockDeviceFile{
-			cores: []uint32{1},
+			cores: []uint32{5},
 			path:  fmt.Sprintf("/dev/rngd/npu%dpe5", m.nodeIdx),
 		},
 		&staticMockDeviceFile{
-			cores: []uint32{1},
+			cores: []uint32{4, 5},
 			path:  fmt.Sprintf("/dev/rngd/npu%dpe4-5", m.nodeIdx),
 		},
 		&staticMockDeviceFile{
-			cores: []uint32{0},
+			cores: []uint32{6},
 			path:  fmt.Sprintf("/dev/rngd/npu%dpe6", m.nodeIdx),
 		},
 		&staticMockDeviceFile{
-			cores: []uint32{1},
+			cores: []uint32{7},
 			path:  fmt.Sprintf("/dev/rngd/npu%dpe7", m.nodeIdx),
 		},
 		&staticMockDeviceFile{
-			cores: []uint32{1},
+			cores: []uint32{6, 7},
 			path:  fmt.Sprintf("/dev/rngd/npu%dpe6-7", m.nodeIdx),
 		},
 		&staticMockDeviceFile{
-			cores: []uint32{1},
+			cores: []uint32{4, 5, 6, 7},
 			path:  fmt.Sprintf("/dev/rngd/npu%dpe4-7", m.nodeIdx),
 		},
 	}, nil
 }
 
-func (m staticRngdMockDevice) CoreStatus() (map[uint32]CoreStatus, error) {
+func (m *staticRngdMockDevice) CoreStatus() (map[uint32]CoreStatus, error) {
 	return map[uint32]CoreStatus{
 		0: CoreStatusAvailable,
 		1: CoreStatusAvailable,
@@ -89,15 +89,15 @@ func (m staticRngdMockDevice) CoreStatus() (map[uint32]CoreStatus, error) {
 	}, nil
 }
 
-func (m staticRngdMockDevice) DeviceErrorInfo() (DeviceErrorInfo, error) {
+func (m *staticRngdMockDevice) DeviceErrorInfo() (DeviceErrorInfo, error) {
 	return &staticMockDeviceErrorInfo{}, nil
 }
 
-func (m staticRngdMockDevice) Liveness() (bool, error) {
+func (m *staticRngdMockDevice) Liveness() (bool, error) {
 	return true, nil
 }
 
-func (m staticRngdMockDevice) DeviceUtilization() (DeviceUtilization, error) {
+func (m *staticRngdMockDevice) DeviceUtilization() (DeviceUtilization, error) {
 	return &staticMockDeviceUtilization{
 		pe: []PeUtilization{
 			&staticMockPeUtilization{cores: []uint32{0}, timeWindow: 1000, usage: 50},
@@ -113,15 +113,15 @@ func (m staticRngdMockDevice) DeviceUtilization() (DeviceUtilization, error) {
 	}, nil
 }
 
-func (m staticRngdMockDevice) PowerConsumption() (float64, error) {
+func (m *staticRngdMockDevice) PowerConsumption() (float64, error) {
 	return float64(100), nil
 }
 
-func (m staticRngdMockDevice) DeviceTemperature() (DeviceTemperature, error) {
+func (m *staticRngdMockDevice) DeviceTemperature() (DeviceTemperature, error) {
 	return &staticMockDeviceTemperature{}, nil
 }
 
-func (m staticRngdMockDevice) GetDeviceToDeviceLinkType(target Device) (LinkType, error) {
+func (m *staticRngdMockDevice) GetDeviceToDeviceLinkType(target Device) (LinkType, error) {
 	return getDeviceToDeviceLinkType(m, target)
 }
 
@@ -131,48 +131,48 @@ type staticRngdMockDeviceInfo struct {
 
 var _ DeviceInfo = new(staticRngdMockDeviceInfo)
 
-func (m staticRngdMockDeviceInfo) Arch() Arch {
+func (m *staticRngdMockDeviceInfo) Arch() Arch {
 	return ArchRngd
 }
 
-func (m staticRngdMockDeviceInfo) CoreNum() uint32 {
+func (m *staticRngdMockDeviceInfo) CoreNum() uint32 {
 	return 8
 }
 
-func (m staticRngdMockDeviceInfo) NumaNode() uint32 {
+func (m *staticRngdMockDeviceInfo) NumaNode() uint32 {
 	return uint32(staticMockHintMap[m.nodeIdx].numaNode)
 }
 
-func (m staticRngdMockDeviceInfo) Name() string {
+func (m *staticRngdMockDeviceInfo) Name() string {
 	return fmt.Sprintf("/dev/rngd/npu%d", m.nodeIdx)
 }
 
-func (m staticRngdMockDeviceInfo) Serial() string {
+func (m *staticRngdMockDeviceInfo) Serial() string {
 	return staticMockHintMap[m.nodeIdx].serial
 }
 
-func (m staticRngdMockDeviceInfo) UUID() string {
+func (m *staticRngdMockDeviceInfo) UUID() string {
 	return staticMockHintMap[m.nodeIdx].uuid
 }
 
-func (m staticRngdMockDeviceInfo) BDF() string {
+func (m *staticRngdMockDeviceInfo) BDF() string {
 	return staticMockHintMap[m.nodeIdx].bdf
 }
 
-func (m staticRngdMockDeviceInfo) Major() uint16 {
+func (m *staticRngdMockDeviceInfo) Major() uint16 {
 	return staticMockHintMap[m.nodeIdx].major
 }
 
-func (m staticRngdMockDeviceInfo) Minor() uint16 {
+func (m *staticRngdMockDeviceInfo) Minor() uint16 {
 	return staticMockHintMap[m.nodeIdx].minor
 }
 
-// version: 1.6.0, c1bebfd
-func (m staticRngdMockDeviceInfo) FirmwareVersion() VersionInfo {
+// FirmwareVersion e.g. version: 1.6.0, c1bebfd
+func (m *staticRngdMockDeviceInfo) FirmwareVersion() VersionInfo {
 	return newStaticMockVersionInfo(ArchRngd, 1, 6, 0, "c1bebfd")
 }
 
-// version: 1.9.2, 3def9c2
-func (m staticRngdMockDeviceInfo) DriverVersion() VersionInfo {
+// DriverVersion e.g. version: 1.9.2, 3def9c2
+func (m *staticRngdMockDeviceInfo) DriverVersion() VersionInfo {
 	return newStaticMockVersionInfo(ArchRngd, 1, 9, 2, "3def9c2")
 }

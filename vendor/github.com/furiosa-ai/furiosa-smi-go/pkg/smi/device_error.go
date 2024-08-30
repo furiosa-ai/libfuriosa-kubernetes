@@ -1,6 +1,6 @@
 package smi
 
-import "github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi/binding"
+import "github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
 
 type DeviceErrorInfo interface {
 	AxiPostErrorCount() uint32
@@ -26,38 +26,38 @@ func newDeviceErrorInfo(raw binding.FuriosaSmiDeviceErrorInfo) DeviceErrorInfo {
 	}
 }
 
-func (d deviceErrorInfo) AxiPostErrorCount() uint32 {
+func (d *deviceErrorInfo) AxiPostErrorCount() uint32 {
 	return d.raw.AxiPostErrorCount
 }
 
-func (d deviceErrorInfo) AxiFetchErrorCount() uint32 {
+func (d *deviceErrorInfo) AxiFetchErrorCount() uint32 {
 	return d.raw.AxiFetchErrorCount
 }
 
-func (d deviceErrorInfo) AxiDiscardErrorCount() uint32 {
+func (d *deviceErrorInfo) AxiDiscardErrorCount() uint32 {
 	return d.raw.AxiDiscardErrorCount
 }
 
-func (d deviceErrorInfo) AxiDoorbellErrorCount() uint32 {
+func (d *deviceErrorInfo) AxiDoorbellErrorCount() uint32 {
 	return d.raw.AxiDoorbellErrorCount
 }
 
-func (d deviceErrorInfo) PciePostErrorCount() uint32 {
+func (d *deviceErrorInfo) PciePostErrorCount() uint32 {
 	return d.raw.PciePostErrorCount
 }
 
-func (d deviceErrorInfo) PcieFetchErrorCount() uint32 {
+func (d *deviceErrorInfo) PcieFetchErrorCount() uint32 {
 	return d.raw.PcieFetchErrorCount
 }
 
-func (d deviceErrorInfo) PcieDiscardErrorCount() uint32 {
+func (d *deviceErrorInfo) PcieDiscardErrorCount() uint32 {
 	return d.raw.PcieDiscardErrorCount
 }
 
-func (d deviceErrorInfo) PcieDoorbellErrorCount() uint32 {
+func (d *deviceErrorInfo) PcieDoorbellErrorCount() uint32 {
 	return d.raw.PcieDoorbellErrorCount
 }
 
-func (d deviceErrorInfo) DeviceErrorCount() uint32 {
+func (d *deviceErrorInfo) DeviceErrorCount() uint32 {
 	return d.raw.DeviceErrorCount
 }

@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/bradfitz/iter"
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi"
+	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
 )
 
 const (

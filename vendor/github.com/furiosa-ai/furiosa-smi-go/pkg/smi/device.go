@@ -3,7 +3,7 @@ package smi
 import (
 	"runtime"
 
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/smi/binding"
+	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
 )
 
 type furiosaSmiObserverInstance = *binding.FuriosaSmiObserver

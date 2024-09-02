@@ -24,6 +24,8 @@ import (
 const (
 	defaultKubeConfigPath = ".kube/config"
 	defaultNS             = "kube-system"
+	hashLength            = 6
+	hashSeed              = "0123456789abcdefghijklmnopqrstuvwxyz"
 )
 
 var ctx *Context
@@ -109,14 +111,18 @@ func NewFrameworkWithDefaultNamespace() (*Context, error) {
 	return NewFrameworkWithNamespace(defaultNS)
 }
 
-func strRand() string {
-	return fmt.Sprintf("%d", rand.Int())
+func generateRandomAlphaNumeric6Digit() string {
+	ret := make([]byte, hashLength)
+	for i := 0; i < hashLength; i++ {
+		ret[i] = hashSeed[rand.Intn(len(hashSeed))]
+	}
+	return string(ret)
 }
 
 func DeployHelmChart(relName, chartPath, values string) func() {
 	return func() {
 		helmChartSpec := &helmclient.ChartSpec{
-			ReleaseName:     relName + strRand(),
+			ReleaseName:     relName + generateRandomAlphaNumeric6Digit(),
 			ChartName:       chartPath,
 			Namespace:       ctx.Namespace,
 			CreateNamespace: false,

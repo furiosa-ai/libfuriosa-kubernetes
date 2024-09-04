@@ -72,12 +72,17 @@ func GenericRunTestSuiteFunc(t *testing.T, suitSpec string) {
 }
 
 func NewFrameworkWithNamespace(namespace string) (*Context, error) {
-	homePath, err := os.UserHomeDir()
-	if err != nil {
-		return nil, err
+	kubeconfig := os.Getenv("KUBECONFIG")
+	if kubeconfig == "" {
+		fmt.Println("KUBECONFIG environment variable not set. use default value '~/.kube/config'.")
+		homePath, err := os.UserHomeDir()
+		if err != nil {
+			return nil, err
+		}
+
+		kubeconfig = filepath.Join(homePath, defaultKubeConfigPath)
 	}
 
-	kubeconfig := filepath.Join(homePath, defaultKubeConfigPath)
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
 		return nil, err

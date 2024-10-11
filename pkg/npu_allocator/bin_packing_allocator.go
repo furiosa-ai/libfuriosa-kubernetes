@@ -3,7 +3,6 @@ package npu_allocator
 import (
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
 	"gonum.org/v1/gonum/stat/combin"
-	"sort"
 )
 
 var _ NpuAllocator = (*binPackingNpuAllocator)(nil)
@@ -61,51 +60,85 @@ func (b binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSet
 		}
 	}
 
-	// Step4: required key와 사용하지 않은 key의 조합을 생성하여 가장 높은 점수를 가지는 key부터 할당 한다.
-	var availableKeys []TopologyHintKey
+	// step4: 남은 부분을 계산한다.
+	devicesToAllocate := size - len(collected)
+
+	unusedKeys := []TopologyHintKey{}
 	for key := range availableByTopologyHintKey {
 		if !requiredKeys[key] {
-			availableKeys = append(availableKeys, key)
+			unusedKeys = append(unusedKeys, key)
 		}
 	}
 
+	keyDeviceCounts := make(map[TopologyHintKey]int)
+	for key, devices := range availableByTopologyHintKey {
+		keyDeviceCounts[key] = len(devices)
+	}
+
+	//step5: 1개의 key만 요소로 가지는 조합을 생성해서 최대 unusedKeys의 길이많큼 요소를 가지는 조합을 생성한다.
+	// 1, 2, 3, 4란 key가 있다고 하면 아래와 같이 조합을 생성한다.
+	// (1), (2), (3), (4)
+	// (1, 2), (1, 3) (1, 4), (2, 3), (2, 4), (3, 4)
+	// (1, 2, 3), (1, 2, 4), (1, 3, 4), (2, 3, 4)
+	// (1, 2, 3, 4)
+	// 요소의 수가 작은것부터 시작해서 조합에서 size를 만족할수 있다면 조합을 결과에 넣는다.
+	// 결과적으로 validCombinations에 있는 집합의 크기는 모두 동일하다.
+	var validCombinations [][]TopologyHintKey
+	for k := 1; k <= len(unusedKeys); k++ {
+		indicesCombinations := combin.Combinations(len(unusedKeys), k)
+		combinationFound := false // 조합이 성공적으로 만들어졌는지 체크하는 변수
+
+		for _, indices := range indicesCombinations {
+			combinationKeys := []TopologyHintKey{}
+			totalDevices := 0
+
+			// 현재 조합에 있는 key들을 계산하여 totalDevices 값을 계산
+			for _, idx := range indices {
+				key := unusedKeys[idx]
+				combinationKeys = append(combinationKeys, key)
+				totalDevices += keyDeviceCounts[key]
+			}
+
+			// 조건을 만족하는 경우 validCombinations에 추가
+			if totalDevices >= devicesToAllocate {
+				validCombinations = append(validCombinations, combinationKeys)
+				combinationFound = true
+			}
+		}
+
+		// 조건을 만족하는 최소 조합의 크기에서 종료
+		if combinationFound {
+			break
+		}
+	}
+
+	// step6: 만약 required keys가 존재한다면 위에서 만들어진 각각의 조합들에 required key를 추가해주어야 한다.
 	requiredKeysSlice := make([]TopologyHintKey, 0, len(requiredKeys))
 	for key := range requiredKeys {
 		requiredKeysSlice = append(requiredKeysSlice, key)
 	}
 
-	var combinations [][]TopologyHintKey
-	for _, availableKey := range availableKeys {
-		copiedRequiredKeys := append([]TopologyHintKey{}, requiredKeysSlice...)
-		// availableKey는 slice의 맨 마지막이다.
-		combination := append(copiedRequiredKeys, availableKey)
-		combinations = append(combinations, combination)
+	for i := range validCombinations {
+		validCombinations[i] = append(validCombinations[i], requiredKeysSlice...)
 	}
 
-	//calculateCombinationScore가지고 채점
-	var scores []uint
-	for i, combination := range combinations {
-		scores[i] = calculateCombinationScore(combination, b.topologyHintMatrix)
+	// step7: 채점을 하고 가장 높은 점수를 가지는 조합을 찾는다.
+	highestScore := uint(0)
+	bestCombination := []TopologyHintKey{}
+
+	for _, combination := range validCombinations {
+		score := calculateCombinationScore(combination, b.topologyHintMatrix)
+		if score > highestScore {
+			highestScore = score
+			bestCombination = combination
+		}
 	}
 
-	//점수 높음순으로 정렬
-	var indices []int
-	for i := range indices {
-		indices[i] = i
-	}
-
-	sort.Slice(indices, func(i, j int) bool {
-		return scores[indices[i]] > scores[indices[j]]
-	})
-
-	//최종적으로 topology 점수가 가장높은 available key가 정렬이 되있으며, key를 추출해서 해당 카드부터 순차적으로 할당
-	for _, idx := range indices {
-		combination := combinations[idx]
-		availableKey := combination[len(combination)-1]
-		devices := availableByTopologyHintKey[availableKey]
+	// step8: collected에 추가하고 반환한다.
+	for _, key := range bestCombination {
+		devices := availableByTopologyHintKey[key]
 		for _, device := range devices {
 			collected = append(collected, device)
-
 			if len(collected) == size {
 				return collected
 			}
@@ -116,6 +149,12 @@ func (b binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSet
 }
 
 func calculateCombinationScore(keys []TopologyHintKey, topologyHintMatrix TopologyHintMatrix) uint {
+	// key가 1개짜리 조합인 경우에는 채점을 하는 모든 조합이 1개짜리이다. 이경우엔 조합을 채점하는 의미가 없기떄문에 0으로 처리한다.
+	// 이부분은 아래 combin.Combination에서 n이 k보다 작으면 패닉이 나기때문에 간단한 처리를 해준다.
+	if len(keys) == 1 {
+		return 0
+	}
+
 	totalScore := uint(0)
 
 	indices := len(keys)

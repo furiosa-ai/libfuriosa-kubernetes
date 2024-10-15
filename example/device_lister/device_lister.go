@@ -104,7 +104,7 @@ func main() {
 		fmt.Printf("Device Utilization:\n")
 		for _, peUtilization := range utilization.PeUtilization() {
 			fmt.Printf("  PE Utilization:\n")
-			fmt.Printf("    Cores: %v\n", peUtilization.Cores())
+			fmt.Printf("    Cores: %v\n", peUtilization.Core())
 			fmt.Printf("    Time Window Mill: %d\n", peUtilization.TimeWindowMill())
 			fmt.Printf("    PE Usage Percentage: %f\n", peUtilization.PeUsagePercentage())
 		}

@@ -20,6 +20,7 @@ type NpuAllocator interface {
 
 type Device interface {
 	// GetIndex returns an index number of Device for sorting purpose.
+	// Index must be injected from `furiosa-device-plugin`, and should not be modified by `libfuriosa-kubernetes`.
 	GetIndex() int
 
 	// GetID returns a unique ID of Device to identify the device.

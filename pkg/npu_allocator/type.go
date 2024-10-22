@@ -19,15 +19,15 @@ type NpuAllocator interface {
 }
 
 type Device interface {
-	// GetIndex returns an index number of Device for sorting purpose.
+	// Index returns an index number of Device for sorting purpose.
 	// Index must be injected from `furiosa-device-plugin`, and should not be modified by `libfuriosa-kubernetes`.
-	GetIndex() int
+	Index() int
 
-	// GetID returns a unique ID of Device to identify the device.
-	GetID() string
+	// ID returns a unique ID of Device to identify the device.
+	ID() string
 
-	// GetTopologyHintKey returns unique key to retrieve TopologyHint using TopologyHintProvider.
-	GetTopologyHintKey() TopologyHintKey
+	// TopologyHintKey returns unique key to retrieve TopologyHint using TopologyHintProvider.
+	TopologyHintKey() TopologyHintKey
 
 	// Equal check whether source Device is identical to the target Device.
 	Equal(target Device) bool
@@ -43,11 +43,11 @@ func (source DeviceSet) Contains(target DeviceSet) bool {
 
 	visited := map[string]bool{}
 	for _, device := range source {
-		visited[device.GetID()] = true
+		visited[device.ID()] = true
 	}
 
 	for _, device := range target {
-		if _, ok := visited[device.GetID()]; !ok {
+		if _, ok := visited[device.ID()]; !ok {
 			return false
 		}
 	}
@@ -58,7 +58,7 @@ func (source DeviceSet) Contains(target DeviceSet) bool {
 // Sort sorts source DeviceSet.
 func (source DeviceSet) Sort() {
 	sort.Slice(source, func(i, j int) bool {
-		return source[i].GetIndex() < source[j].GetIndex()
+		return source[i].Index() < source[j].Index()
 	})
 }
 
@@ -70,11 +70,11 @@ func (source DeviceSet) Equal(target DeviceSet) bool {
 
 	visited := make(map[string]TopologyHintKey)
 	for _, device := range source {
-		visited[device.GetID()] = device.GetTopologyHintKey()
+		visited[device.ID()] = device.TopologyHintKey()
 	}
 
 	for _, device := range target {
-		if visited[device.GetID()] != device.GetTopologyHintKey() {
+		if visited[device.ID()] != device.TopologyHintKey() {
 			return false
 		}
 	}
@@ -98,11 +98,11 @@ func (source DeviceSet) Union(target DeviceSet) (union DeviceSet) {
 	union = append(union, source...)
 	visited := map[string]bool{}
 	for _, device := range source {
-		visited[device.GetID()] = true
+		visited[device.ID()] = true
 	}
 
 	for _, device := range target {
-		if _, ok := visited[device.GetID()]; !ok {
+		if _, ok := visited[device.ID()]; !ok {
 			union = append(union, device)
 		}
 	}

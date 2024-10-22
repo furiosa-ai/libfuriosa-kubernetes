@@ -92,8 +92,8 @@ func TestGenerateNonDuplicatedDeviceSet(t *testing.T) {
 
 func mockTopologyHintProvider(hints TopologyHintMatrix) TopologyHintProvider {
 	return func(device1, device2 Device) uint {
-		topologyHintKey1 := device1.GetTopologyHintKey()
-		topologyHintKey2 := device2.GetTopologyHintKey()
+		topologyHintKey1 := device1.TopologyHintKey()
+		topologyHintKey2 := device2.TopologyHintKey()
 
 		if topologyHintKey1 > topologyHintKey2 {
 			topologyHintKey1, topologyHintKey2 = topologyHintKey2, topologyHintKey1
@@ -404,7 +404,7 @@ func TestAllocation(t *testing.T) {
 		tc.expected.Sort()
 
 		for idx, actual := range actualResult {
-			if actual.GetID() != tc.expected[idx].GetID() || actual.GetTopologyHintKey() != tc.expected[idx].GetTopologyHintKey() {
+			if actual.ID() != tc.expected[idx].ID() || actual.TopologyHintKey() != tc.expected[idx].TopologyHintKey() {
 				t.Errorf("expected %v but got %v", actual.(*mockDevice), tc.expected[idx].(*mockDevice))
 				break
 			}

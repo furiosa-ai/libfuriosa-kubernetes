@@ -20,14 +20,8 @@ func TestDeviceSetContains(t *testing.T) {
 		{
 			description: "compare source and empty target",
 			source: DeviceSet{
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
+				buildMockDevice(3),
+				buildMockDevice(5),
 			},
 			target:   nil,
 			expected: false,
@@ -36,150 +30,66 @@ func TestDeviceSetContains(t *testing.T) {
 			description: "compare empty source and target",
 			source:      nil,
 			target: DeviceSet{
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
+				buildMockDevice(3),
+				buildMockDevice(5),
 			},
 			expected: false,
 		},
 		{
 			description: "compare source and subset",
 			source: DeviceSet{
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "6",
-					topologyHintKey: "6",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(3),
+				buildMockDevice(5),
+				buildMockDevice(6),
+				buildMockDevice(7),
 			},
 			target: DeviceSet{
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(3),
+				buildMockDevice(7),
 			},
 			expected: true,
 		},
 		{
 			description: "compare source and non subset",
 			source: DeviceSet{
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "6",
-					topologyHintKey: "6",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(3),
+				buildMockDevice(5),
+				buildMockDevice(6),
+				buildMockDevice(7),
 			},
 			target: DeviceSet{
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
-				&mockDevice{
-					id:              "4",
-					topologyHintKey: "4",
-				},
+				buildMockDevice(1),
+				buildMockDevice(4),
 			},
 			expected: false,
 		},
 		{
 			description: "compare subset and target",
 			source: DeviceSet{
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
+				buildMockDevice(3),
+				buildMockDevice(5),
 			},
 			target: DeviceSet{
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "6",
-					topologyHintKey: "6",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(3),
+				buildMockDevice(5),
+				buildMockDevice(6),
+				buildMockDevice(7),
 			},
 			expected: false,
 		},
 		{
 			description: "compare identical DeviceSets",
 			source: DeviceSet{
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "6",
-					topologyHintKey: "6",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(3),
+				buildMockDevice(5),
+				buildMockDevice(6),
+				buildMockDevice(7),
 			},
 			target: DeviceSet{
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "6",
-					topologyHintKey: "6",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(3),
+				buildMockDevice(5),
+				buildMockDevice(6),
+				buildMockDevice(7),
 			},
 			expected: true,
 		},
@@ -212,79 +122,31 @@ func TestDeviceSetSort(t *testing.T) {
 		{
 			description: "sort unsorted device set",
 			source: DeviceSet{
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "6",
-					topologyHintKey: "6",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
+				buildMockDevice(7),
+				buildMockDevice(5),
+				buildMockDevice(6),
+				buildMockDevice(3),
 			},
 			expected: DeviceSet{
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "6",
-					topologyHintKey: "6",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(3),
+				buildMockDevice(5),
+				buildMockDevice(6),
+				buildMockDevice(7),
 			},
 		},
 		{
 			description: "sort sorted device set",
 			source: DeviceSet{
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "6",
-					topologyHintKey: "6",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(3),
+				buildMockDevice(5),
+				buildMockDevice(6),
+				buildMockDevice(7),
 			},
 			expected: DeviceSet{
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "6",
-					topologyHintKey: "6",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(3),
+				buildMockDevice(5),
+				buildMockDevice(6),
+				buildMockDevice(7),
 			},
 		},
 	}
@@ -322,161 +184,64 @@ func TestDeviceSetEqual(t *testing.T) {
 		{
 			description: "compare un-identical DeviceSets",
 			source: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(0),
+				buildMockDevice(3),
+				buildMockDevice(5),
+				buildMockDevice(7),
 			},
 			target: DeviceSet{
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
-				&mockDevice{
-					id:              "2",
-					topologyHintKey: "2",
-				},
-				&mockDevice{
-					id:              "4",
-					topologyHintKey: "4",
-				},
-				&mockDevice{
-					id:              "6",
-					topologyHintKey: "6",
-				},
+				buildMockDevice(1),
+				buildMockDevice(2),
+				buildMockDevice(4),
+				buildMockDevice(6),
 			},
 			expected: false,
 		},
 		{
 			description: "compare un-identical DeviceSets with intersection",
 			source: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(0),
+				buildMockDevice(3),
+				buildMockDevice(5),
+				buildMockDevice(7),
 			},
 			target: DeviceSet{
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "6",
-					topologyHintKey: "6",
-				},
+				buildMockDevice(1),
+				buildMockDevice(3),
+				buildMockDevice(5),
+				buildMockDevice(6),
 			},
 			expected: false,
 		},
 		{
 			description: "compare identical DeviceSets in different order",
 			source: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(0),
+				buildMockDevice(3),
+				buildMockDevice(5),
+				buildMockDevice(7),
 			},
 			target: DeviceSet{
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
-
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
+				buildMockDevice(7),
+				buildMockDevice(3),
+				buildMockDevice(0),
+				buildMockDevice(5),
 			},
 			expected: true,
 		},
 		{
 			description: "compare identical DeviceSets in same order",
 			source: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(0),
+				buildMockDevice(3),
+				buildMockDevice(5),
+				buildMockDevice(7),
 			},
 			target: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(0),
+				buildMockDevice(3),
+				buildMockDevice(5),
+				buildMockDevice(7),
 			},
 			expected: true,
 		},
@@ -512,114 +277,54 @@ func TestDeviceSetDifference(t *testing.T) {
 		{
 			description: "diff source and empty target",
 			source: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
+				buildMockDevice(0),
+				buildMockDevice(1),
 			},
 			target: nil,
 			expected: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
+				buildMockDevice(0),
+				buildMockDevice(1),
 			},
 		},
 		{
 			description: "diff source and target without intersection",
 			source: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
+				buildMockDevice(0),
+				buildMockDevice(1),
 			},
 			target: DeviceSet{
-				&mockDevice{
-					id:              "2",
-					topologyHintKey: "2",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
+				buildMockDevice(2),
+				buildMockDevice(3),
 			},
 			expected: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
+				buildMockDevice(0),
+				buildMockDevice(1),
 			},
 		},
 		{
 			description: "diff empty source and target",
 			source:      nil,
 			target: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
+				buildMockDevice(0),
+				buildMockDevice(1),
 			},
 			expected: DeviceSet{},
 		},
 		{
 			description: "diff source and target with intersection",
 			source: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
-				&mockDevice{
-					id:              "2",
-					topologyHintKey: "2",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
+				buildMockDevice(0),
+				buildMockDevice(1),
+				buildMockDevice(2),
+				buildMockDevice(3),
 			},
 			target: DeviceSet{
-				&mockDevice{
-					id:              "2",
-					topologyHintKey: "2",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
+				buildMockDevice(2),
+				buildMockDevice(3),
 			},
 			expected: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
+				buildMockDevice(0),
+				buildMockDevice(1),
 			},
 		},
 	}
@@ -654,90 +359,42 @@ func TestDeviceSetUnion(t *testing.T) {
 		{
 			description: "Union empty target",
 			source: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
+				buildMockDevice(0),
+				buildMockDevice(1),
 			},
 			target: DeviceSet{},
 			expected: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
+				buildMockDevice(0),
+				buildMockDevice(1),
 			},
 		},
 		{
 			description: "Union empty source",
 			source:      DeviceSet{},
 			target: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
+				buildMockDevice(0),
+				buildMockDevice(1),
 			},
 			expected: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
+				buildMockDevice(0),
+				buildMockDevice(1),
 			},
 		},
 		{
 			description: "Union source and target",
 			source: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
+				buildMockDevice(0),
+				buildMockDevice(1),
 			},
 			target: DeviceSet{
-				&mockDevice{
-					id:              "2",
-					topologyHintKey: "2",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
+				buildMockDevice(2),
+				buildMockDevice(3),
 			},
 			expected: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
-				&mockDevice{
-					id:              "2",
-					topologyHintKey: "2",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
+				buildMockDevice(0),
+				buildMockDevice(1),
+				buildMockDevice(2),
+				buildMockDevice(3),
 			},
 		},
 	}

@@ -1,5 +1,7 @@
 package npu_allocator
 
+import "strconv"
+
 var _ Device = (*mockDevice)(nil)
 
 func NewMockDevice(index int, id string, topologyHintKey TopologyHintKey) Device {
@@ -7,6 +9,23 @@ func NewMockDevice(index int, id string, topologyHintKey TopologyHintKey) Device
 		index:           index,
 		id:              id,
 		topologyHintKey: topologyHintKey,
+	}
+}
+
+func buildMockDeviceSet(start, end int) DeviceSet {
+	result := DeviceSet{}
+	for i := start; i <= end; i++ {
+		result = append(result, buildMockDevice(i))
+	}
+
+	return result
+}
+
+func buildMockDevice(target int) Device {
+	return &mockDevice{
+		index:           target,
+		id:              strconv.Itoa(target),
+		topologyHintKey: TopologyHintKey(strconv.Itoa(target)),
 	}
 }
 

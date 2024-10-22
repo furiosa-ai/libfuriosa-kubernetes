@@ -2,28 +2,10 @@ package npu_allocator
 
 import (
 	"reflect"
-	"strconv"
 	"testing"
 
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
 )
-
-func buildMockDeviceSet(start, end int) DeviceSet {
-	result := DeviceSet{}
-	for i := start; i <= end; i++ {
-		result = append(result, buildMockDevice(i))
-	}
-
-	return result
-}
-
-func buildMockDevice(target int) Device {
-	return &mockDevice{
-		index:           target,
-		id:              strconv.Itoa(target),
-		topologyHintKey: TopologyHintKey(strconv.Itoa(target)),
-	}
-}
 
 func TestGenerateNonDuplicatedDeviceSet(t *testing.T) {
 	tests := []struct {

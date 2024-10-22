@@ -11,13 +11,18 @@ import (
 func buildMockDeviceSet(start, end int) DeviceSet {
 	result := DeviceSet{}
 	for i := start; i <= end; i++ {
-		result = append(result, &mockDevice{
-			id:              strconv.Itoa(i),
-			topologyHintKey: TopologyHintKey(strconv.Itoa(i)),
-		})
+		result = append(result, buildMockDevice(i))
 	}
 
 	return result
+}
+
+func buildMockDevice(target int) Device {
+	return &mockDevice{
+		index:           target,
+		id:              strconv.Itoa(target),
+		topologyHintKey: TopologyHintKey(strconv.Itoa(target)),
+	}
 }
 
 func TestGenerateNonDuplicatedDeviceSet(t *testing.T) {
@@ -43,32 +48,14 @@ func TestGenerateNonDuplicatedDeviceSet(t *testing.T) {
 			description: "size 1",
 			devices:     buildMockDeviceSet(0, 3),
 			size:        1,
-			expected: []DeviceSet{
-				[]Device{
-					&mockDevice{
-						id:              "0",
-						topologyHintKey: "0",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "1",
-						topologyHintKey: "1",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "2",
-						topologyHintKey: "2",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "3",
-						topologyHintKey: "3",
-					},
-				},
-			},
+			expected: func() []DeviceSet {
+				deviceSets := make([]DeviceSet, 0)
+				for i := 0; i <= 3; i++ {
+					deviceSets = append(deviceSets, []Device{buildMockDevice(i)})
+				}
+
+				return deviceSets
+			}(),
 		},
 		{
 			description: "size greater than input slice length",
@@ -88,288 +75,19 @@ func TestGenerateNonDuplicatedDeviceSet(t *testing.T) {
 			description: "generate combinations of two from eight",
 			devices:     buildMockDeviceSet(0, 7),
 			size:        2,
-			expected: []DeviceSet{
-				[]Device{
-					&mockDevice{
-						id:              "0",
-						topologyHintKey: "0",
-					},
-					&mockDevice{
-						id:              "1",
-						topologyHintKey: "1",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "0",
-						topologyHintKey: "0",
-					},
-					&mockDevice{
-						id:              "2",
-						topologyHintKey: "2",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "0",
-						topologyHintKey: "0",
-					},
-					&mockDevice{
-						id:              "3",
-						topologyHintKey: "3",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "0",
-						topologyHintKey: "0",
-					},
-					&mockDevice{
-						id:              "4",
-						topologyHintKey: "4",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "0",
-						topologyHintKey: "0",
-					},
-					&mockDevice{
-						id:              "5",
-						topologyHintKey: "5",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "0",
-						topologyHintKey: "0",
-					},
-					&mockDevice{
-						id:              "6",
-						topologyHintKey: "6",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "0",
-						topologyHintKey: "0",
-					},
-					&mockDevice{
-						id:              "7",
-						topologyHintKey: "7",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "1",
-						topologyHintKey: "1",
-					},
-					&mockDevice{
-						id:              "2",
-						topologyHintKey: "2",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "1",
-						topologyHintKey: "1",
-					},
-					&mockDevice{
-						id:              "3",
-						topologyHintKey: "3",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "1",
-						topologyHintKey: "1",
-					},
-					&mockDevice{
-						id:              "4",
-						topologyHintKey: "4",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "1",
-						topologyHintKey: "1",
-					},
-					&mockDevice{
-						id:              "5",
-						topologyHintKey: "5",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "1",
-						topologyHintKey: "1",
-					},
-					&mockDevice{
-						id:              "6",
-						topologyHintKey: "6",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "1",
-						topologyHintKey: "1",
-					},
-					&mockDevice{
-						id:              "7",
-						topologyHintKey: "7",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "2",
-						topologyHintKey: "2",
-					},
-					&mockDevice{
-						id:              "3",
-						topologyHintKey: "3",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "2",
-						topologyHintKey: "2",
-					},
-					&mockDevice{
-						id:              "4",
-						topologyHintKey: "4",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "2",
-						topologyHintKey: "2",
-					},
-					&mockDevice{
-						id:              "5",
-						topologyHintKey: "5",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "2",
-						topologyHintKey: "2",
-					},
-					&mockDevice{
-						id:              "6",
-						topologyHintKey: "6",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "2",
-						topologyHintKey: "2",
-					},
-					&mockDevice{
-						id:              "7",
-						topologyHintKey: "7",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "3",
-						topologyHintKey: "3",
-					},
-					&mockDevice{
-						id:              "4",
-						topologyHintKey: "4",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "3",
-						topologyHintKey: "3",
-					},
-					&mockDevice{
-						id:              "5",
-						topologyHintKey: "5",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "3",
-						topologyHintKey: "3",
-					},
-					&mockDevice{
-						id:              "6",
-						topologyHintKey: "6",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "3",
-						topologyHintKey: "3",
-					},
-					&mockDevice{
-						id:              "7",
-						topologyHintKey: "7",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "4",
-						topologyHintKey: "4",
-					},
-					&mockDevice{
-						id:              "5",
-						topologyHintKey: "5",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "4",
-						topologyHintKey: "4",
-					},
-					&mockDevice{
-						id:              "6",
-						topologyHintKey: "6",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "4",
-						topologyHintKey: "4",
-					},
-					&mockDevice{
-						id:              "7",
-						topologyHintKey: "7",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "5",
-						topologyHintKey: "5",
-					},
-					&mockDevice{
-						id:              "6",
-						topologyHintKey: "6",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "5",
-						topologyHintKey: "5",
-					},
-					&mockDevice{
-						id:              "7",
-						topologyHintKey: "7",
-					},
-				},
-				[]Device{
-					&mockDevice{
-						id:              "6",
-						topologyHintKey: "6",
-					},
-					&mockDevice{
-						id:              "7",
-						topologyHintKey: "7",
-					},
-				},
-			},
+			expected: func() []DeviceSet {
+				deviceSets := make([]DeviceSet, 0)
+				for i := 0; i <= 7; i++ {
+					for j := i + 1; j <= 7; j++ {
+						deviceSets = append(deviceSets, []Device{
+							buildMockDevice(i),
+							buildMockDevice(j),
+						})
+					}
+				}
+
+				return deviceSets
+			}(),
 		},
 	}
 
@@ -490,98 +208,41 @@ func TestAllocation(t *testing.T) {
 		{
 			description: "[topology hint 0x0011] request four devices from five devices",
 			available: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "4",
-					topologyHintKey: "4",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(0),
+				buildMockDevice(1),
+				buildMockDevice(3),
+				buildMockDevice(4),
+				buildMockDevice(7),
 			},
 			required: nil,
 			request:  4,
 			hints:    buildStaticHintMatrixForTwoSocketBalancedConfig(),
 			expected: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "4",
-					topologyHintKey: "4",
-				},
+				buildMockDevice(0),
+				buildMockDevice(1),
+				buildMockDevice(3),
+				buildMockDevice(4),
 			},
 		},
 		{
 			description: "[topology hint 0x0011] request four devices from five devices, require specific device",
 			available: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "4",
-					topologyHintKey: "4",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(0),
+				buildMockDevice(1),
+				buildMockDevice(3),
+				buildMockDevice(4),
+				buildMockDevice(7),
 			},
 			required: DeviceSet{
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(7),
 			},
 			request: 4,
 			hints:   buildStaticHintMatrixForTwoSocketBalancedConfig(),
 			expected: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(0),
+				buildMockDevice(1),
+				buildMockDevice(3),
+				buildMockDevice(7),
 			},
 		},
 		{
@@ -591,226 +252,100 @@ func TestAllocation(t *testing.T) {
 			request:     4,
 			hints:       buildStaticHintMatrixForTwoSocketBalancedConfig(),
 			expected: DeviceSet{
-				&mockDevice{
-					id:              "4",
-					topologyHintKey: "4",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "6",
-					topologyHintKey: "6",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(4),
+				buildMockDevice(5),
+				buildMockDevice(6),
+				buildMockDevice(7),
 			},
 		},
 		{
 			description: "[no topology hint] request four devices from six devices",
 			available: DeviceSet{
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "4",
-					topologyHintKey: "4",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(1),
+				buildMockDevice(3),
+				buildMockDevice(4),
+				buildMockDevice(5),
+				buildMockDevice(7),
 			},
 			required: nil,
 			request:  4,
 			hints:    buildStaticHintMatrixForTwoSocketBalancedConfig(),
 			expected: DeviceSet{
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
-				&mockDevice{
-					id:              "4",
-					topologyHintKey: "4",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(1),
+				buildMockDevice(4),
+				buildMockDevice(5),
+				buildMockDevice(7),
 			},
 		},
 		{
 			description: "[no topology hint] request four devices from 6 devices, require specific device set",
 			available: DeviceSet{
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "4",
-					topologyHintKey: "4",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(1),
+				buildMockDevice(3),
+				buildMockDevice(4),
+				buildMockDevice(5),
+				buildMockDevice(7),
 			},
 			required: DeviceSet{
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
+				buildMockDevice(1),
+				buildMockDevice(3),
 			},
 			request: 4,
 			hints:   buildStaticHintMatrixForTwoSocketBalancedConfig(),
 			expected: DeviceSet{
-				&mockDevice{
-					id:              "1",
-					topologyHintKey: "1",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "4",
-					topologyHintKey: "4",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
+				buildMockDevice(1),
+				buildMockDevice(3),
+				buildMockDevice(4),
+				buildMockDevice(5),
 			},
 		},
 		{
 			description: "[no topology hint] request two devices from five devices",
 			available: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "2",
-					topologyHintKey: "2",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "6",
-					topologyHintKey: "6",
-				},
+				buildMockDevice(0),
+				buildMockDevice(2),
+				buildMockDevice(3),
+				buildMockDevice(5),
+				buildMockDevice(6),
 			},
 			required: nil,
 			request:  2,
 			hints:    buildStaticHintMatrixForTwoSocketBalancedConfig(),
 			expected: DeviceSet{
-				&mockDevice{
-					id:              "2",
-					topologyHintKey: "2",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
+				buildMockDevice(2),
+				buildMockDevice(3),
 			},
 		},
 		{
 			description: "[no topology hint] request two devices from five devices, require specific device set",
 			available: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
-				&mockDevice{
-					id:              "2",
-					topologyHintKey: "2",
-				},
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "6",
-					topologyHintKey: "6",
-				},
+				buildMockDevice(0),
+				buildMockDevice(2),
+				buildMockDevice(3),
+				buildMockDevice(5),
+				buildMockDevice(6),
 			},
 			required: DeviceSet{
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
+				buildMockDevice(5),
 			},
 			request: 2,
 			hints:   buildStaticHintMatrixForTwoSocketBalancedConfig(),
 			expected: DeviceSet{
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "6",
-					topologyHintKey: "6",
-				},
+				buildMockDevice(5),
+				buildMockDevice(6),
 			},
 		},
 		{
 			description: "[no topology hint] request two devices from eight devices, require specific device set",
 			available:   buildMockDeviceSet(0, 7),
 			required: DeviceSet{
-				&mockDevice{
-					id:              "4",
-					topologyHintKey: "4",
-				},
+				buildMockDevice(4),
 			},
 			request: 2,
 			hints:   buildStaticHintMatrixForTwoSocketBalancedConfig(),
 			expected: DeviceSet{
-				&mockDevice{
-					id:              "4",
-					topologyHintKey: "4",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
+				buildMockDevice(4),
+				buildMockDevice(5),
 			},
 		},
 		{
@@ -820,85 +355,49 @@ func TestAllocation(t *testing.T) {
 			request:     1,
 			hints:       buildStaticHintMatrixForTwoSocketBalancedConfig(),
 			expected: DeviceSet{
-				&mockDevice{
-					id:              "0",
-					topologyHintKey: "0",
-				},
+				buildMockDevice(0),
 			},
 		},
 		{
 			description: "[no topology hint] request one device from eight devices, require specific device set",
 			available:   buildMockDeviceSet(0, 7),
 			required: DeviceSet{
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
+				buildMockDevice(3),
 			},
 			request: 1,
 			hints:   buildStaticHintMatrixForTwoSocketBalancedConfig(),
 			expected: DeviceSet{
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
+				buildMockDevice(3),
 			},
 		},
 		{
 			description: "[no topology hint] request one device from three devices",
 			available: DeviceSet{
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(3),
+				buildMockDevice(5),
+				buildMockDevice(7),
 			},
 			required: nil,
 			request:  1,
 			hints:    buildStaticHintMatrixForTwoSocketBalancedConfig(),
 			expected: DeviceSet{
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
+				buildMockDevice(3),
 			},
 		},
 		{
 			description: "[no topology hint] request one device from three devices, require specific device",
 			available: DeviceSet{
-				&mockDevice{
-					id:              "3",
-					topologyHintKey: "3",
-				},
-				&mockDevice{
-					id:              "5",
-					topologyHintKey: "5",
-				},
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(3),
+				buildMockDevice(5),
+				buildMockDevice(7),
 			},
 			required: DeviceSet{
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(7),
 			},
 			request: 1,
 			hints:   buildStaticHintMatrixForTwoSocketBalancedConfig(),
 			expected: DeviceSet{
-				&mockDevice{
-					id:              "7",
-					topologyHintKey: "7",
-				},
+				buildMockDevice(7),
 			},
 		},
 		{

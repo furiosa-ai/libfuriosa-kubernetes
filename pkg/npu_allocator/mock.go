@@ -2,16 +2,22 @@ package npu_allocator
 
 var _ Device = (*mockDevice)(nil)
 
-func NewMockDevice(id string, topologyHintKey TopologyHintKey) Device {
+func NewMockDevice(index int, id string, topologyHintKey TopologyHintKey) Device {
 	return &mockDevice{
+		index:           index,
 		id:              id,
 		topologyHintKey: topologyHintKey,
 	}
 }
 
 type mockDevice struct {
+	index           int
 	id              string
 	topologyHintKey TopologyHintKey
+}
+
+func (m *mockDevice) GetIndex() int {
+	return m.index
 }
 
 func (m *mockDevice) GetID() string {

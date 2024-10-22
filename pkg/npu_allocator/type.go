@@ -19,6 +19,9 @@ type NpuAllocator interface {
 }
 
 type Device interface {
+	// GetIndex returns an index number of Device for sorting purpose.
+	GetIndex() int
+
 	// GetID returns a unique ID of Device to identify the device.
 	GetID() string
 
@@ -54,7 +57,7 @@ func (source DeviceSet) Contains(target DeviceSet) bool {
 // Sort sorts source DeviceSet.
 func (source DeviceSet) Sort() {
 	sort.Slice(source, func(i, j int) bool {
-		return source[i].GetID() < source[j].GetID()
+		return source[i].GetIndex() < source[j].GetIndex()
 	})
 }
 

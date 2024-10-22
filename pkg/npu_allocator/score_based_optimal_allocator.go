@@ -64,7 +64,7 @@ func NewScoreBasedOptimalNpuAllocator(devices []smi.Device) (NpuAllocator, error
 	}
 
 	hintProvider := func(device1, device2 Device) uint {
-		key1, key2 := device1.GetTopologyHintKey(), device2.GetTopologyHintKey()
+		key1, key2 := device1.TopologyHintKey(), device2.TopologyHintKey()
 		if key1 > key2 {
 			key1, key2 = key2, key1
 		}

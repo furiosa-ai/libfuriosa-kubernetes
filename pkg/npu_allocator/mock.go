@@ -1,6 +1,11 @@
 package npu_allocator
 
-import "strconv"
+import (
+	"strconv"
+
+	"github.com/bradfitz/iter"
+	"github.com/google/uuid"
+)
 
 var _ Device = (*mockDevice)(nil)
 
@@ -57,4 +62,14 @@ func (m *mockDevice) Equal(target Device) bool {
 	}
 
 	return false
+}
+
+func generateSameBoardMockDeviceSet(cnt int, hintKey TopologyHintKey) DeviceSet {
+	devices := make(DeviceSet, 0, cnt)
+	for i := range iter.N(cnt) {
+		UUID, _ := uuid.NewUUID()
+		devices = append(devices, NewMockDevice(i, UUID.String(), hintKey))
+	}
+
+	return devices
 }

@@ -59,7 +59,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	// Step 1: available DeviceSet 을 TopologyHintKey 를 기준으로 map 을 만든다.
 	availableDevicesByHintKeyMap := make(map[TopologyHintKey]DeviceSet)
 	for _, device := range available {
-		hintKey := device.GetTopologyHintKey()
+		hintKey := device.TopologyHintKey()
 		if _, ok := availableDevicesByHintKeyMap[hintKey]; !ok {
 			availableDevicesByHintKeyMap[hintKey] = make(DeviceSet, 0)
 		}
@@ -73,7 +73,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	for _, device := range required {
 		collectedDevices = append(collectedDevices, device)
 
-		hintKey := device.GetTopologyHintKey()
+		hintKey := device.TopologyHintKey()
 		requiredHintKeySet[hintKey] = struct{}{}
 
 		availableDevicesByHintKeyMap[hintKey] = availableDevicesByHintKeyMap[hintKey].Difference(DeviceSet{device})

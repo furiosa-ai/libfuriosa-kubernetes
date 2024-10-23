@@ -187,7 +187,7 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
 					for _, device := range deviceSet {
-						hintKeyCntMap[device.GetTopologyHintKey()] += 1
+						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
 					if len(hintKeyCntMap) != 2 {
@@ -209,7 +209,7 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
 					for _, device := range deviceSet {
-						hintKeyCntMap[device.GetTopologyHintKey()] += 1
+						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
 					if len(hintKeyCntMap) != 4 {
@@ -247,11 +247,11 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
 					for _, device := range deviceSet {
-						hintKeyCntMap[device.GetTopologyHintKey()] += 1
+						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
 					for _, idx := range []int{8, 9, 10, 11, 12, 13, 14, 15} {
-						expectedHintKey := mockDevices[idx].GetTopologyHintKey()
+						expectedHintKey := mockDevices[idx].TopologyHintKey()
 						if _, ok := hintKeyCntMap[expectedHintKey]; !ok {
 							return fmt.Errorf("expected hintKey %s is not in the selected list %v", expectedHintKey, hintKeyCntMap)
 						}
@@ -277,11 +277,11 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
 					for _, device := range deviceSet {
-						hintKeyCntMap[device.GetTopologyHintKey()] += 1
+						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
 					for _, idx := range []int{0, 1, 2, 4} {
-						expectedHintKey := mockDevices[idx].GetTopologyHintKey()
+						expectedHintKey := mockDevices[idx].TopologyHintKey()
 						if _, ok := hintKeyCntMap[expectedHintKey]; !ok {
 							return fmt.Errorf("expected hintKey %s is not in the selected list %v", expectedHintKey, hintKeyCntMap)
 						}
@@ -307,14 +307,14 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 				verificationFunc: func(deviceSet DeviceSet) error {
 					idCheckMap := make(map[string]struct{})
 					for _, device := range deviceSet {
-						idCheckMap[device.GetID()] = struct{}{}
+						idCheckMap[device.ID()] = struct{}{}
 					}
 
 					// because length of required devices and value of request are same,
 					// selected devices must be same as given required devices.
 					for _, idx := range []int{4, 5, 6, 7} {
 						expectedDevice := mockDevices[idx]
-						if _, ok := idCheckMap[expectedDevice.GetID()]; !ok {
+						if _, ok := idCheckMap[expectedDevice.ID()]; !ok {
 							return fmt.Errorf("expected device %s is not in the selected list %v", expectedDevice, idCheckMap)
 						}
 					}
@@ -363,7 +363,7 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
 					for _, device := range deviceSet {
-						hintKeyCntMap[device.GetTopologyHintKey()] += 1
+						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
 					if len(hintKeyCntMap) != 1 {
@@ -385,7 +385,7 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
 					for _, device := range deviceSet {
-						hintKeyCntMap[device.GetTopologyHintKey()] += 1
+						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
 					if len(hintKeyCntMap) != 2 {
@@ -407,7 +407,7 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
 					for _, device := range deviceSet {
-						hintKeyCntMap[device.GetTopologyHintKey()] += 1
+						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
 					if len(hintKeyCntMap) != 2 {
@@ -435,7 +435,7 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
 					for _, device := range deviceSet {
-						hintKeyCntMap[device.GetTopologyHintKey()] += 1
+						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
 					if len(hintKeyCntMap) != 3 {
@@ -476,18 +476,18 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
 					for _, device := range deviceSet {
-						hintKeyCntMap[device.GetTopologyHintKey()] += 1
+						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
 					if len(hintKeyCntMap) != 3 {
 						return fmt.Errorf("expected 3 hintKeys, got %d", len(hintKeyCntMap))
 					}
 
-					if _, ok := hintKeyCntMap[mockDevices[8].GetTopologyHintKey()]; !ok {
+					if _, ok := hintKeyCntMap[mockDevices[8].TopologyHintKey()]; !ok {
 						return fmt.Errorf("hintKey for mockDevices[8] not found in selected hintKeys")
 					}
 
-					if _, ok := hintKeyCntMap[mockDevices[28].GetTopologyHintKey()]; !ok {
+					if _, ok := hintKeyCntMap[mockDevices[28].TopologyHintKey()]; !ok {
 						return fmt.Errorf("hintKey for mockDevices[28] not found in selected hintKeys")
 					}
 
@@ -517,14 +517,14 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 				verificationFunc: func(deviceSet DeviceSet) error {
 					idCheckMap := make(map[string]struct{})
 					for _, device := range deviceSet {
-						idCheckMap[device.GetID()] = struct{}{}
+						idCheckMap[device.ID()] = struct{}{}
 					}
 
 					// because length of required devices and value of request are same,
 					// selected devices must be same as given required devices.
 					for _, idx := range []int{8, 15, 22, 27} {
 						expectedDevice := mockDevices[idx]
-						if _, ok := idCheckMap[expectedDevice.GetID()]; !ok {
+						if _, ok := idCheckMap[expectedDevice.ID()]; !ok {
 							return fmt.Errorf("expected device %s is not in the selected list %v", expectedDevice, idCheckMap)
 						}
 					}
@@ -573,7 +573,7 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
 					for _, device := range deviceSet {
-						hintKeyCntMap[device.GetTopologyHintKey()] += 1
+						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
 					if len(hintKeyCntMap) != 1 {
@@ -595,7 +595,7 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
 					for _, device := range deviceSet {
-						hintKeyCntMap[device.GetTopologyHintKey()] += 1
+						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
 					if len(hintKeyCntMap) != 2 {
@@ -623,7 +623,7 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
 					for _, device := range deviceSet {
-						hintKeyCntMap[device.GetTopologyHintKey()] += 1
+						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
 					if len(hintKeyCntMap) != 3 {
@@ -662,31 +662,31 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
 					for _, device := range deviceSet {
-						hintKeyCntMap[device.GetTopologyHintKey()] += 1
+						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
 					if len(hintKeyCntMap) != 3 {
 						return fmt.Errorf("expected 3 hintKeys, got %d", len(hintKeyCntMap))
 					}
 
-					if _, ok := hintKeyCntMap[mockDevices[8].GetTopologyHintKey()]; !ok {
+					if _, ok := hintKeyCntMap[mockDevices[8].TopologyHintKey()]; !ok {
 						return fmt.Errorf("hintKey for mockDevices[8] not found in selected hintKeys")
 					}
 
-					if _, ok := hintKeyCntMap[mockDevices[16].GetTopologyHintKey()]; !ok {
+					if _, ok := hintKeyCntMap[mockDevices[16].TopologyHintKey()]; !ok {
 						return fmt.Errorf("hintKey for mockDevices[8] not found in selected hintKeys")
 					}
 
-					if _, ok := hintKeyCntMap[mockDevices[24].GetTopologyHintKey()]; !ok {
+					if _, ok := hintKeyCntMap[mockDevices[24].TopologyHintKey()]; !ok {
 						return fmt.Errorf("hintKey for mockDevices[8] not found in selected hintKeys")
 					}
 
-					if hintKeyCntMap[mockDevices[8].GetTopologyHintKey()] != 8 {
-						return fmt.Errorf("total 8 devices must be selected from hintKey %s, but it is not: %v", mockDevices[8].GetTopologyHintKey(), hintKeyCntMap)
+					if hintKeyCntMap[mockDevices[8].TopologyHintKey()] != 8 {
+						return fmt.Errorf("total 8 devices must be selected from hintKey %s, but it is not: %v", mockDevices[8].TopologyHintKey(), hintKeyCntMap)
 					}
 
-					if (hintKeyCntMap[mockDevices[16].GetTopologyHintKey()] + hintKeyCntMap[mockDevices[24].GetTopologyHintKey()]) != 12 {
-						return fmt.Errorf("total 12 devices must be selected from hintKeys %s and %s, but it is not: %v", mockDevices[16].GetTopologyHintKey(), mockDevices[24].GetTopologyHintKey(), hintKeyCntMap)
+					if (hintKeyCntMap[mockDevices[16].TopologyHintKey()] + hintKeyCntMap[mockDevices[24].TopologyHintKey()]) != 12 {
+						return fmt.Errorf("total 12 devices must be selected from hintKeys %s and %s, but it is not: %v", mockDevices[16].TopologyHintKey(), mockDevices[24].TopologyHintKey(), hintKeyCntMap)
 					}
 
 					return nil
@@ -709,14 +709,14 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 				verificationFunc: func(deviceSet DeviceSet) error {
 					idCheckMap := make(map[string]struct{})
 					for _, device := range deviceSet {
-						idCheckMap[device.GetID()] = struct{}{}
+						idCheckMap[device.ID()] = struct{}{}
 					}
 
 					// because length of required devices and value of request are same,
 					// selected devices must be same as given required devices.
 					for _, idx := range []int{1, 4, 6, 11, 15, 16, 22, 27} {
 						expectedDevice := mockDevices[idx]
-						if _, ok := idCheckMap[expectedDevice.GetID()]; !ok {
+						if _, ok := idCheckMap[expectedDevice.ID()]; !ok {
 							return fmt.Errorf("expected device %s is not in the selected list %v", expectedDevice, idCheckMap)
 						}
 					}

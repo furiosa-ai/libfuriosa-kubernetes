@@ -20,8 +20,8 @@ func NewBinPackingNpuAllocator(devices []smi.Device) (NpuAllocator, error) {
 	return &binPackingNpuAllocator{
 		// It calculates total sum of given TopologyHintKey list.
 		topologyScoreCalculator: func(keys []TopologyHintKey) uint {
-			// key 가 1개짜리 조합인 경우에는 채점을 하는 모든 조합이 1개짜리 이다. 이 경우엔 조합을 채점하는 의미가 없기 때문에 0 으로 처리한다.
-			// 이 부분은 아래 combin.Combinations 에서 n이 k보다 작으면 패닉이 나기 때문에 간단한 처리를 해준다.
+			// If there is only one key in keys, scoring combinations has no meaning.
+			// This also prevents a panic from combin.Combinations when n is less than k.
 			if len(keys) == 1 {
 				return 0
 			}
@@ -67,7 +67,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 		availableDevicesByHintKeyMap[hintKey] = append(availableDevicesByHintKeyMap[hintKey], device)
 	}
 
-	// Step 2: required DeviceSet 을 먼저 처리한다. 같은 물리 카드에서 할당을 우선시하기 위해 requiredKey 를 수집한다.
+	// Step 2: Process the required DeviceSet first. Collect required keys to prioritize allocations from the same physical card.
 	collectedDevices := make(DeviceSet, 0, size)
 	requiredHintKeySet := make(map[TopologyHintKey]struct{})
 	for _, device := range required {
@@ -83,7 +83,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 		return collectedDevices
 	}
 
-	// Step 3: required key 를 먼저 처리하여 이미 할당이 된 물리카드에서 먼저 할당을 한다.
+	// Step 3: Consume required keys first to mitigate fragmentation.
 	for hintKey := range requiredHintKeySet {
 		devices := availableDevicesByHintKeyMap[hintKey]
 		for _, device := range devices {
@@ -96,7 +96,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 		}
 	}
 
-	// Step 4: 남은 부분을 계산한다.
+	// Step 4: Calculate device count to be allocated.
 	remainingDevicesSize := size - len(collectedDevices)
 
 	unusedHintKeys := make([]TopologyHintKey, 0)
@@ -109,10 +109,10 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 		deviceCountByHintKeyMap[hintKey] = len(devices)
 	}
 
-	// Step 5: 1개의 key 만 요소로 가지는 조합을 생성해서 최대 unusedHintKeys 의 길이만큼 요소를 가지는 조합을 생성한다.
+	// Step 5: Generate combinations using unused hint keys, with size ranging form up to the number of unused hint keys.
 	validCombinationsOfHintKeys := generateValidHintKeysCombinations(unusedHintKeys, deviceCountByHintKeyMap, remainingDevicesSize)
 
-	// Step 6: 만약 required keys 가 존재한다면 위에서 만들어진 각각의 조합들에 required key 를 추가해 주어야 한다.
+	// Step 6: If required keys exists, add them to all combinations to ensure correct scoring.
 	requiredHintKeys := make([]TopologyHintKey, 0, len(requiredHintKeySet))
 	for hintKey := range requiredHintKeySet {
 		requiredHintKeys = append(requiredHintKeys, hintKey)
@@ -122,22 +122,19 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 		validCombinationsOfHintKeys[i] = append(validCombinationsOfHintKeys[i], requiredHintKeys...)
 	}
 
-	// Step 7: 채점을 하고 가장 높은 점수를 가지는 조합을 찾는다.
+	// Step 7: Score each combination and find the one with the highest score.
 	var highestScore *uint = nil
 	var bestHintKeys []TopologyHintKey
 	for _, hintKeys := range validCombinationsOfHintKeys {
 		score := b.topologyScoreCalculator(hintKeys)
 
-		// hintKeys 의 길이가 1 일 경우 score 는 항상 0 이 나오는데, 기존에는 highestScore 를 업데이트하지 못하는 문제가 존재.
-		// (highestScore 의 초기값이 0 이기 때문)
-		// 이 문제를 해결하기 위해 최초 assign 시점엔 무조건 업데이트를 수행하도록 변경
 		if highestScore == nil || score > *highestScore {
 			highestScore = &score
 			bestHintKeys = hintKeys
 		}
 	}
 
-	// Step 8: collectedDevices 에 추가하고 반환한다.
+	// Step 8: Add to collectedDevices and return.
 BestHintKeysLoop:
 	for _, hintKey := range bestHintKeys {
 		devices := availableDevicesByHintKeyMap[hintKey]
@@ -153,13 +150,13 @@ BestHintKeysLoop:
 }
 
 func generateValidHintKeysCombinations(unusedHintKeys []TopologyHintKey, deviceCountByHintKeyMap map[TopologyHintKey]int, remainingDevicesSize int) [][]TopologyHintKey {
-	// 1, 2, 3, 4란 key 가 있다고 하면 아래와 같이 조합을 생성한다.
+	// Given keys like 1, 2, 3, and 4, generate combinations as follows:
 	// (1), (2), (3), (4)
-	// (1, 2), (1, 3) (1, 4), (2, 3), (2, 4), (3, 4)
+	// (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)
 	// (1, 2, 3), (1, 2, 4), (1, 3, 4), (2, 3, 4)
 	// (1, 2, 3, 4)
-	// 요소의 수가 작은것부터 시작해서 조합에서 size를 만족할수 있다면 조합을 결과에 넣는다.
-	// 결과적으로 validCombinationsOfHintKeys 에 있는 집합의 크기는 모두 동일하다.
+	// Start with smaller sets and add combinations to the result as soon as they satisfy the required size.
+	// All sets in validCombinationsOfHintKeys will be of equal size.
 
 	validCombinationsOfHintKeys := make([][]TopologyHintKey, 0)
 	for k := 1; k <= len(unusedHintKeys); k++ {
@@ -168,7 +165,6 @@ func generateValidHintKeysCombinations(unusedHintKeys []TopologyHintKey, deviceC
 			hintKeys := make([]TopologyHintKey, 0)
 			totalDevices := 0
 
-			// 현재 조합에 있는 key 들을 계산하여 totalDevices 값을 계산
 			for _, idx := range indices {
 				hintKey := unusedHintKeys[idx]
 				hintKeys = append(hintKeys, hintKey)
@@ -176,13 +172,11 @@ func generateValidHintKeysCombinations(unusedHintKeys []TopologyHintKey, deviceC
 				totalDevices += deviceCountByHintKeyMap[hintKey]
 			}
 
-			// 조건을 만족하는 경우 validCombinationsOfHintKeys 에 추가
 			if totalDevices >= remainingDevicesSize {
 				validCombinationsOfHintKeys = append(validCombinationsOfHintKeys, hintKeys)
 			}
 		}
 
-		// 조건을 만족하는 최소 조합의 크기에서 종료
 		if len(validCombinationsOfHintKeys) > 0 {
 			break
 		}

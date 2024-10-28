@@ -1,6 +1,11 @@
 package npu_allocator
 
-import "strconv"
+import (
+	"strconv"
+
+	"github.com/bradfitz/iter"
+	"github.com/google/uuid"
+)
 
 var _ Device = (*mockDevice)(nil)
 
@@ -26,6 +31,23 @@ func buildMockDevice(target int) Device {
 		index:           target,
 		id:              strconv.Itoa(target),
 		topologyHintKey: TopologyHintKey(strconv.Itoa(target)),
+	}
+}
+
+func getStaticHintKeys() []TopologyHintKey {
+	return []TopologyHintKey{"0", "1", "2", "3", "4", "5", "6", "7"}
+}
+
+func buildStaticHintMatrixForTwoSocketBalancedConfig() TopologyHintMatrix {
+	return TopologyHintMatrix{
+		"0": {"0": 70, "1": 30, "2": 20, "3": 20, "4": 10, "5": 10, "6": 10, "7": 10},
+		"1": {"1": 70, "2": 20, "3": 20, "4": 10, "5": 10, "6": 10, "7": 10},
+		"2": {"2": 70, "3": 30, "4": 10, "5": 10, "6": 10, "7": 10},
+		"3": {"3": 70, "4": 10, "5": 10, "6": 10, "7": 10},
+		"4": {"4": 70, "5": 30, "6": 20, "7": 20},
+		"5": {"5": 70, "6": 20, "7": 20},
+		"6": {"6": 70, "7": 30},
+		"7": {"7": 70},
 	}
 }
 
@@ -57,4 +79,14 @@ func (m *mockDevice) Equal(target Device) bool {
 	}
 
 	return false
+}
+
+func generateSameBoardMockDeviceSet(cnt int, hintKey TopologyHintKey) DeviceSet {
+	devices := make(DeviceSet, 0, cnt)
+	for i := range iter.N(cnt) {
+		UUID, _ := uuid.NewUUID()
+		devices = append(devices, NewMockDevice(i, UUID.String(), hintKey))
+	}
+
+	return devices
 }

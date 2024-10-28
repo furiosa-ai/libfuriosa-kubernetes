@@ -11,54 +11,8 @@ type scoreBasedOptimalNpuAllocator struct {
 	hintProvider TopologyHintProvider
 }
 
-// populateTopologyHintMatrixForScoreBasedAllocator generates TopologyHintMatrix using list of smi.Device.
-func populateTopologyHintMatrixForScoreBasedAllocator(smiDevices []smi.Device) (TopologyHintMatrix, error) {
-	topologyHintMatrix := make(TopologyHintMatrix)
-	deviceToDeviceInfo := make(map[smi.Device]smi.DeviceInfo)
-
-	for _, device := range smiDevices {
-		deviceInfo, err := device.DeviceInfo()
-		if err != nil {
-			return nil, err
-		}
-		deviceToDeviceInfo[device] = deviceInfo
-	}
-
-	for device1, deviceInfo1 := range deviceToDeviceInfo {
-		for device2, deviceInfo2 := range deviceToDeviceInfo {
-			linkType, err := device1.GetDeviceToDeviceLinkType(device2)
-			if err != nil {
-				return nil, err
-			}
-
-			pciBusID1, err := ParseBusIDFromBDF(deviceInfo1.BDF())
-			if err != nil {
-				return nil, err
-			}
-
-			pciBusID2, err := ParseBusIDFromBDF(deviceInfo2.BDF())
-			if err != nil {
-				return nil, err
-			}
-
-			key1, key2 := TopologyHintKey(pciBusID1), TopologyHintKey(pciBusID2)
-			if key1 > key2 {
-				key1, key2 = key2, key1
-			}
-
-			if _, ok := topologyHintMatrix[key1]; !ok {
-				topologyHintMatrix[key1] = make(map[TopologyHintKey]uint)
-			}
-
-			topologyHintMatrix[key1][key2] = uint(linkType)
-		}
-	}
-
-	return topologyHintMatrix, nil
-}
-
 func NewScoreBasedOptimalNpuAllocator(devices []smi.Device) (NpuAllocator, error) {
-	topologyHintMatrix, err := populateTopologyHintMatrixForScoreBasedAllocator(devices)
+	topologyHintMatrix, err := NewTopologyHintMatrix(devices)
 	if err != nil {
 		return nil, err
 	}

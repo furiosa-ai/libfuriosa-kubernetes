@@ -17,37 +17,47 @@ func NewBinPackingNpuAllocator(devices []smi.Device) (NpuAllocator, error) {
 		return nil, err
 	}
 
-	return &binPackingNpuAllocator{
-		// It calculates total sum of given TopologyHintKey list.
-		topologyScoreCalculator: func(keys []TopologyHintKey) uint {
-			// If there is only one key in keys, scoring combinations has no meaning.
-			// This also prevents a panic from combin.Combinations when n is less than k.
-			if len(keys) == 1 {
-				return 0
+	return newBinPackingNpuAllocator(generateTopologyScoreCalculator(topologyHintMatrix)), nil
+}
+
+func NewMockBinPackingNpuAllocator(topologyHintMatrix TopologyHintMatrix) (NpuAllocator, error) {
+	return newBinPackingNpuAllocator(generateTopologyScoreCalculator(topologyHintMatrix)), nil
+}
+
+// generateTopologyScoreCalculator returns calculator that calculates total sum of given TopologyHintKey list.
+func generateTopologyScoreCalculator(topologyHintMatrix TopologyHintMatrix) TopologyScoreCalculator {
+	return func(keys []TopologyHintKey) uint {
+		// If there is only one key in keys, scoring combinations has no meaning.
+		// This also prevents a panic from combin.Combinations when n is less than k.
+		if len(keys) == 1 {
+			return 0
+		}
+
+		totalScore := uint(0)
+
+		indices := len(keys)
+		combinations := combin.Combinations(indices, 2)
+
+		for _, keyPair := range combinations {
+			i, j := keyPair[0], keyPair[1]
+			key1, key2 := keys[i], keys[j]
+			if key1 > key2 {
+				key1, key2 = key2, key1
 			}
 
-			totalScore := uint(0)
-
-			indices := len(keys)
-			combinations := combin.Combinations(indices, 2)
-
-			for _, keyPair := range combinations {
-				i, j := keyPair[0], keyPair[1]
-				key1, key2 := keys[i], keys[j]
-				if key1 > key2 {
-					key1, key2 = key2, key1
-				}
-
-				if innerMap, exists := topologyHintMatrix[key1]; exists {
-					if score, scoreExists := innerMap[key2]; scoreExists {
-						totalScore += score
-					}
+			if innerMap, exists := topologyHintMatrix[key1]; exists {
+				if score, scoreExists := innerMap[key2]; scoreExists {
+					totalScore += score
 				}
 			}
+		}
 
-			return totalScore
-		},
-	}, nil
+		return totalScore
+	}
+}
+
+func newBinPackingNpuAllocator(topologyScoreCalculator TopologyScoreCalculator) NpuAllocator {
+	return &binPackingNpuAllocator{topologyScoreCalculator: topologyScoreCalculator}
 }
 
 func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSet, size int) DeviceSet {

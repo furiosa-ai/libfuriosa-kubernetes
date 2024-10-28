@@ -34,6 +34,19 @@ func buildMockDevice(target int) Device {
 	}
 }
 
+func buildStaticHintMatrixForTwoSocketBalancedConfig() TopologyHintMatrix {
+	return TopologyHintMatrix{
+		"0": {"0": 70, "1": 30, "2": 20, "3": 20, "4": 10, "5": 10, "6": 10, "7": 10},
+		"1": {"1": 70, "2": 20, "3": 20, "4": 10, "5": 10, "6": 10, "7": 10},
+		"2": {"2": 70, "3": 30, "4": 10, "5": 10, "6": 10, "7": 10},
+		"3": {"3": 70, "4": 10, "5": 10, "6": 10, "7": 10},
+		"4": {"4": 70, "5": 30, "6": 20, "7": 20},
+		"5": {"5": 70, "6": 20, "7": 20},
+		"6": {"6": 70, "7": 30},
+		"7": {"7": 70},
+	}
+}
+
 type mockDevice struct {
 	index           int
 	id              string

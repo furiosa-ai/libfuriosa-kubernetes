@@ -100,14 +100,14 @@ func (m *staticRngdMockDevice) Liveness() (bool, error) {
 func (m *staticRngdMockDevice) DeviceUtilization() (DeviceUtilization, error) {
 	return &staticMockDeviceUtilization{
 		pe: []PeUtilization{
-			&staticMockPeUtilization{cores: []uint32{0}, timeWindow: 1000, usage: 50},
-			&staticMockPeUtilization{cores: []uint32{1}, timeWindow: 1000, usage: 50},
-			&staticMockPeUtilization{cores: []uint32{2}, timeWindow: 1000, usage: 50},
-			&staticMockPeUtilization{cores: []uint32{3}, timeWindow: 1000, usage: 50},
-			&staticMockPeUtilization{cores: []uint32{4}, timeWindow: 1000, usage: 50},
-			&staticMockPeUtilization{cores: []uint32{5}, timeWindow: 1000, usage: 50},
-			&staticMockPeUtilization{cores: []uint32{6}, timeWindow: 1000, usage: 50},
-			&staticMockPeUtilization{cores: []uint32{7}, timeWindow: 1000, usage: 50},
+			&staticMockPeUtilization{core: 0, timeWindow: 1000, usage: 50},
+			&staticMockPeUtilization{core: 1, timeWindow: 1000, usage: 50},
+			&staticMockPeUtilization{core: 2, timeWindow: 1000, usage: 50},
+			&staticMockPeUtilization{core: 3, timeWindow: 1000, usage: 50},
+			&staticMockPeUtilization{core: 4, timeWindow: 1000, usage: 50},
+			&staticMockPeUtilization{core: 5, timeWindow: 1000, usage: 50},
+			&staticMockPeUtilization{core: 6, timeWindow: 1000, usage: 50},
+			&staticMockPeUtilization{core: 7, timeWindow: 1000, usage: 50},
 		},
 		mem: &staticMockMemoryUtilization{},
 	}, nil

@@ -75,8 +75,7 @@ type FuriosaSmiDriverInfo struct {
 }
 
 type FuriosaSmiPeUtilization struct {
-	CoreCount         uint32
-	Cores             [64]uint32
+	Core              uint32
 	TimeWindowMil     uint32
 	PeUsagePercentage float64
 }

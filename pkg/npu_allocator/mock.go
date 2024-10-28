@@ -34,6 +34,10 @@ func buildMockDevice(target int) Device {
 	}
 }
 
+func getStaticHintKeys() []TopologyHintKey {
+	return []TopologyHintKey{"0", "1", "2", "3", "4", "5", "6", "7"}
+}
+
 func buildStaticHintMatrixForTwoSocketBalancedConfig() TopologyHintMatrix {
 	return TopologyHintMatrix{
 		"0": {"0": 70, "1": 30, "2": 20, "3": 20, "4": 10, "5": 10, "6": 10, "7": 10},

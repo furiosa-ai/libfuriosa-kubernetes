@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -144,15 +143,13 @@ func TestValidHintKeysCombinationsGeneratorWith8HintKeys(t *testing.T) {
 
 // TestBinPackingNpuAllocator tests NpuAllocator.Allocate
 func TestBinPackingNpuAllocator(t *testing.T) {
-	var mockSMIDevices = smi.GetStaticMockDevices(smi.ArchRngd)
-	sut, _ := NewBinPackingNpuAllocator(mockSMIDevices)
+	staticHintMatrix := buildStaticHintMatrixForTwoSocketBalancedConfig()
 
+	sut, _ := NewMockBinPackingNpuAllocator(staticHintMatrix)
 	generateMockDevices := func(devicesPerBoard int) DeviceSet {
 		mockDevices := make(DeviceSet, 0)
-		for _, smiDevice := range mockSMIDevices {
-			deviceInfo, _ := smiDevice.DeviceInfo()
-			pciBusID, _ := util.ParseBusIDFromBDF(deviceInfo.BDF())
-			mockDevices = mockDevices.Union(generateSameBoardMockDeviceSet(devicesPerBoard, TopologyHintKey(pciBusID)))
+		for _, hintKey := range getStaticHintKeys() {
+			mockDevices = mockDevices.Union(generateSameBoardMockDeviceSet(devicesPerBoard, hintKey))
 		}
 
 		return mockDevices

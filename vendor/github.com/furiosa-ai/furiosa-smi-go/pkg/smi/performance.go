@@ -57,33 +57,28 @@ func (m *memoryUtilization) InUseBytes() uint64 {
 	return m.raw.InUseBytes
 }
 
-type DeviceUtilization interface {
+type CoreUtilization interface {
 	PeUtilization() []PeUtilization
-	MemoryUtilization() MemoryUtilization
 }
 
-var _ DeviceUtilization = new(deviceUtilization)
+var _ CoreUtilization = new(coreUtilization)
 
-type deviceUtilization struct {
-	raw binding.FuriosaSmiDeviceUtilization
+type coreUtilization struct {
+	raw binding.FuriosaSmiCoreUtilization
 }
 
-func newDeviceUtilization(raw binding.FuriosaSmiDeviceUtilization) DeviceUtilization {
-	return &deviceUtilization{
+func newCoreUtilization(raw binding.FuriosaSmiCoreUtilization) CoreUtilization {
+	return &coreUtilization{
 		raw: raw,
 	}
 }
 
-func (d *deviceUtilization) PeUtilization() (ret []PeUtilization) {
+func (d *coreUtilization) PeUtilization() (ret []PeUtilization) {
 	for i := uint32(0); i < d.raw.PeCount; i++ {
 		ret = append(ret, newPeUtilization(d.raw.Pe[i]))
 	}
 
 	return
-}
-
-func (d *deviceUtilization) MemoryUtilization() MemoryUtilization {
-	return newMemoryUtilization(d.raw.Memory)
 }
 
 type DeviceTemperature interface {

@@ -166,19 +166,14 @@ func (m *staticMockMemoryUtilization) InUseBytes() uint64 {
 	return 0
 }
 
-type staticMockDeviceUtilization struct {
-	pe  []PeUtilization
-	mem MemoryUtilization
+type staticMockCoreUtilization struct {
+	pe []PeUtilization
 }
 
-var _ DeviceUtilization = new(staticMockDeviceUtilization)
+var _ CoreUtilization = new(staticMockCoreUtilization)
 
-func (m *staticMockDeviceUtilization) PeUtilization() []PeUtilization {
+func (m *staticMockCoreUtilization) PeUtilization() []PeUtilization {
 	return m.pe
-}
-
-func (m *staticMockDeviceUtilization) MemoryUtilization() MemoryUtilization {
-	return m.mem
 }
 
 type staticMockDeviceTemperature struct{}
@@ -193,9 +188,8 @@ func (m *staticMockDeviceTemperature) Ambient() float64 {
 	return 10
 }
 
-func newStaticMockVersionInfo(arch Arch, major, minor, patch uint32, metadata string) VersionInfo {
+func newStaticMockVersionInfo(major, minor, patch uint32, metadata string) VersionInfo {
 	return &staticMockVersionInfo{
-		arch:     arch,
 		major:    major,
 		minor:    minor,
 		patch:    patch,
@@ -204,7 +198,6 @@ func newStaticMockVersionInfo(arch Arch, major, minor, patch uint32, metadata st
 }
 
 type staticMockVersionInfo struct {
-	arch     Arch
 	major    uint32
 	minor    uint32
 	patch    uint32
@@ -212,10 +205,6 @@ type staticMockVersionInfo struct {
 }
 
 var _ VersionInfo = new(staticMockVersionInfo)
-
-func (m *staticMockVersionInfo) Arch() Arch {
-	return m.arch
-}
 
 func (m *staticMockVersionInfo) Major() uint32 {
 	return m.major

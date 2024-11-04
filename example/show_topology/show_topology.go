@@ -40,7 +40,7 @@ func main() {
 
 		row := table.Row{filepath.Base(info1.Name())}
 		for _, device2 := range devices {
-			linkType, err := device1.GetDeviceToDeviceLinkType(device2)
+			linkType, err := device1.DeviceToDeviceLinkType(device2)
 			if err != nil {
 				fmt.Printf("%s\n", err.Error())
 				os.Exit(1)

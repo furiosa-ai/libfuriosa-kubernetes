@@ -137,7 +137,7 @@ github.com/fatih/color
 # github.com/felixge/httpsnoop v1.0.4
 ## explicit; go 1.13
 github.com/felixge/httpsnoop
-# github.com/furiosa-ai/furiosa-smi-go v0.0.3-0.20241105031541-2231c250c36b
+# github.com/furiosa-ai/furiosa-smi-go v0.1.0
 ## explicit; go 1.22.6
 github.com/furiosa-ai/furiosa-smi-go/pkg/smi
 github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding

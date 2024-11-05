@@ -4,7 +4,7 @@ go 1.22.6
 
 require (
 	github.com/bradfitz/iter v0.0.0-20191230175014-e8f45d346db8
-	github.com/furiosa-ai/furiosa-smi-go v0.0.3-0.20241105031541-2231c250c36b
+	github.com/furiosa-ai/furiosa-smi-go v0.1.0
 	github.com/google/uuid v1.6.0
 	github.com/jedib0t/go-pretty/v6 v6.6.1
 	github.com/mittwald/go-helm-client v0.12.14

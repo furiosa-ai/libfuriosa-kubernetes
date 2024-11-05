@@ -114,8 +114,20 @@ func FuriosaSmiGetDeviceToDeviceLinkType(handle1 FuriosaSmiDeviceHandle, handle2
 	return __v
 }
 
-func FuriosaSmiGetDriverInfo(outDriverInfo *FuriosaSmiDriverInfo) FuriosaSmiReturnCode {
-	coutDriverInfo, coutDriverInfoAllocMap := (*C.FuriosaSmiDriverInfo)(unsafe.Pointer(outDriverInfo)), cgoAllocsUnknown
+func FuriosaSmiGetP2pAccessible(handle1 FuriosaSmiDeviceHandle, handle2 FuriosaSmiDeviceHandle, outAccessible *bool) FuriosaSmiReturnCode {
+	chandle1, chandle1AllocMap := (C.FuriosaSmiDeviceHandle)(handle1), cgoAllocsUnknown
+	chandle2, chandle2AllocMap := (C.FuriosaSmiDeviceHandle)(handle2), cgoAllocsUnknown
+	coutAccessible, coutAccessibleAllocMap := (*C._Bool)(unsafe.Pointer(outAccessible)), cgoAllocsUnknown
+	__ret := C.furiosa_smi_get_p2p_accessible(chandle1, chandle2, coutAccessible)
+	runtime.KeepAlive(coutAccessibleAllocMap)
+	runtime.KeepAlive(chandle2AllocMap)
+	runtime.KeepAlive(chandle1AllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}
+
+func FuriosaSmiGetDriverInfo(outDriverInfo *FuriosaSmiVersion) FuriosaSmiReturnCode {
+	coutDriverInfo, coutDriverInfoAllocMap := (*C.FuriosaSmiVersion)(unsafe.Pointer(outDriverInfo)), cgoAllocsUnknown
 	__ret := C.furiosa_smi_get_driver_info(coutDriverInfo)
 	runtime.KeepAlive(coutDriverInfoAllocMap)
 	__v := (FuriosaSmiReturnCode)(__ret)
@@ -138,14 +150,34 @@ func FuriosaSmiDestroyObserver(pObserverInstance **FuriosaSmiObserver) FuriosaSm
 	return __v
 }
 
-func FuriosaSmiGetDeviceUtilization(observerInstance *FuriosaSmiObserver, handle FuriosaSmiDeviceHandle, outUtilizationInfo *FuriosaSmiDeviceUtilization) FuriosaSmiReturnCode {
+func FuriosaSmiGetCoreUtilization(observerInstance *FuriosaSmiObserver, handle FuriosaSmiDeviceHandle, outUtilizationInfo *FuriosaSmiCoreUtilization) FuriosaSmiReturnCode {
 	cobserverInstance, cobserverInstanceAllocMap := (*C.FuriosaSmiObserver)(unsafe.Pointer(observerInstance)), cgoAllocsUnknown
 	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
-	coutUtilizationInfo, coutUtilizationInfoAllocMap := (*C.FuriosaSmiDeviceUtilization)(unsafe.Pointer(outUtilizationInfo)), cgoAllocsUnknown
-	__ret := C.furiosa_smi_get_device_utilization(cobserverInstance, chandle, coutUtilizationInfo)
+	coutUtilizationInfo, coutUtilizationInfoAllocMap := (*C.FuriosaSmiCoreUtilization)(unsafe.Pointer(outUtilizationInfo)), cgoAllocsUnknown
+	__ret := C.furiosa_smi_get_core_utilization(cobserverInstance, chandle, coutUtilizationInfo)
 	runtime.KeepAlive(coutUtilizationInfoAllocMap)
 	runtime.KeepAlive(chandleAllocMap)
 	runtime.KeepAlive(cobserverInstanceAllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}
+
+func FuriosaSmiGetMemoryUtilization(handle FuriosaSmiDeviceHandle, outUtilizationInfo *FuriosaSmiMemoryUtilization) FuriosaSmiReturnCode {
+	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
+	coutUtilizationInfo, coutUtilizationInfoAllocMap := (*C.FuriosaSmiMemoryUtilization)(unsafe.Pointer(outUtilizationInfo)), cgoAllocsUnknown
+	__ret := C.furiosa_smi_get_memory_utilization(chandle, coutUtilizationInfo)
+	runtime.KeepAlive(coutUtilizationInfoAllocMap)
+	runtime.KeepAlive(chandleAllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}
+
+func FuriosaSmiGetDevicePerformanceCounter(handle FuriosaSmiDeviceHandle, outPerformanceCounterInfo *FuriosaSmiDevicePerformanceCounter) FuriosaSmiReturnCode {
+	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
+	coutPerformanceCounterInfo, coutPerformanceCounterInfoAllocMap := (*C.FuriosaSmiDevicePerformanceCounter)(unsafe.Pointer(outPerformanceCounterInfo)), cgoAllocsUnknown
+	__ret := C.furiosa_smi_get_device_performance_counter(chandle, coutPerformanceCounterInfo)
+	runtime.KeepAlive(coutPerformanceCounterInfoAllocMap)
+	runtime.KeepAlive(chandleAllocMap)
 	__v := (FuriosaSmiReturnCode)(__ret)
 	return __v
 }

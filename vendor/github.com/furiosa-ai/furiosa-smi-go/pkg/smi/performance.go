@@ -1,6 +1,10 @@
 package smi
 
-import "github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
+import (
+	"time"
+
+	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
+)
 
 type PeUtilization interface {
 	Core() uint32
@@ -57,33 +61,28 @@ func (m *memoryUtilization) InUseBytes() uint64 {
 	return m.raw.InUseBytes
 }
 
-type DeviceUtilization interface {
+type CoreUtilization interface {
 	PeUtilization() []PeUtilization
-	MemoryUtilization() MemoryUtilization
 }
 
-var _ DeviceUtilization = new(deviceUtilization)
+var _ CoreUtilization = new(coreUtilization)
 
-type deviceUtilization struct {
-	raw binding.FuriosaSmiDeviceUtilization
+type coreUtilization struct {
+	raw binding.FuriosaSmiCoreUtilization
 }
 
-func newDeviceUtilization(raw binding.FuriosaSmiDeviceUtilization) DeviceUtilization {
-	return &deviceUtilization{
+func newCoreUtilization(raw binding.FuriosaSmiCoreUtilization) CoreUtilization {
+	return &coreUtilization{
 		raw: raw,
 	}
 }
 
-func (d *deviceUtilization) PeUtilization() (ret []PeUtilization) {
+func (d *coreUtilization) PeUtilization() (ret []PeUtilization) {
 	for i := uint32(0); i < d.raw.PeCount; i++ {
 		ret = append(ret, newPeUtilization(d.raw.Pe[i]))
 	}
 
 	return
-}
-
-func (d *deviceUtilization) MemoryUtilization() MemoryUtilization {
-	return newMemoryUtilization(d.raw.Memory)
 }
 
 type DeviceTemperature interface {
@@ -109,4 +108,60 @@ func (d *deviceTemperature) SocPeak() float64 {
 
 func (d *deviceTemperature) Ambient() float64 {
 	return d.raw.Ambient
+}
+
+type DevicePerformanceCounter interface {
+	PerformanceCounter() []PerformanceCounter
+}
+
+var _ DevicePerformanceCounter = new(devicePerformanceCounter)
+
+type devicePerformanceCounter struct {
+	raw binding.FuriosaSmiDevicePerformanceCounter
+}
+
+func newDevicePerformanceCounter(raw binding.FuriosaSmiDevicePerformanceCounter) DevicePerformanceCounter {
+	return &devicePerformanceCounter{
+		raw: raw,
+	}
+}
+
+func (d *devicePerformanceCounter) PerformanceCounter() []PerformanceCounter {
+	var ret []PerformanceCounter
+
+	for i := uint32(0); i < d.raw.PeCount; i++ {
+		ret = append(ret, newPerformanceCounter(d.raw.PePerformanceCounters[i]))
+	}
+
+	return ret
+}
+
+type PerformanceCounter interface {
+	Timestamp() time.Time
+	CycleCount() uint64
+	TaskExecutionCycle() uint64
+}
+
+var _ PerformanceCounter = new(performanceCounter)
+
+type performanceCounter struct {
+	raw binding.FuriosaSmiPePerformanceCounter
+}
+
+func newPerformanceCounter(raw binding.FuriosaSmiPePerformanceCounter) PerformanceCounter {
+	return &performanceCounter{
+		raw: raw,
+	}
+}
+
+func (p *performanceCounter) Timestamp() time.Time {
+	return time.Unix(p.raw.Timestamp, 0)
+}
+
+func (p *performanceCounter) CycleCount() uint64 {
+	return p.raw.CycleCount
+}
+
+func (p *performanceCounter) TaskExecutionCycle() uint64 {
+	return p.raw.TaskExecutionCycle
 }

@@ -55,6 +55,9 @@ func ToError(code binding.FuriosaSmiReturnCode) error {
 
 	case binding.FuriosaSmiReturnCodeContextError:
 		return errors.New("context error")
+
+	case binding.FuriosaSmiReturnCodeNotSupportedError:
+		return errors.New("not supported error")
 	}
 
 	return nil

@@ -3,7 +3,6 @@ package smi
 import "github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
 
 type VersionInfo interface {
-	Arch() Arch
 	Major() uint32
 	Minor() uint32
 	Patch() uint32
@@ -18,10 +17,6 @@ type versionInfo struct {
 
 func newVersionInfo(raw binding.FuriosaSmiVersion) VersionInfo {
 	return &versionInfo{raw: raw}
-}
-
-func (v *versionInfo) Arch() Arch {
-	return Arch(v.raw.Arch)
 }
 
 func (v *versionInfo) Major() uint32 {

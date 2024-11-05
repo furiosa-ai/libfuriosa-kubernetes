@@ -3,6 +3,7 @@ package smi
 import "github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
 
 type DeviceInfo interface {
+	Index() uint32
 	Arch() Arch
 	CoreNum() uint32
 	NumaNode() uint32
@@ -13,7 +14,7 @@ type DeviceInfo interface {
 	Major() uint16
 	Minor() uint16
 	FirmwareVersion() VersionInfo
-	DriverVersion() VersionInfo
+	PertVersion() VersionInfo
 }
 
 var _ DeviceInfo = new(deviceInfo)
@@ -26,6 +27,10 @@ func newDeviceInfo(raw binding.FuriosaSmiDeviceInfo) DeviceInfo {
 	return &deviceInfo{
 		raw: raw,
 	}
+}
+
+func (d *deviceInfo) Index() uint32 {
+	return d.raw.Index
 }
 
 func (d *deviceInfo) Arch() Arch {
@@ -68,6 +73,6 @@ func (d *deviceInfo) FirmwareVersion() VersionInfo {
 	return newVersionInfo(d.raw.FirmwareVersion)
 }
 
-func (d *deviceInfo) DriverVersion() VersionInfo {
-	return newVersionInfo(d.raw.DriverVersion)
+func (d *deviceInfo) PertVersion() VersionInfo {
+	return newVersionInfo(d.raw.PertVersion)
 }

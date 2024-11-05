@@ -134,7 +134,7 @@ func NewTopologyHintMatrix(smiDevices []smi.Device) (TopologyHintMatrix, error) 
 
 	for device1, deviceInfo1 := range deviceToDeviceInfo {
 		for device2, deviceInfo2 := range deviceToDeviceInfo {
-			linkType, err := device1.GetDeviceToDeviceLinkType(device2)
+			linkType, err := device1.DeviceToDeviceLinkType(device2)
 			if err != nil {
 				return nil, err
 			}

@@ -1,6 +1,9 @@
 package smi
 
-import "github.com/bradfitz/iter"
+import (
+	"github.com/bradfitz/iter"
+	"time"
+)
 
 type mockHint struct {
 	bdf      string
@@ -232,4 +235,32 @@ func getDeviceToDeviceLinkType(src, dst Device) (LinkType, error) {
 
 	ret := linkTypeHintMap[selfNodeIdx][targetNodeIdx]
 	return ret, nil
+}
+
+type staticMockDevicePerformanceCounter struct{}
+
+var _ DevicePerformanceCounter = new(staticMockDevicePerformanceCounter)
+
+func (s staticMockDevicePerformanceCounter) PerformanceCounter() []PerformanceCounter {
+	return []PerformanceCounter{
+		&staticMockPerformanceCounter{},
+	}
+}
+
+var _ DevicePerformanceCounter = new(staticMockDevicePerformanceCounter)
+
+type staticMockPerformanceCounter struct{}
+
+var _ PerformanceCounter = new(staticMockPerformanceCounter)
+
+func (s staticMockPerformanceCounter) Timestamp() time.Time {
+	return time.Now()
+}
+
+func (s staticMockPerformanceCounter) CycleCount() uint64 {
+	return 0
+}
+
+func (s staticMockPerformanceCounter) TaskExecutionCycle() uint64 {
+	return 0
 }

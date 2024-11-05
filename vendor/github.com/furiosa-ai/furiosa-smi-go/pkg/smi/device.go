@@ -43,6 +43,7 @@ type Device interface {
 	DeviceTemperature() (DeviceTemperature, error)
 	DeviceToDeviceLinkType(target Device) (LinkType, error)
 	P2PAccessible(target Device) (bool, error)
+	DevicePerformanceCounter() (DevicePerformanceCounter, error)
 }
 
 var _ Device = new(device)
@@ -90,7 +91,7 @@ func (d *device) CoreStatus() (map[uint32]CoreStatus, error) {
 		return nil, ToError(ret)
 	}
 
-	coreStatusMap := make(map[uint32]CoreStatus)
+	coreStatusMap := make(map[uint32]CoreStatus, out.Count)
 	for i := 0; i < int(out.Count); i++ {
 		coreStatusMap[uint32(i)] = CoreStatus(out.CoreStatus[i])
 	}
@@ -176,4 +177,14 @@ func (d *device) P2PAccessible(target Device) (bool, error) {
 	}
 
 	return out, nil
+}
+
+func (d *device) DevicePerformanceCounter() (DevicePerformanceCounter, error) {
+	var out binding.FuriosaSmiDevicePerformanceCounter
+
+	if ret := binding.FuriosaSmiGetDevicePerformanceCounter(d.handle, &out); ret != binding.FuriosaSmiReturnCodeOk {
+		return nil, ToError(ret)
+	}
+
+	return newDevicePerformanceCounter(out), nil
 }

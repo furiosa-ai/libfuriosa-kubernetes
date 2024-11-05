@@ -133,6 +133,10 @@ func (m *staticRngdMockDevice) P2PAccessible(_ Device) (bool, error) {
 
 }
 
+func (m *staticRngdMockDevice) DevicePerformanceCounter() (DevicePerformanceCounter, error) {
+	return &staticMockDevicePerformanceCounter{}, nil
+}
+
 type staticRngdMockDeviceInfo struct {
 	nodeIdx int
 }

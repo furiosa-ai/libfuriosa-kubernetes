@@ -1,6 +1,10 @@
 package smi
 
-import "github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
+import (
+	"time"
+
+	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
+)
 
 type PeUtilization interface {
 	Core() uint32
@@ -104,4 +108,60 @@ func (d *deviceTemperature) SocPeak() float64 {
 
 func (d *deviceTemperature) Ambient() float64 {
 	return d.raw.Ambient
+}
+
+type DevicePerformanceCounter interface {
+	PerformanceCounter() []PerformanceCounter
+}
+
+var _ DevicePerformanceCounter = new(devicePerformanceCounter)
+
+type devicePerformanceCounter struct {
+	raw binding.FuriosaSmiDevicePerformanceCounter
+}
+
+func newDevicePerformanceCounter(raw binding.FuriosaSmiDevicePerformanceCounter) DevicePerformanceCounter {
+	return &devicePerformanceCounter{
+		raw: raw,
+	}
+}
+
+func (d *devicePerformanceCounter) PerformanceCounter() []PerformanceCounter {
+	var ret []PerformanceCounter
+
+	for i := uint32(0); i < d.raw.PeCount; i++ {
+		ret = append(ret, newPerformanceCounter(d.raw.PePerformanceCounters[i]))
+	}
+
+	return ret
+}
+
+type PerformanceCounter interface {
+	Timestamp() time.Time
+	CycleCount() uint64
+	TaskExecutionCycle() uint64
+}
+
+var _ PerformanceCounter = new(performanceCounter)
+
+type performanceCounter struct {
+	raw binding.FuriosaSmiPePerformanceCounter
+}
+
+func newPerformanceCounter(raw binding.FuriosaSmiPePerformanceCounter) PerformanceCounter {
+	return &performanceCounter{
+		raw: raw,
+	}
+}
+
+func (p *performanceCounter) Timestamp() time.Time {
+	return time.Unix(p.raw.Timestamp, 0)
+}
+
+func (p *performanceCounter) CycleCount() uint64 {
+	return p.raw.CycleCount
+}
+
+func (p *performanceCounter) TaskExecutionCycle() uint64 {
+	return p.raw.TaskExecutionCycle
 }

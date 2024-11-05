@@ -14,13 +14,11 @@
 
 #define FURIOSA_SMI_MAX_PE_SIZE 64
 
-#define FURIOSA_SMI_MAX_DRIVER_INFO_SIZE 24
-
 #define FURIOSA_SMI_MAX_DEVICE_HANDLE_SIZE 64
 
 #define FURIOSA_SMI_MAX_CSTR_SIZE 96
 
-/// \brief Represent a architecture type of device
+/// \brief Represent an architecture type of device
 typedef enum {
   /// Warboy architecture
   FURIOSA_SMI_ARCH_WARBOY = 0,
@@ -30,6 +28,8 @@ typedef enum {
   FURIOSA_SMI_ARCH_RNGD_MAX,
   /// RNGD-S architecture
   FURIOSA_SMI_ARCH_RNGD_S,
+  /// Unknown architecture
+  FURIOSA_SMI_ARCH_UNKNOWN = -1,
 } FuriosaSmiArch;
 
 /// \brief Represent a core status
@@ -88,6 +88,8 @@ typedef enum {
   FURIOSA_SMI_RETURN_CODE_UNINITIALIZED_ERROR,
   /// When a context cannot be captured.
   FURIOSA_SMI_RETURN_CODE_CONTEXT_ERROR,
+  /// When a certain operation is not supported.
+  FURIOSA_SMI_RETURN_CODE_NOT_SUPPORTED_ERROR,
 } FuriosaSmiReturnCode;
 
 typedef struct FuriosaSmiObserver FuriosaSmiObserver;
@@ -102,7 +104,6 @@ typedef struct {
 
 /// \brief Represent the version of device component
 typedef struct {
-  FuriosaSmiArch arch;
   uint32_t major;
   uint32_t minor;
   uint32_t patch;
@@ -111,6 +112,7 @@ typedef struct {
 
 /// \brief Represent a device information
 typedef struct {
+  uint32_t index;
   FuriosaSmiArch arch;
   uint32_t core_num;
   uint32_t numa_node;
@@ -121,7 +123,7 @@ typedef struct {
   uint16_t major;
   uint16_t minor;
   FuriosaSmiVersion firmware_version;
-  FuriosaSmiVersion driver_version;
+  FuriosaSmiVersion pert_version;
 } FuriosaSmiDeviceInfo;
 
 /// \brief Represent a device file information.
@@ -156,12 +158,6 @@ typedef struct {
   uint32_t device_error_count;
 } FuriosaSmiDeviceErrorInfo;
 
-/// \brief Represent a driver information of device.
-typedef struct {
-  uint32_t count;
-  FuriosaSmiVersion driver_info[FURIOSA_SMI_MAX_DRIVER_INFO_SIZE];
-} FuriosaSmiDriverInfo;
-
 typedef FuriosaSmiObserver *FuriosaSmiObserverInstance;
 
 /// \brief Represent a PE utilization.
@@ -171,18 +167,28 @@ typedef struct {
   double pe_usage_percentage;
 } FuriosaSmiPeUtilization;
 
+/// \brief Represent a core utilization.
+typedef struct {
+  uint32_t pe_count;
+  FuriosaSmiPeUtilization pe[FURIOSA_SMI_MAX_PE_SIZE];
+} FuriosaSmiCoreUtilization;
+
 /// \brief Represent a memory utilization.
 typedef struct {
   uint64_t total_bytes;
   uint64_t in_use_bytes;
 } FuriosaSmiMemoryUtilization;
 
-/// \brief Represent a utilization of device.
+typedef struct {
+  long timestamp;
+  uint64_t cycle_count;
+  uint64_t task_execution_cycle;
+} FuriosaSmiPePerformanceCounter;
+
 typedef struct {
   uint32_t pe_count;
-  FuriosaSmiPeUtilization pe[FURIOSA_SMI_MAX_PE_SIZE];
-  FuriosaSmiMemoryUtilization memory;
-} FuriosaSmiDeviceUtilization;
+  FuriosaSmiPePerformanceCounter pe_performance_counters[FURIOSA_SMI_MAX_PE_SIZE];
+} FuriosaSmiDevicePerformanceCounter;
 
 /// \brief Represent a power consumption of device.
 typedef struct {
@@ -284,6 +290,16 @@ FuriosaSmiReturnCode furiosa_smi_get_device_to_device_link_type(FuriosaSmiDevice
                                                                 FuriosaSmiDeviceHandle handle2,
                                                                 FuriosaSmiDeviceToDeviceLinkType *out_link_type);
 
+/// \brief Checks if two Furiosa NPU devices are P2P accessible.
+///
+/// @param handle1 handle of Furiosa NPU device 1.
+/// @param handle2 handle of Furiosa NPU device 2.
+/// @param[out] out_accessible output buffer for pointer to boolean result.
+/// @return FURIOSA_SMI_RETURN_CODE_OK if successful, see `FuriosaSmiReturnCode` for error cases.
+FuriosaSmiReturnCode furiosa_smi_get_p2p_accessible(FuriosaSmiDeviceHandle handle1,
+                                                    FuriosaSmiDeviceHandle handle2,
+                                                    bool *out_accessible);
+
 /// @}
 
 /// @defgroup System System
@@ -293,9 +309,9 @@ FuriosaSmiReturnCode furiosa_smi_get_device_to_device_link_type(FuriosaSmiDevice
 /// \brief Get a driver information of Furiosa NPU device.
 ///
 /// @param handle handle of Furiosa NPU device.
-/// @param[out] out_driver_info output buffer for pointer to FuriosaSmiDriverInfo.
+/// @param[out] out_driver_info output buffer for pointer to FuriosaSmiVersion.
 /// @return FURIOSA_SMI_RETURN_CODE_OK if successful, see `FuriosaSmiReturnCode` for error cases.
-FuriosaSmiReturnCode furiosa_smi_get_driver_info(FuriosaSmiDriverInfo *out_driver_info);
+FuriosaSmiReturnCode furiosa_smi_get_driver_info(FuriosaSmiVersion *out_driver_info);
 
 /// @}
 
@@ -315,14 +331,32 @@ FuriosaSmiReturnCode furiosa_smi_create_observer(FuriosaSmiObserverInstance *out
 /// @return FURIOSA_SMI_RETURN_CODE_OK if successful, see `FuriosaSmiReturnCode` for error cases.
 FuriosaSmiReturnCode furiosa_smi_destroy_observer(FuriosaSmiObserverInstance *p_observer_instance);
 
-/// \brief Get a utilization of Furiosa NPU device.
+/// \brief Get a core utilization of Furiosa NPU device.
+///
+/// @param observer_instance valid FuriosaSmiObserverInstance created by furiosa_smi_create_observer.
+/// @param handle handle of Furiosa NPU device.
+/// @param[out] out_utilization_info output buffer for pointer to FuriosaSmiCoreUtilization.
+/// @return FURIOSA_SMI_RETURN_CODE_OK if successful, see `FuriosaSmiReturnCode` for error cases.
+FuriosaSmiReturnCode furiosa_smi_get_core_utilization(FuriosaSmiObserverInstance observer_instance,
+                                                      FuriosaSmiDeviceHandle handle,
+                                                      FuriosaSmiCoreUtilization *out_utilization_info);
+
+/// \brief Get a memory utilization of Furiosa NPU device.
 ///
 /// @param handle handle of Furiosa NPU device.
-/// @param[out] out_utilization_info output buffer for pointer to FuriosaSmiDeviceUtilization.
+/// @param[out] out_utilization_info output buffer for pointer to FuriosaSmiMemoryUtilization.
 /// @return FURIOSA_SMI_RETURN_CODE_OK if successful, see `FuriosaSmiReturnCode` for error cases.
-FuriosaSmiReturnCode furiosa_smi_get_device_utilization(FuriosaSmiObserverInstance observer_instance,
-                                                        FuriosaSmiDeviceHandle handle,
-                                                        FuriosaSmiDeviceUtilization *out_utilization_info);
+FuriosaSmiReturnCode furiosa_smi_get_memory_utilization(FuriosaSmiDeviceHandle handle,
+                                                        FuriosaSmiMemoryUtilization *out_utilization_info);
+
+/// \brief Get a performance counter of Furiosa NPU device.
+///
+/// @param handle handle of Furiosa NPU device.
+/// @param core core index of Furiosa NPU device.
+/// @param[out] out_performance_counter_info output buffer for pointer to FuriosaSmiPePerformanceCounter.
+/// @return FURIOSA_SMI_RETURN_CODE_OK if successful, see `FuriosaSmiReturnCode` for error cases.
+FuriosaSmiReturnCode furiosa_smi_get_device_performance_counter(FuriosaSmiDeviceHandle handle,
+                                                                FuriosaSmiDevicePerformanceCounter *out_performance_counter_info);
 
 /// \brief Get a power consumption of Furiosa NPU device.
 ///

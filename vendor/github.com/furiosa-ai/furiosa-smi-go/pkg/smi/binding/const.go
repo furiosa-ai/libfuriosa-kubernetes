@@ -19,11 +19,9 @@ const (
 	FuriosaSmiMaxCoreStatusSize = 128
 	// FuriosaSmiMaxPeSize as defined in smi/furiosa_smi.h:15
 	FuriosaSmiMaxPeSize = 64
-	// FuriosaSmiMaxDriverInfoSize as defined in smi/furiosa_smi.h:17
-	FuriosaSmiMaxDriverInfoSize = 24
-	// FuriosaSmiMaxDeviceHandleSize as defined in smi/furiosa_smi.h:19
+	// FuriosaSmiMaxDeviceHandleSize as defined in smi/furiosa_smi.h:17
 	FuriosaSmiMaxDeviceHandleSize = 64
-	// FuriosaSmiMaxCstrSize as defined in smi/furiosa_smi.h:21
+	// FuriosaSmiMaxCstrSize as defined in smi/furiosa_smi.h:19
 	FuriosaSmiMaxCstrSize = 96
 )
 
@@ -36,6 +34,7 @@ const (
 	FuriosaSmiArchRngd    FuriosaSmiArch = 1
 	FuriosaSmiArchRngdMax FuriosaSmiArch = 2
 	FuriosaSmiArchRngdS   FuriosaSmiArch = 3
+	FuriosaSmiArchUnknown FuriosaSmiArch = -1
 )
 
 // FuriosaSmiCoreStatus as declared in smi/furiosa_smi.h:41
@@ -59,10 +58,10 @@ const (
 	FuriosaSmiDeviceToDeviceLinkTypeNoc          FuriosaSmiDeviceToDeviceLinkType = 70
 )
 
-// FuriosaSmiReturnCode as declared in smi/furiosa_smi.h:91
+// FuriosaSmiReturnCode as declared in smi/furiosa_smi.h:93
 type FuriosaSmiReturnCode int32
 
-// FuriosaSmiReturnCode enumeration from smi/furiosa_smi.h:91
+// FuriosaSmiReturnCode enumeration from smi/furiosa_smi.h:93
 const (
 	FuriosaSmiReturnCodeOk                       FuriosaSmiReturnCode = iota
 	FuriosaSmiReturnCodeInvalidArgumentError     FuriosaSmiReturnCode = 1
@@ -80,4 +79,5 @@ const (
 	FuriosaSmiReturnCodeInternalError            FuriosaSmiReturnCode = 13
 	FuriosaSmiReturnCodeUninitializedError       FuriosaSmiReturnCode = 14
 	FuriosaSmiReturnCodeContextError             FuriosaSmiReturnCode = 15
+	FuriosaSmiReturnCodeNotSupportedError        FuriosaSmiReturnCode = 16
 )

@@ -97,8 +97,8 @@ func (m *staticRngdMockDevice) Liveness() (bool, error) {
 	return true, nil
 }
 
-func (m *staticRngdMockDevice) DeviceUtilization() (DeviceUtilization, error) {
-	return &staticMockDeviceUtilization{
+func (m *staticRngdMockDevice) CoreUtilization() (CoreUtilization, error) {
+	return &staticMockCoreUtilization{
 		pe: []PeUtilization{
 			&staticMockPeUtilization{core: 0, timeWindow: 1000, usage: 50},
 			&staticMockPeUtilization{core: 1, timeWindow: 1000, usage: 50},
@@ -109,8 +109,11 @@ func (m *staticRngdMockDevice) DeviceUtilization() (DeviceUtilization, error) {
 			&staticMockPeUtilization{core: 6, timeWindow: 1000, usage: 50},
 			&staticMockPeUtilization{core: 7, timeWindow: 1000, usage: 50},
 		},
-		mem: &staticMockMemoryUtilization{},
 	}, nil
+}
+
+func (m *staticRngdMockDevice) MemoryUtilization() (MemoryUtilization, error) {
+	return &staticMockMemoryUtilization{}, nil
 }
 
 func (m *staticRngdMockDevice) PowerConsumption() (float64, error) {
@@ -121,8 +124,17 @@ func (m *staticRngdMockDevice) DeviceTemperature() (DeviceTemperature, error) {
 	return &staticMockDeviceTemperature{}, nil
 }
 
-func (m *staticRngdMockDevice) GetDeviceToDeviceLinkType(target Device) (LinkType, error) {
+func (m *staticRngdMockDevice) DeviceToDeviceLinkType(target Device) (LinkType, error) {
 	return getDeviceToDeviceLinkType(m, target)
+}
+
+func (m *staticRngdMockDevice) P2PAccessible(_ Device) (bool, error) {
+	return true, nil
+
+}
+
+func (m *staticRngdMockDevice) DevicePerformanceCounter() (DevicePerformanceCounter, error) {
+	return &staticMockDevicePerformanceCounter{}, nil
 }
 
 type staticRngdMockDeviceInfo struct {
@@ -130,6 +142,10 @@ type staticRngdMockDeviceInfo struct {
 }
 
 var _ DeviceInfo = new(staticRngdMockDeviceInfo)
+
+func (m *staticRngdMockDeviceInfo) Index() uint32 {
+	return uint32(m.nodeIdx)
+}
 
 func (m *staticRngdMockDeviceInfo) Arch() Arch {
 	return ArchRngd
@@ -169,10 +185,9 @@ func (m *staticRngdMockDeviceInfo) Minor() uint16 {
 
 // FirmwareVersion e.g. version: 1.6.0, c1bebfd
 func (m *staticRngdMockDeviceInfo) FirmwareVersion() VersionInfo {
-	return newStaticMockVersionInfo(ArchRngd, 1, 6, 0, "c1bebfd")
+	return newStaticMockVersionInfo(1, 6, 0, "c1bebfd")
 }
 
-// DriverVersion e.g. version: 1.9.2, 3def9c2
-func (m *staticRngdMockDeviceInfo) DriverVersion() VersionInfo {
-	return newStaticMockVersionInfo(ArchRngd, 1, 9, 2, "3def9c2")
+func (m *staticRngdMockDeviceInfo) PertVersion() VersionInfo {
+	return newStaticMockVersionInfo(0, 0, 0, "")
 }

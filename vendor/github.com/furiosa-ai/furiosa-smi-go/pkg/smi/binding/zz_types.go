@@ -20,7 +20,6 @@ type FuriosaSmiDeviceHandles struct {
 }
 
 type FuriosaSmiVersion struct {
-	Arch     FuriosaSmiArch
 	Major    uint32
 	Minor    uint32
 	Patch    uint32
@@ -28,6 +27,7 @@ type FuriosaSmiVersion struct {
 }
 
 type FuriosaSmiDeviceInfo struct {
+	Index           uint32
 	Arch            FuriosaSmiArch
 	CoreNum         uint32
 	NumaNode        uint32
@@ -38,7 +38,7 @@ type FuriosaSmiDeviceInfo struct {
 	Major           uint16
 	Minor           uint16
 	FirmwareVersion FuriosaSmiVersion
-	DriverVersion   FuriosaSmiVersion
+	PertVersion     FuriosaSmiVersion
 }
 
 type FuriosaSmiDeviceFile struct {
@@ -69,15 +69,15 @@ type FuriosaSmiDeviceErrorInfo struct {
 	DeviceErrorCount       uint32
 }
 
-type FuriosaSmiDriverInfo struct {
-	Count      uint32
-	DriverInfo [24]FuriosaSmiVersion
-}
-
 type FuriosaSmiPeUtilization struct {
 	Core              uint32
 	TimeWindowMil     uint32
 	PeUsagePercentage float64
+}
+
+type FuriosaSmiCoreUtilization struct {
+	PeCount uint32
+	Pe      [64]FuriosaSmiPeUtilization
 }
 
 type FuriosaSmiMemoryUtilization struct {
@@ -85,10 +85,15 @@ type FuriosaSmiMemoryUtilization struct {
 	InUseBytes uint64
 }
 
-type FuriosaSmiDeviceUtilization struct {
-	PeCount uint32
-	Pe      [64]FuriosaSmiPeUtilization
-	Memory  FuriosaSmiMemoryUtilization
+type FuriosaSmiPePerformanceCounter struct {
+	Timestamp          int64
+	CycleCount         uint64
+	TaskExecutionCycle uint64
+}
+
+type FuriosaSmiDevicePerformanceCounter struct {
+	PeCount               uint32
+	PePerformanceCounters [64]FuriosaSmiPePerformanceCounter
 }
 
 type FuriosaSmiDevicePowerConsumption struct {

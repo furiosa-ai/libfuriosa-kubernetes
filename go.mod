@@ -1,12 +1,11 @@
 module github.com/furiosa-ai/libfuriosa-kubernetes
 
-go 1.22.6
+go 1.23.2
 
 require (
 	github.com/bradfitz/iter v0.0.0-20191230175014-e8f45d346db8
-	github.com/furiosa-ai/furiosa-smi-go v0.1.0
+	github.com/furiosa-ai/furiosa-smi-go v0.1.1-0.20241106050232-6ac0a9bd52a7
 	github.com/google/uuid v1.6.0
-	github.com/jedib0t/go-pretty/v6 v6.6.1
 	github.com/mittwald/go-helm-client v0.12.14
 	github.com/onsi/ginkgo/v2 v2.21.0
 	github.com/onsi/gomega v1.35.1

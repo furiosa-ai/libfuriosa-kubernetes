@@ -2,6 +2,8 @@ package npu_allocator
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestDeviceSetContains(t *testing.T) {
@@ -96,10 +98,11 @@ func TestDeviceSetContains(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		actual := tc.source.Contains(tc.target)
-		if tc.expected != actual {
-			t.Errorf("expected %v but got %v", tc.expected, actual)
-		}
+		t.Run(tc.description, func(t *testing.T) {
+			actual := tc.source.Contains(tc.target)
+
+			assert.Equal(t, tc.expected, actual)
+		})
 	}
 }
 
@@ -152,13 +155,14 @@ func TestDeviceSetSort(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc.source.Sort()
-		for idx, sourceDevice := range tc.source {
-			if sourceDevice.ID() != tc.expected[idx].ID() || sourceDevice.TopologyHintKey() != tc.expected[idx].TopologyHintKey() {
-				t.Errorf("expected %v but got %v", sourceDevice.(*mockDevice), tc.expected[idx].(*mockDevice))
-				break
+		t.Run(tc.description, func(t *testing.T) {
+			tc.source.Sort()
+			for idx, sourceDevice := range tc.source {
+
+				assert.Equal(t, tc.expected[idx].ID(), sourceDevice.ID())
+				assert.Equal(t, tc.expected[idx].TopologyHintKey(), tc.source[idx].TopologyHintKey())
 			}
-		}
+		})
 	}
 }
 
@@ -248,10 +252,11 @@ func TestDeviceSetEqual(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		actual := tc.source.Equal(tc.target)
-		if actual != tc.expected {
-			t.Errorf("expected %v, but got %v", tc.expected, actual)
-		}
+		t.Run(tc.description, func(t *testing.T) {
+			actual := tc.source.Equal(tc.target)
+
+			assert.Equal(t, tc.expected, actual)
+		})
 	}
 }
 
@@ -330,10 +335,11 @@ func TestDeviceSetDifference(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		actual := tc.source.Difference(tc.target)
-		if !actual.Equal(tc.expected) {
-			t.Errorf("expected %v but got %v", tc.expected, actual)
-		}
+		t.Run(tc.description, func(t *testing.T) {
+			actual := tc.source.Difference(tc.target)
+
+			assert.Equal(t, tc.expected, actual)
+		})
 	}
 }
 
@@ -400,9 +406,10 @@ func TestDeviceSetUnion(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		actual := tc.source.Union(tc.target)
-		if !actual.Equal(tc.expected) {
-			t.Errorf("expected %v but got %v", tc.expected, actual)
-		}
+		t.Run(tc.description, func(t *testing.T) {
+			actual := tc.source.Union(tc.target)
+
+			assert.Equal(t, tc.expected, actual)
+		})
 	}
 }

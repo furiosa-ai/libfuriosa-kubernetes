@@ -1,10 +1,10 @@
 package npu_allocator
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGenerateNonDuplicatedDeviceSet(t *testing.T) {
@@ -74,19 +74,17 @@ func TestGenerateNonDuplicatedDeviceSet(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		actual := generateKDeviceSet(tc.devices, tc.size)
-		if len(actual) != len(tc.expected) {
-			t.Errorf("two slices are not identical")
-			continue
-		}
+		t.Run(tc.description, func(t *testing.T) {
+			actual := generateKDeviceSet(tc.devices, tc.size)
 
-		for idx, inner := range tc.expected {
-			inner2 := actual[idx]
+			assert.Len(t, actual, len(tc.expected))
 
-			if !inner.Equal(inner2) {
-				t.Errorf("two slices are not identical")
+			for idx, inner := range tc.expected {
+				inner2 := actual[idx]
+
+				assert.Equal(t, inner, inner2)
 			}
-		}
+		})
 	}
 }
 
@@ -380,22 +378,20 @@ func TestAllocation(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		allocator, _ := NewMockScoreBasedOptimalNpuAllocator(mockTopologyHintProvider(tc.hints))
-		actualResult := allocator.Allocate(tc.available, tc.required, tc.request)
+		t.Run(tc.description, func(t *testing.T) {
+			allocator, _ := NewMockScoreBasedOptimalNpuAllocator(mockTopologyHintProvider(tc.hints))
+			actualResult := allocator.Allocate(tc.available, tc.required, tc.request)
 
-		if len(actualResult) != len(tc.expected) {
-			t.Errorf("expected %v but got %v", tc.expected, actualResult)
-		}
+			assert.Len(t, actualResult, len(tc.expected))
 
-		actualResult.Sort()
-		tc.expected.Sort()
+			actualResult.Sort()
+			tc.expected.Sort()
 
-		for idx, actual := range actualResult {
-			if actual.ID() != tc.expected[idx].ID() || actual.TopologyHintKey() != tc.expected[idx].TopologyHintKey() {
-				t.Errorf("expected %v but got %v", actual.(*mockDevice), tc.expected[idx].(*mockDevice))
-				break
+			for idx, actual := range actualResult {
+				assert.Equalf(t, tc.expected[idx].ID(), actual.ID(), "expected %v but got %v", actual.(*mockDevice), tc.expected[idx].(*mockDevice))
+				assert.Equalf(t, tc.expected[idx].TopologyHintKey(), actual.TopologyHintKey(), "expected %v but got %v", actual.(*mockDevice), tc.expected[idx].(*mockDevice))
 			}
-		}
+		})
 	}
 }
 
@@ -422,10 +418,10 @@ func TestPopulateTopologyMatrix(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		actual, _ := NewTopologyHintMatrix(tc.input)
+		t.Run(tc.description, func(t *testing.T) {
+			actual, _ := NewTopologyHintMatrix(tc.input)
 
-		if !reflect.DeepEqual(actual, tc.expected) {
-			t.Errorf("expected %v but got %v", tc.expected, actual)
-		}
+			assert.Equal(t, tc.expected, actual)
+		})
 	}
 }

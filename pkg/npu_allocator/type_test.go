@@ -337,8 +337,9 @@ func TestDeviceSetDifference(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.description, func(t *testing.T) {
 			actual := tc.source.Difference(tc.target)
-
-			assert.Equal(t, tc.expected, actual)
+			if !actual.Equal(tc.expected) {
+				t.Errorf("expected %v but got %v", tc.expected, actual)
+			}
 		})
 	}
 }
@@ -408,8 +409,9 @@ func TestDeviceSetUnion(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.description, func(t *testing.T) {
 			actual := tc.source.Union(tc.target)
-
-			assert.Equal(t, tc.expected, actual)
+			if !actual.Equal(tc.expected) {
+				t.Errorf("expected %v but got %v", tc.expected, actual)
+			}
 		})
 	}
 }

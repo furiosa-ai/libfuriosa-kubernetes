@@ -76,9 +76,7 @@ func (source DeviceSet) Equal(target DeviceSet) bool {
 }
 
 // Difference returns a subset of the source DeviceSet that has no intersection with the target DeviceSet.
-func (source DeviceSet) Difference(target DeviceSet) DeviceSet {
-	difference := DeviceSet{}
-
+func (source DeviceSet) Difference(target DeviceSet) (difference DeviceSet) {
 	for _, device := range source {
 		if !target.Contains(DeviceSet{device}) {
 			difference = append(difference, device)
@@ -89,9 +87,7 @@ func (source DeviceSet) Difference(target DeviceSet) DeviceSet {
 }
 
 // Union returns new DeviceSet containing elements of source and target DeviceSets
-func (source DeviceSet) Union(target DeviceSet) DeviceSet {
-	union := DeviceSet{}
-
+func (source DeviceSet) Union(target DeviceSet) (union DeviceSet) {
 	union = append(union, source...)
 	visited := map[string]bool{}
 	for _, device := range source {

@@ -2,11 +2,11 @@ package manifest
 
 import (
 	"fmt"
-	"reflect"
 	"sort"
 	"testing"
 
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
+	"github.com/stretchr/testify/assert"
 )
 
 func newTestWarboyDevice() smi.Device {
@@ -58,17 +58,20 @@ func TestWarboyDeviceNodes(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		manifest, _ := NewWarboyManifest(newTestWarboyDevice())
-		actualDeviceNodes := manifest.DeviceNodes()
-		sort.Slice(tc.expectedDeviceNodes, func(i, j int) bool {
-			return tc.expectedDeviceNodes[i].ContainerPath < tc.expectedDeviceNodes[j].ContainerPath
+		t.Run(tc.description, func(t *testing.T) {
+			manifest, _ := NewWarboyManifest(newTestWarboyDevice())
+			actualDeviceNodes := manifest.DeviceNodes()
+
+			sort.Slice(tc.expectedDeviceNodes, func(i, j int) bool {
+				return tc.expectedDeviceNodes[i].ContainerPath < tc.expectedDeviceNodes[j].ContainerPath
+			})
+
+			sort.Slice(actualDeviceNodes, func(i, j int) bool {
+				return actualDeviceNodes[i].ContainerPath < actualDeviceNodes[j].ContainerPath
+			})
+
+			assert.Equal(t, tc.expectedDeviceNodes, actualDeviceNodes)
 		})
-		sort.Slice(actualDeviceNodes, func(i, j int) bool {
-			return actualDeviceNodes[i].ContainerPath < actualDeviceNodes[j].ContainerPath
-		})
-		if !reflect.DeepEqual(actualDeviceNodes, tc.expectedDeviceNodes) {
-			t.Errorf("expected %v but got %v", tc.expectedDeviceNodes, actualDeviceNodes)
-		}
 	}
 }
 
@@ -124,16 +127,19 @@ func TestWarboyMountPaths(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		manifest, _ := NewWarboyManifest(newTestWarboyDevice())
-		actualMountPaths := manifest.MountPaths()
-		sort.Slice(tc.expectedMountPaths, func(i, j int) bool {
-			return tc.expectedMountPaths[i].ContainerPath < tc.expectedMountPaths[j].ContainerPath
+		t.Run(tc.description, func(t *testing.T) {
+			manifest, _ := NewWarboyManifest(newTestWarboyDevice())
+			actualMountPaths := manifest.MountPaths()
+
+			sort.Slice(tc.expectedMountPaths, func(i, j int) bool {
+				return tc.expectedMountPaths[i].ContainerPath < tc.expectedMountPaths[j].ContainerPath
+			})
+
+			sort.Slice(actualMountPaths, func(i, j int) bool {
+				return actualMountPaths[i].ContainerPath < actualMountPaths[j].ContainerPath
+			})
+
+			assert.Equal(t, tc.expectedMountPaths, actualMountPaths)
 		})
-		sort.Slice(actualMountPaths, func(i, j int) bool {
-			return actualMountPaths[i].ContainerPath < actualMountPaths[j].ContainerPath
-		})
-		if !reflect.DeepEqual(actualMountPaths, tc.expectedMountPaths) {
-			t.Errorf("expected %v but got %v", tc.expectedMountPaths, actualMountPaths)
-		}
 	}
 }

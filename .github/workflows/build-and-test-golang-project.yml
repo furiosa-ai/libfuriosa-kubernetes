@@ -1,4 +1,4 @@
-name: Golang
+name: Build & Test Golang Project
 
 on:
   push:

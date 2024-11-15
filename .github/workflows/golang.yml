@@ -14,7 +14,7 @@ jobs:
         go-version: [ '1.23.2' ]
 
     steps:
-      - name: checkout furios-smi
+      - name: checkout furiosa-smi
         uses: actions/checkout@v4
         with:
           repository: furiosa-ai/furiosa-smi

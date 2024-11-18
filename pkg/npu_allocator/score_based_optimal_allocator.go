@@ -52,6 +52,10 @@ func (n *scoreBasedOptimalNpuAllocator) Allocate(available DeviceSet, required D
 		return required
 	}
 
+	// sort device set
+	available.Sort()
+	required.Sort()
+
 	// generate seed sets using differences
 	difference := available.Difference(required)
 	combinations := generateKDeviceSet(difference, subsetLen)

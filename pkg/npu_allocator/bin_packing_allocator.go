@@ -66,7 +66,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 		return required
 	}
 
-	// Step 1: available DeviceSet 을 TopologyHintKey 를 기준으로 map 을 만든다.
+	// Step 1: build a map with TopologyHintKey as a key to access available DeviceSet
 	availableDevicesByHintKeyMap := make(map[TopologyHintKey]DeviceSet)
 	for _, device := range available {
 		hintKey := device.TopologyHintKey()

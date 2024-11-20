@@ -50,6 +50,10 @@ func (source DeviceSet) Contains(target DeviceSet) bool {
 
 // Sort sorts source DeviceSet.
 func (source DeviceSet) Sort() {
+	if source == nil {
+		return
+	}
+
 	sort.Slice(source, func(i, j int) bool {
 		return source[i].Index() < source[j].Index()
 	})

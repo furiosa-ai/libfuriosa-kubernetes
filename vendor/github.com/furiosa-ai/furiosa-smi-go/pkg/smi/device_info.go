@@ -2,18 +2,31 @@ package smi
 
 import "github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
 
+// DeviceInfo represents a device information.
 type DeviceInfo interface {
+	// Index returns an index number of the device based on hardware topology.
 	Index() uint32
+	// Arch returns an architecture of device.
 	Arch() Arch
+	// CoreNum returns the number of PE cores.
 	CoreNum() uint32
+	// NumaNode returns a numa node of device.
 	NumaNode() uint32
+	// Name returns a name of device.
 	Name() string
+	// Serial returns a serial of device.
 	Serial() string
+	// UUID returns an uuid of device.
 	UUID() string
+	// BDF returns a bdf of device.
 	BDF() string
+	// Major returns a major part of pci device.
 	Major() uint16
+	// Minor returns a minor part of pci device.
 	Minor() uint16
+	// FirmwareVersion returns a firmware version of device.
 	FirmwareVersion() VersionInfo
+	// PertVersion returns a PERT version of device.
 	PertVersion() VersionInfo
 }
 

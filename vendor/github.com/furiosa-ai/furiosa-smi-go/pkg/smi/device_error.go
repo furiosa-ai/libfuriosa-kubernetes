@@ -2,15 +2,25 @@ package smi
 
 import "github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
 
+// DeviceErrorInfo represents a device error information.
 type DeviceErrorInfo interface {
+	// AxiPostErrorCount returns an axi post error count.
 	AxiPostErrorCount() uint32
+	// AxiFetchErrorCount returns an axi fetch error count.
 	AxiFetchErrorCount() uint32
+	// AxiDiscardErrorCount returns an axi discard error count.
 	AxiDiscardErrorCount() uint32
+	// AxiDoorbellErrorCount returns an axi doorbell error count.
 	AxiDoorbellErrorCount() uint32
+	// PciePostErrorCount returns a pcie post error count.
 	PciePostErrorCount() uint32
+	// PcieFetchErrorCount returns a pcie fetch error count.
 	PcieFetchErrorCount() uint32
+	// PcieDiscardErrorCount returns a pcie discard error count.
 	PcieDiscardErrorCount() uint32
+	// PcieDoorbellErrorCount returns a pcie doorbell error count.
 	PcieDoorbellErrorCount() uint32
+	// DeviceErrorCount returns a device error count.
 	DeviceErrorCount() uint32
 }
 

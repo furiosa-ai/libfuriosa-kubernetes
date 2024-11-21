@@ -1,8 +1,9 @@
 package smi
 
 import (
-	"github.com/bradfitz/iter"
 	"time"
+
+	"github.com/bradfitz/iter"
 )
 
 type mockHint struct {
@@ -57,6 +58,7 @@ var linkTypeHintMap = map[int]map[int]LinkType{
 	7: {7: LinkTypeNoc},
 }
 
+// GetStaticMockDevices returns mock devices with given Arch for test purpose.
 func GetStaticMockDevices(arch Arch) (mockDevices []Device) {
 	for i := range iter.N(8) {
 		mockDevices = append(mockDevices, GetStaticMockDevice(arch, i))
@@ -65,6 +67,7 @@ func GetStaticMockDevices(arch Arch) (mockDevices []Device) {
 	return
 }
 
+// GetStaticMockDevice returns single mock device with given Arch and idx number for test purpose.
 func GetStaticMockDevice(arch Arch, nodeIdx int) Device {
 	switch arch {
 	case ArchWarboy:

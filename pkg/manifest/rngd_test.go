@@ -2,10 +2,10 @@ package manifest
 
 import (
 	"fmt"
-	"reflect"
 	"testing"
 
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
+	"github.com/stretchr/testify/assert"
 )
 
 func newTestRngdDevice() smi.Device {
@@ -153,11 +153,12 @@ func TestRngdDeviceNodes(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		manifest, _ := NewRngdManifest(newTestRngdDevice())
-		actualDeviceNodes := manifest.DeviceNodes()
-		if !reflect.DeepEqual(actualDeviceNodes, tc.expectedDeviceNodes) {
-			t.Errorf("expected %v but got %v", tc.expectedDeviceNodes, actualDeviceNodes)
-		}
+		t.Run(tc.description, func(t *testing.T) {
+			manifest, _ := NewRngdManifest(newTestRngdDevice())
+			actualDeviceNodes := manifest.DeviceNodes()
+
+			assert.Equal(t, tc.expectedDeviceNodes, actualDeviceNodes)
+		})
 	}
 
 }
@@ -185,10 +186,11 @@ func TestRngdMountPaths(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		manifest, _ := NewRngdManifest(newTestRngdDevice())
-		actualMountPaths := manifest.MountPaths()
-		if !reflect.DeepEqual(actualMountPaths, tc.expectedMountPaths) {
-			t.Errorf("expected %v but got %v", tc.expectedMountPaths, actualMountPaths)
-		}
+		t.Run(tc.description, func(t *testing.T) {
+			manifest, _ := NewRngdManifest(newTestRngdDevice())
+			actualMountPaths := manifest.MountPaths()
+
+			assert.Equal(t, tc.expectedMountPaths, actualMountPaths)
+		})
 	}
 }

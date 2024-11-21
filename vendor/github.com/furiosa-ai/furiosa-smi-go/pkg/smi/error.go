@@ -6,7 +6,7 @@ import (
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
 )
 
-func ToError(code binding.FuriosaSmiReturnCode) error {
+func toError(code binding.FuriosaSmiReturnCode) error {
 	switch code {
 	case binding.FuriosaSmiReturnCodeOk:
 		return nil

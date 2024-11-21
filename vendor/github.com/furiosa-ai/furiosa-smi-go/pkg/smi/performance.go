@@ -6,9 +6,13 @@ import (
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
 )
 
+// PeUtilization represents a PE utilization.
 type PeUtilization interface {
+	// Core returns a PE core index.
 	Core() uint32
+	// TimeWindowMill returns time window for utilization.
 	TimeWindowMill() uint32
+	// PeUsagePercentage returns PE usage percentage.
 	PeUsagePercentage() float64
 }
 
@@ -36,8 +40,11 @@ func (p *peUtilization) PeUsagePercentage() float64 {
 	return p.raw.PeUsagePercentage
 }
 
+// MemoryUtilization represents a memory utilization.
 type MemoryUtilization interface {
+	// TotalBytes returns the total bytes of memory.
 	TotalBytes() uint64
+	// InUseBytes returns the memory bytes currently in use.
 	InUseBytes() uint64
 }
 
@@ -61,7 +68,9 @@ func (m *memoryUtilization) InUseBytes() uint64 {
 	return m.raw.InUseBytes
 }
 
+// CoreUtilization represents a core utilization.
 type CoreUtilization interface {
+	// PeUtilization returns the list of utilizations for each PE cores.
 	PeUtilization() []PeUtilization
 }
 
@@ -85,8 +94,11 @@ func (d *coreUtilization) PeUtilization() (ret []PeUtilization) {
 	return
 }
 
+// DeviceTemperature represents a temperature information of the device.
 type DeviceTemperature interface {
+	// SocPeak returns the highest temperature observed from SoC sensors.
 	SocPeak() float64
+	// Ambient returns the temperature observed from sensors attached to the board.
 	Ambient() float64
 }
 
@@ -110,7 +122,9 @@ func (d *deviceTemperature) Ambient() float64 {
 	return d.raw.Ambient
 }
 
+// DevicePerformanceCounter represents a device performance counter.
 type DevicePerformanceCounter interface {
+	// PerformanceCounter returns a list of performance counters.
 	PerformanceCounter() []PerformanceCounter
 }
 
@@ -136,9 +150,13 @@ func (d *devicePerformanceCounter) PerformanceCounter() []PerformanceCounter {
 	return ret
 }
 
+// PerformanceCounter represents a performance counter.
 type PerformanceCounter interface {
+	// Timestamp returns timestamp.
 	Timestamp() time.Time
+	// CycleCount returns total cycle count in 64-bit unsigned int.
 	CycleCount() uint64
+	// TaskExecutionCycle returns cycle count used for task execution in 64-bit unsigned int.
 	TaskExecutionCycle() uint64
 }
 

@@ -148,8 +148,8 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 	sut, _ := NewMockBinPackingNpuAllocator(staticHintMatrix)
 	generateMockDevices := func(devicesPerBoard int) DeviceSet {
 		mockDevices := make(DeviceSet, 0)
-		for _, hintKey := range getStaticHintKeys() {
-			mockDevices = mockDevices.Union(generateSameBoardMockDeviceSet(devicesPerBoard, hintKey))
+		for idx, hintKey := range getStaticHintKeys() {
+			mockDevices = mockDevices.Union(generateSameBoardMockDeviceSet(idx, devicesPerBoard, hintKey))
 		}
 
 		return mockDevices

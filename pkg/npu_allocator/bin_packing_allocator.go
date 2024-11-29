@@ -1,6 +1,8 @@
 package npu_allocator
 
 import (
+	"slices"
+
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
 	"gonum.org/v1/gonum/stat/combin"
 )
@@ -61,6 +63,9 @@ func newBinPackingNpuAllocator(topologyScoreCalculator TopologyScoreCalculator) 
 }
 
 func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSet, size int) DeviceSet {
+	//available.Sort()
+	//required.Sort()
+
 	// If length of `required` already satisfies given `size`, just return it.
 	if len(required) == size {
 		return required
@@ -145,9 +150,13 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	}
 
 	// Step 8: Add to collectedDevices and return.
+	slices.Sort(bestHintKeys)
+
 BestHintKeysLoop:
 	for _, hintKey := range bestHintKeys {
 		devices := availableDevicesByHintKeyMap[hintKey]
+		devices.Sort()
+
 		for _, device := range devices {
 			collectedDevices = append(collectedDevices, device)
 			if len(collectedDevices) == size {

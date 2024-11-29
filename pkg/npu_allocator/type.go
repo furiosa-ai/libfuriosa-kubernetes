@@ -55,6 +55,10 @@ func (source DeviceSet) Sort() {
 	}
 
 	sort.Slice(source, func(i, j int) bool {
+		if source[i].Index() == source[j].Index() {
+			return source[i].ID() < source[j].ID()
+		}
+
 		return source[i].Index() < source[j].Index()
 	})
 }

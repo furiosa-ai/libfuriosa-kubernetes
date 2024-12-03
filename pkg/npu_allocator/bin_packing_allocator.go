@@ -74,7 +74,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 
 		deviceSet := availableDevicesByHintKeyMap.Get(hintKey)
 		deviceSet = append(deviceSet, device)
-		availableDevicesByHintKeyMap.ReplaceOrInsert(hintKey, deviceSet)
+		availableDevicesByHintKeyMap.Insert(hintKey, deviceSet)
 	}
 
 	// Step 2: Process the required DeviceSet first. Collect required keys to prioritize allocations from the same physical card.
@@ -85,11 +85,11 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 		collectedDevices = append(collectedDevices, device)
 
 		hintKey := device.TopologyHintKey()
-		requiredHintKeySet.ReplaceOrInsert(hintKey)
+		requiredHintKeySet.Insert(hintKey)
 
 		deviceSet := availableDevicesByHintKeyMap.Get(hintKey)
 		deviceSet = deviceSet.Difference(DeviceSet{device})
-		availableDevicesByHintKeyMap.ReplaceOrInsert(hintKey, deviceSet)
+		availableDevicesByHintKeyMap.Insert(hintKey, deviceSet)
 	}
 
 	if len(collectedDevices) == size {
@@ -103,7 +103,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 
 			deviceSet := availableDevicesByHintKeyMap.Get(hintKey)
 			deviceSet = deviceSet.Difference(DeviceSet{device})
-			availableDevicesByHintKeyMap.ReplaceOrInsert(hintKey, deviceSet)
+			availableDevicesByHintKeyMap.Insert(hintKey, deviceSet)
 
 			if len(collectedDevices) == size {
 				return collectedDevices

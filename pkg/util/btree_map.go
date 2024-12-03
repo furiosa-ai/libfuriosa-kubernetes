@@ -43,7 +43,7 @@ func (m *BtreeMap[K, V]) Keys() []K {
 	return result
 }
 
-func (m *BtreeMap[K, V]) ReplaceOrInsert(key K, value V) {
+func (m *BtreeMap[K, V]) Insert(key K, value V) {
 	m.tree.ReplaceOrInsert(BTreeMapItem[K, V]{key: key, value: value})
 }
 
@@ -77,6 +77,6 @@ func (s *BTreeSet[T]) Keys() []T {
 	return result
 }
 
-func (s *BTreeSet[T]) ReplaceOrInsert(key T) {
+func (s *BTreeSet[T]) Insert(key T) {
 	s.tree.ReplaceOrInsert(BTreeMapItem[T, struct{}]{key: key})
 }

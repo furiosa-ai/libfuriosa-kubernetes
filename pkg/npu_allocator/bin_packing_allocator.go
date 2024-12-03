@@ -67,14 +67,13 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	}
 
 	// Step 1: build a map with TopologyHintKey as a key to access available DeviceSet
-	availableDevicesByHintKeyMap := make(map[TopologyHintKey]DeviceSet)
+	availableDevicesByHintKeyMap := NewTopologyHintKeyToDeviceSetMap(len(available))
 	for _, device := range available {
 		hintKey := device.TopologyHintKey()
-		if _, ok := availableDevicesByHintKeyMap[hintKey]; !ok {
-			availableDevicesByHintKeyMap[hintKey] = make(DeviceSet, 0)
-		}
 
-		availableDevicesByHintKeyMap[hintKey] = append(availableDevicesByHintKeyMap[hintKey], device)
+		deviceSet := availableDevicesByHintKeyMap.Get(hintKey)
+		deviceSet = append(deviceSet, device)
+		availableDevicesByHintKeyMap.ReplaceOrInsert(hintKey, deviceSet)
 	}
 
 	// Step 2: Process the required DeviceSet first. Collect required keys to prioritize allocations from the same physical card.
@@ -86,7 +85,9 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 		hintKey := device.TopologyHintKey()
 		requiredHintKeySet[hintKey] = struct{}{}
 
-		availableDevicesByHintKeyMap[hintKey] = availableDevicesByHintKeyMap[hintKey].Difference(DeviceSet{device})
+		deviceSet := availableDevicesByHintKeyMap.Get(hintKey)
+		deviceSet = deviceSet.Difference(DeviceSet{device})
+		availableDevicesByHintKeyMap.ReplaceOrInsert(hintKey, deviceSet)
 	}
 
 	if len(collectedDevices) == size {
@@ -95,10 +96,12 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 
 	// Step 3: Consume required keys first to mitigate fragmentation.
 	for hintKey := range requiredHintKeySet {
-		devices := availableDevicesByHintKeyMap[hintKey]
-		for _, device := range devices {
+		for _, device := range availableDevicesByHintKeyMap.Get(hintKey) {
 			collectedDevices = append(collectedDevices, device)
-			availableDevicesByHintKeyMap[hintKey] = availableDevicesByHintKeyMap[hintKey].Difference(DeviceSet{device})
+
+			deviceSet := availableDevicesByHintKeyMap.Get(hintKey)
+			deviceSet = deviceSet.Difference(DeviceSet{device})
+			availableDevicesByHintKeyMap.ReplaceOrInsert(hintKey, deviceSet)
 
 			if len(collectedDevices) == size {
 				return collectedDevices
@@ -111,7 +114,8 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 
 	unusedHintKeys := make([]TopologyHintKey, 0)
 	deviceCountByHintKeyMap := make(map[TopologyHintKey]int)
-	for hintKey, devices := range availableDevicesByHintKeyMap {
+	for _, hintKey := range availableDevicesByHintKeyMap.Keys() {
+		devices := availableDevicesByHintKeyMap.Get(hintKey)
 		if _, ok := requiredHintKeySet[hintKey]; !ok {
 			unusedHintKeys = append(unusedHintKeys, hintKey)
 		}
@@ -147,8 +151,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	// Step 8: Add to collectedDevices and return.
 BestHintKeysLoop:
 	for _, hintKey := range bestHintKeys {
-		devices := availableDevicesByHintKeyMap[hintKey]
-		for _, device := range devices {
+		for _, device := range availableDevicesByHintKeyMap.Get(hintKey) {
 			collectedDevices = append(collectedDevices, device)
 			if len(collectedDevices) == size {
 				break BestHintKeysLoop

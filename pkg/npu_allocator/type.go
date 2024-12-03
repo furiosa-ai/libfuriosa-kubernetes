@@ -5,6 +5,7 @@ import (
 
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
 	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/util"
+	"github.com/google/btree"
 )
 
 type NpuAllocator interface {
@@ -169,4 +170,45 @@ func NewTopologyHintMatrix(smiDevices []smi.Device) (TopologyHintMatrix, error) 
 	}
 
 	return topologyHintMatrix, nil
+}
+
+type TopologyHintKeyToDeviceSetMapItem struct {
+	key   TopologyHintKey
+	value DeviceSet
+}
+
+type TopologyHintKeyToDeviceSetMap struct {
+	tree *btree.BTreeG[TopologyHintKeyToDeviceSetMapItem]
+}
+
+func NewTopologyHintKeyToDeviceSetMap(degree int) *TopologyHintKeyToDeviceSetMap {
+	return &TopologyHintKeyToDeviceSetMap{
+		tree: btree.NewG(degree, func(a, b TopologyHintKeyToDeviceSetMapItem) bool {
+			return a.key < b.key
+		}),
+	}
+}
+
+func (m *TopologyHintKeyToDeviceSetMap) Get(key TopologyHintKey) DeviceSet {
+	item, exists := m.tree.Get(TopologyHintKeyToDeviceSetMapItem{key: key})
+	if !exists {
+		return nil
+	}
+
+	return item.value
+}
+
+func (m *TopologyHintKeyToDeviceSetMap) Keys() []TopologyHintKey {
+	result := make([]TopologyHintKey, 0, m.tree.Len())
+	m.tree.Ascend(func(item TopologyHintKeyToDeviceSetMapItem) bool {
+		result = append(result, item.key)
+
+		return true
+	})
+
+	return result
+}
+
+func (m *TopologyHintKeyToDeviceSetMap) ReplaceOrInsert(key TopologyHintKey, value DeviceSet) {
+	m.tree.ReplaceOrInsert(TopologyHintKeyToDeviceSetMapItem{key: key, value: value})
 }

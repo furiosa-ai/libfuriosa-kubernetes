@@ -1,8 +1,11 @@
 package npu_allocator
 
 import (
+	"fmt"
+	"math/rand"
 	"testing"
 
+	"github.com/bradfitz/iter"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -412,6 +415,60 @@ func TestDeviceSetUnion(t *testing.T) {
 			if !actual.Equal(tc.expected) {
 				t.Errorf("expected %v but got %v", tc.expected, actual)
 			}
+		})
+	}
+}
+
+func TestBtreeMap(t *testing.T) {
+	numbers := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+
+	for i := range iter.N(3) {
+		t.Run(fmt.Sprintf("[Trial %d] inject random order sequence", i+1), func(t *testing.T) {
+			assign := make([]int, 10)
+			copy(assign, numbers)
+
+			rand.Shuffle(len(assign), func(i, j int) {
+				assign[i], assign[j] = assign[j], assign[i]
+			})
+
+			expected := make([]int, 10)
+			copy(expected, numbers)
+
+			sut := NewBtreeMap[int, struct{}](10)
+			for idx := range assign {
+				sut.ReplaceOrInsert(assign[idx], struct{}{})
+			}
+
+			actual := sut.Keys()
+
+			assert.Equal(t, expected, actual)
+		})
+	}
+}
+
+func TestBtreeSet(t *testing.T) {
+	numbers := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+
+	for i := range iter.N(3) {
+		t.Run(fmt.Sprintf("[Trial %d] inject random order sequence", i+1), func(t *testing.T) {
+			assign := make([]int, 10)
+			copy(assign, numbers)
+
+			rand.Shuffle(len(assign), func(i, j int) {
+				assign[i], assign[j] = assign[j], assign[i]
+			})
+
+			expected := make([]int, 10)
+			copy(expected, numbers)
+
+			sut := NewBtreeSet[int](10)
+			for idx := range assign {
+				sut.ReplaceOrInsert(assign[idx])
+			}
+
+			actual := sut.Keys()
+
+			assert.Equal(t, expected, actual)
 		})
 	}
 }

@@ -2,6 +2,7 @@ package npu_allocator
 
 import (
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/util"
 	"gonum.org/v1/gonum/stat/combin"
 )
 
@@ -67,7 +68,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	}
 
 	// Step 1: build a map with TopologyHintKey as a key to access available DeviceSet
-	availableDevicesByHintKeyMap := NewBtreeMap[TopologyHintKey, DeviceSet](len(available))
+	availableDevicesByHintKeyMap := util.NewBtreeMap[TopologyHintKey, DeviceSet](len(available))
 	for _, device := range available {
 		hintKey := device.TopologyHintKey()
 
@@ -78,7 +79,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 
 	// Step 2: Process the required DeviceSet first. Collect required keys to prioritize allocations from the same physical card.
 	collectedDevices := make(DeviceSet, 0, size)
-	requiredHintKeySet := NewBtreeSet[TopologyHintKey](len(required))
+	requiredHintKeySet := util.NewBtreeSet[TopologyHintKey](len(required))
 
 	for _, device := range required {
 		collectedDevices = append(collectedDevices, device)

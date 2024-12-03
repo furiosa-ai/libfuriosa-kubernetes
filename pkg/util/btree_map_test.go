@@ -1,0 +1,63 @@
+package util
+
+import (
+	"fmt"
+	"github.com/bradfitz/iter"
+	"github.com/stretchr/testify/assert"
+	"math/rand"
+	"testing"
+)
+
+func TestBtreeMap(t *testing.T) {
+	numbers := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+
+	for i := range iter.N(3) {
+		t.Run(fmt.Sprintf("[Trial %d] inject random order sequence", i+1), func(t *testing.T) {
+			assign := make([]int, 10)
+			copy(assign, numbers)
+
+			rand.Shuffle(len(assign), func(i, j int) {
+				assign[i], assign[j] = assign[j], assign[i]
+			})
+
+			expected := make([]int, 10)
+			copy(expected, numbers)
+
+			sut := NewBtreeMap[int, struct{}](10)
+			for idx := range assign {
+				sut.Insert(assign[idx], struct{}{})
+			}
+
+			actual := sut.Keys()
+
+			assert.Equal(t, expected, actual)
+		})
+	}
+}
+
+func TestBtreeSet(t *testing.T) {
+	numbers := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+
+	for i := range iter.N(3) {
+		t.Run(fmt.Sprintf("[Trial %d] inject random order sequence", i+1), func(t *testing.T) {
+			assign := make([]int, 10)
+			copy(assign, numbers)
+
+			rand.Shuffle(len(assign), func(i, j int) {
+				assign[i], assign[j] = assign[j], assign[i]
+			})
+
+			expected := make([]int, 10)
+			copy(expected, numbers)
+
+			sut := NewBtreeSet[int](10)
+			for idx := range assign {
+				sut.Insert(assign[idx])
+			}
+
+			actual := sut.Keys()
+
+			assert.Equal(t, expected, actual)
+		})
+	}
+}

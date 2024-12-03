@@ -78,12 +78,13 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 
 	// Step 2: Process the required DeviceSet first. Collect required keys to prioritize allocations from the same physical card.
 	collectedDevices := make(DeviceSet, 0, size)
-	requiredHintKeySet := make(map[TopologyHintKey]struct{})
+	requiredHintKeySet := NewBtreeSet[TopologyHintKey](len(required))
+
 	for _, device := range required {
 		collectedDevices = append(collectedDevices, device)
 
 		hintKey := device.TopologyHintKey()
-		requiredHintKeySet[hintKey] = struct{}{}
+		requiredHintKeySet.ReplaceOrInsert(hintKey)
 
 		deviceSet := availableDevicesByHintKeyMap.Get(hintKey)
 		deviceSet = deviceSet.Difference(DeviceSet{device})
@@ -95,7 +96,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	}
 
 	// Step 3: Consume required keys first to mitigate fragmentation.
-	for hintKey := range requiredHintKeySet {
+	for _, hintKey := range requiredHintKeySet.Keys() {
 		for _, device := range availableDevicesByHintKeyMap.Get(hintKey) {
 			collectedDevices = append(collectedDevices, device)
 
@@ -116,7 +117,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	deviceCountByHintKeyMap := make(map[TopologyHintKey]int)
 	for _, hintKey := range availableDevicesByHintKeyMap.Keys() {
 		devices := availableDevicesByHintKeyMap.Get(hintKey)
-		if _, ok := requiredHintKeySet[hintKey]; !ok {
+		if !requiredHintKeySet.Has(hintKey) {
 			unusedHintKeys = append(unusedHintKeys, hintKey)
 		}
 
@@ -127,8 +128,8 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	validCombinationsOfHintKeys := generateValidHintKeysCombinations(unusedHintKeys, deviceCountByHintKeyMap, remainingDevicesSize)
 
 	// Step 6: If required keys exists, add them to all combinations to ensure correct scoring.
-	requiredHintKeys := make([]TopologyHintKey, 0, len(requiredHintKeySet))
-	for hintKey := range requiredHintKeySet {
+	requiredHintKeys := make([]TopologyHintKey, 0, requiredHintKeySet.Len())
+	for _, hintKey := range requiredHintKeySet.Keys() {
 		requiredHintKeys = append(requiredHintKeys, hintKey)
 	}
 

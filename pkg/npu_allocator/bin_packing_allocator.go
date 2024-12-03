@@ -129,9 +129,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 
 	// Step 6: If required keys exists, add them to all combinations to ensure correct scoring.
 	requiredHintKeys := make([]TopologyHintKey, 0, requiredHintKeySet.Len())
-	for _, hintKey := range requiredHintKeySet.Keys() {
-		requiredHintKeys = append(requiredHintKeys, hintKey)
-	}
+	requiredHintKeys = append(requiredHintKeys, requiredHintKeySet.Keys()...)
 
 	for i := range validCombinationsOfHintKeys {
 		validCombinationsOfHintKeys[i] = append(validCombinationsOfHintKeys[i], requiredHintKeys...)

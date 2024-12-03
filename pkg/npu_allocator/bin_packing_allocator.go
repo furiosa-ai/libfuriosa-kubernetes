@@ -67,7 +67,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	}
 
 	// Step 1: build a map with TopologyHintKey as a key to access available DeviceSet
-	availableDevicesByHintKeyMap := NewTopologyHintKeyToDeviceSetMap(len(available))
+	availableDevicesByHintKeyMap := NewBtreeMap[TopologyHintKey, DeviceSet](len(available))
 	for _, device := range available {
 		hintKey := device.TopologyHintKey()
 

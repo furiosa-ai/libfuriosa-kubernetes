@@ -172,35 +172,35 @@ func NewTopologyHintMatrix(smiDevices []smi.Device) (TopologyHintMatrix, error) 
 	return topologyHintMatrix, nil
 }
 
-type TopologyHintKeyToDeviceSetMapItem struct {
-	key   TopologyHintKey
-	value DeviceSet
+type BTreeMapItem[K btree.Ordered, V any] struct {
+	key   K
+	value V
 }
 
-type TopologyHintKeyToDeviceSetMap struct {
-	tree *btree.BTreeG[TopologyHintKeyToDeviceSetMapItem]
+type BtreeMap[K btree.Ordered, V any] struct {
+	tree *btree.BTreeG[BTreeMapItem[K, V]]
 }
 
-func NewTopologyHintKeyToDeviceSetMap(degree int) *TopologyHintKeyToDeviceSetMap {
-	return &TopologyHintKeyToDeviceSetMap{
-		tree: btree.NewG(degree, func(a, b TopologyHintKeyToDeviceSetMapItem) bool {
+func NewBtreeMap[K btree.Ordered, V any](degree int) *BtreeMap[K, V] {
+	return &BtreeMap[K, V]{
+		tree: btree.NewG(degree, func(a, b BTreeMapItem[K, V]) bool {
 			return a.key < b.key
 		}),
 	}
 }
 
-func (m *TopologyHintKeyToDeviceSetMap) Get(key TopologyHintKey) DeviceSet {
-	item, exists := m.tree.Get(TopologyHintKeyToDeviceSetMapItem{key: key})
+func (m *BtreeMap[K, V]) Get(key K) V {
+	item, exists := m.tree.Get(BTreeMapItem[K, V]{key: key})
 	if !exists {
-		return nil
+		return *new(V)
 	}
 
 	return item.value
 }
 
-func (m *TopologyHintKeyToDeviceSetMap) Keys() []TopologyHintKey {
-	result := make([]TopologyHintKey, 0, m.tree.Len())
-	m.tree.Ascend(func(item TopologyHintKeyToDeviceSetMapItem) bool {
+func (m *BtreeMap[K, V]) Keys() []K {
+	result := make([]K, 0, m.tree.Len())
+	m.tree.Ascend(func(item BTreeMapItem[K, V]) bool {
 		result = append(result, item.key)
 
 		return true
@@ -209,6 +209,6 @@ func (m *TopologyHintKeyToDeviceSetMap) Keys() []TopologyHintKey {
 	return result
 }
 
-func (m *TopologyHintKeyToDeviceSetMap) ReplaceOrInsert(key TopologyHintKey, value DeviceSet) {
-	m.tree.ReplaceOrInsert(TopologyHintKeyToDeviceSetMapItem{key: key, value: value})
+func (m *BtreeMap[K, V]) ReplaceOrInsert(key K, value V) {
+	m.tree.ReplaceOrInsert(BTreeMapItem[K, V]{key: key, value: value})
 }

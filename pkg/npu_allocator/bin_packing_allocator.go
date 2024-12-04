@@ -2,6 +2,7 @@ package npu_allocator
 
 import (
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/util"
 	"gonum.org/v1/gonum/stat/combin"
 )
 
@@ -67,26 +68,28 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	}
 
 	// Step 1: build a map with TopologyHintKey as a key to access available DeviceSet
-	availableDevicesByHintKeyMap := make(map[TopologyHintKey]DeviceSet)
+	availableDevicesByHintKeyMap := util.NewBtreeMap[TopologyHintKey, DeviceSet](len(available))
 	for _, device := range available {
 		hintKey := device.TopologyHintKey()
-		if _, ok := availableDevicesByHintKeyMap[hintKey]; !ok {
-			availableDevicesByHintKeyMap[hintKey] = make(DeviceSet, 0)
-		}
 
-		availableDevicesByHintKeyMap[hintKey] = append(availableDevicesByHintKeyMap[hintKey], device)
+		deviceSet := availableDevicesByHintKeyMap.Get(hintKey)
+		deviceSet = append(deviceSet, device)
+		availableDevicesByHintKeyMap.Insert(hintKey, deviceSet)
 	}
 
 	// Step 2: Process the required DeviceSet first. Collect required keys to prioritize allocations from the same physical card.
 	collectedDevices := make(DeviceSet, 0, size)
-	requiredHintKeySet := make(map[TopologyHintKey]struct{})
+	requiredHintKeySet := util.NewBtreeSet[TopologyHintKey](len(required))
+
 	for _, device := range required {
 		collectedDevices = append(collectedDevices, device)
 
 		hintKey := device.TopologyHintKey()
-		requiredHintKeySet[hintKey] = struct{}{}
+		requiredHintKeySet.Insert(hintKey)
 
-		availableDevicesByHintKeyMap[hintKey] = availableDevicesByHintKeyMap[hintKey].Difference(DeviceSet{device})
+		deviceSet := availableDevicesByHintKeyMap.Get(hintKey)
+		deviceSet = deviceSet.Difference(DeviceSet{device})
+		availableDevicesByHintKeyMap.Insert(hintKey, deviceSet)
 	}
 
 	if len(collectedDevices) == size {
@@ -94,11 +97,13 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	}
 
 	// Step 3: Consume required keys first to mitigate fragmentation.
-	for hintKey := range requiredHintKeySet {
-		devices := availableDevicesByHintKeyMap[hintKey]
-		for _, device := range devices {
+	for _, hintKey := range requiredHintKeySet.Keys() {
+		for _, device := range availableDevicesByHintKeyMap.Get(hintKey) {
 			collectedDevices = append(collectedDevices, device)
-			availableDevicesByHintKeyMap[hintKey] = availableDevicesByHintKeyMap[hintKey].Difference(DeviceSet{device})
+
+			deviceSet := availableDevicesByHintKeyMap.Get(hintKey)
+			deviceSet = deviceSet.Difference(DeviceSet{device})
+			availableDevicesByHintKeyMap.Insert(hintKey, deviceSet)
 
 			if len(collectedDevices) == size {
 				return collectedDevices
@@ -111,8 +116,9 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 
 	unusedHintKeys := make([]TopologyHintKey, 0)
 	deviceCountByHintKeyMap := make(map[TopologyHintKey]int)
-	for hintKey, devices := range availableDevicesByHintKeyMap {
-		if _, ok := requiredHintKeySet[hintKey]; !ok {
+	for _, hintKey := range availableDevicesByHintKeyMap.Keys() {
+		devices := availableDevicesByHintKeyMap.Get(hintKey)
+		if !requiredHintKeySet.Has(hintKey) {
 			unusedHintKeys = append(unusedHintKeys, hintKey)
 		}
 
@@ -123,10 +129,8 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	validCombinationsOfHintKeys := generateValidHintKeysCombinations(unusedHintKeys, deviceCountByHintKeyMap, remainingDevicesSize)
 
 	// Step 6: If required keys exists, add them to all combinations to ensure correct scoring.
-	requiredHintKeys := make([]TopologyHintKey, 0, len(requiredHintKeySet))
-	for hintKey := range requiredHintKeySet {
-		requiredHintKeys = append(requiredHintKeys, hintKey)
-	}
+	requiredHintKeys := make([]TopologyHintKey, 0, requiredHintKeySet.Len())
+	requiredHintKeys = append(requiredHintKeys, requiredHintKeySet.Keys()...)
 
 	for i := range validCombinationsOfHintKeys {
 		validCombinationsOfHintKeys[i] = append(validCombinationsOfHintKeys[i], requiredHintKeys...)
@@ -147,8 +151,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	// Step 8: Add to collectedDevices and return.
 BestHintKeysLoop:
 	for _, hintKey := range bestHintKeys {
-		devices := availableDevicesByHintKeyMap[hintKey]
-		for _, device := range devices {
+		for _, device := range availableDevicesByHintKeyMap.Get(hintKey) {
 			collectedDevices = append(collectedDevices, device)
 			if len(collectedDevices) == size {
 				break BestHintKeysLoop

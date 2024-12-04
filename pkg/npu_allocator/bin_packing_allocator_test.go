@@ -2,6 +2,7 @@ package npu_allocator
 
 import (
 	"fmt"
+	"math/rand"
 	"testing"
 
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
@@ -148,8 +149,8 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 	sut, _ := NewMockBinPackingNpuAllocator(staticHintMatrix)
 	generateMockDevices := func(devicesPerBoard int) DeviceSet {
 		mockDevices := make(DeviceSet, 0)
-		for _, hintKey := range getStaticHintKeys() {
-			mockDevices = mockDevices.Union(generateSameBoardMockDeviceSet(devicesPerBoard, hintKey))
+		for idx, hintKey := range getStaticHintKeys() {
+			mockDevices = mockDevices.Union(generateSameBoardMockDeviceSet(idx, devicesPerBoard, hintKey))
 		}
 
 		return mockDevices
@@ -712,6 +713,38 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 					// because length of required devices and value of request are same,
 					// selected devices must be same as given required devices.
 					for _, idx := range []int{1, 4, 6, 11, 15, 16, 22, 27} {
+						expectedDevice := mockDevices[idx]
+						if _, ok := idCheckMap[expectedDevice.ID()]; !ok {
+							return fmt.Errorf("expected device %s is not in the selected list %v", expectedDevice, idCheckMap)
+						}
+					}
+
+					return nil
+				},
+			},
+			{
+				description: "single board is available, no required devices, 4 requested",
+				available: func() DeviceSet {
+					// Simulates devices are given with non-ordered through `Allocate(...)` call.
+					partialMockDevices := make(DeviceSet, 8)
+					copy(partialMockDevices, mockDevices[0:8])
+
+					rand.Shuffle(len(partialMockDevices), func(i, j int) {
+						partialMockDevices[i], partialMockDevices[j] = partialMockDevices[j], partialMockDevices[i]
+					})
+
+					return partialMockDevices
+				}(),
+				required: DeviceSet{},
+				request:  4,
+				verificationFunc: func(deviceSet DeviceSet) error {
+					idCheckMap := make(map[string]struct{})
+					for _, device := range deviceSet {
+						idCheckMap[device.ID()] = struct{}{}
+					}
+
+					// Must always return first 4 PE cores.
+					for _, idx := range []int{0, 1, 2, 3} {
 						expectedDevice := mockDevices[idx]
 						if _, ok := idCheckMap[expectedDevice.ID()]; !ok {
 							return fmt.Errorf("expected device %s is not in the selected list %v", expectedDevice, idCheckMap)

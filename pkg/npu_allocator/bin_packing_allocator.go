@@ -4,8 +4,6 @@ import (
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
 	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/util"
 	"gonum.org/v1/gonum/stat/combin"
-	"slices"
-	"strings"
 )
 
 var _ NpuAllocator = (*binPackingNpuAllocator)(nil)
@@ -154,10 +152,6 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	}
 
 	// Step 8: Add to collectedDevices and return.
-	slices.SortFunc(bestHintKeys, func(a, b TopologyHintKey) int {
-		return strings.Compare(string(a), string(b))
-	})
-
 BestHintKeysLoop:
 	for _, hintKey := range bestHintKeys {
 		for _, device := range availableDevicesByHintKeyMap.Get(hintKey) {

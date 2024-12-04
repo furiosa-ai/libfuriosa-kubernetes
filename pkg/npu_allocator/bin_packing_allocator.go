@@ -62,9 +62,6 @@ func newBinPackingNpuAllocator(topologyScoreCalculator TopologyScoreCalculator) 
 }
 
 func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSet, size int) DeviceSet {
-	available.Sort()
-	required.Sort()
-
 	// If length of `required` already satisfies given `size`, just return it.
 	if len(required) == size {
 		return required

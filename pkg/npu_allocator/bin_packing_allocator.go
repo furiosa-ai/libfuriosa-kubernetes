@@ -101,7 +101,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	}
 
 	// Step 3: Consume required keys first to mitigate fragmentation.
-	for _, hintKey := range requiredHintKeySet.Keys() {
+	for _, hintKey := range requiredHintKeySet.Items() {
 		for _, device := range availableDevicesByHintKeyMap.Get(hintKey).Devices() {
 			collectedDevices.Insert(device)
 
@@ -134,7 +134,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 
 	// Step 6: If required keys exists, add them to all combinations to ensure correct scoring.
 	requiredHintKeys := make([]TopologyHintKey, 0, requiredHintKeySet.Len())
-	requiredHintKeys = append(requiredHintKeys, requiredHintKeySet.Keys()...)
+	requiredHintKeys = append(requiredHintKeys, requiredHintKeySet.Items()...)
 
 	for i := range validCombinationsOfHintKeys {
 		validCombinationsOfHintKeys[i] = append(validCombinationsOfHintKeys[i], requiredHintKeys...)

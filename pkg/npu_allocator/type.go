@@ -35,14 +35,14 @@ type DeviceSet interface {
 }
 
 type deviceSet struct {
-	btreeSet *util.BTreeSet[Device]
+	btreeSet *util.BtreeSet[Device]
 }
 
 func NewDeviceSet(devices ...Device) DeviceSet {
-	btreeSet := util.NewBtreeSetWithLessFunc(len(devices), func(a, b util.BTreeMapItem[Device, struct{}]) bool {
-		idx1, idx2 := a.Key.Index(), b.Key.Index()
+	btreeSet := util.NewBtreeSetWithLessFunc(len(devices), func(a, b Device) bool {
+		idx1, idx2 := a.Index(), b.Index()
 		if idx1 == idx2 {
-			id1, id2 := a.Key.ID(), b.Key.ID()
+			id1, id2 := a.ID(), b.ID()
 			return id1 < id2
 		}
 
@@ -125,7 +125,7 @@ func (source *deviceSet) Insert(target ...Device) {
 }
 
 func (source *deviceSet) Devices() []Device {
-	return source.btreeSet.Keys()
+	return source.btreeSet.Items()
 }
 
 func (source *deviceSet) Len() int {

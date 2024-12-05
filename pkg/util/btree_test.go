@@ -2,10 +2,11 @@ package util
 
 import (
 	"fmt"
-	"github.com/bradfitz/iter"
-	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"testing"
+
+	"github.com/bradfitz/iter"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBtreeMap(t *testing.T) {
@@ -55,7 +56,7 @@ func TestBtreeSet(t *testing.T) {
 				sut.Insert(assign[idx])
 			}
 
-			actual := sut.Keys()
+			actual := sut.Items()
 
 			assert.Equal(t, expected, actual)
 		})

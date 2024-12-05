@@ -6,13 +6,13 @@ import (
 	"github.com/google/btree"
 )
 
-type BTreeMapItem[K any, V any] struct {
+type BtreeMapItem[K any, V any] struct {
 	Key   K
 	Value V
 }
 
 type BtreeMap[K any, V any] struct {
-	tree *btree.BTreeG[BTreeMapItem[K, V]]
+	tree *btree.BTreeG[BtreeMapItem[K, V]]
 }
 
 func NewBtreeMap[K cmp.Ordered, V any](degree int) *BtreeMap[K, V] {
@@ -21,24 +21,14 @@ func NewBtreeMap[K cmp.Ordered, V any](degree int) *BtreeMap[K, V] {
 	}
 
 	return &BtreeMap[K, V]{
-		tree: btree.NewG(degree, func(a, b BTreeMapItem[K, V]) bool {
+		tree: btree.NewG(degree, func(a, b BtreeMapItem[K, V]) bool {
 			return a.Key < b.Key
 		}),
 	}
 }
 
-func NewBtreeMapWithLessFunc[K any, V any](degree int, less btree.LessFunc[BTreeMapItem[K, V]]) *BtreeMap[K, V] {
-	if degree < 2 {
-		degree = 2
-	}
-
-	return &BtreeMap[K, V]{
-		tree: btree.NewG(degree, less),
-	}
-}
-
 func (m *BtreeMap[K, V]) Get(key K) V {
-	item, exists := m.tree.Get(BTreeMapItem[K, V]{Key: key})
+	item, exists := m.tree.Get(BtreeMapItem[K, V]{Key: key})
 	if !exists {
 		return *new(V)
 	}
@@ -47,12 +37,12 @@ func (m *BtreeMap[K, V]) Get(key K) V {
 }
 
 func (m *BtreeMap[K, V]) Has(key K) bool {
-	return m.tree.Has(BTreeMapItem[K, V]{Key: key})
+	return m.tree.Has(BtreeMapItem[K, V]{Key: key})
 }
 
 func (m *BtreeMap[K, V]) Keys() []K {
 	result := make([]K, 0, m.tree.Len())
-	m.tree.Ascend(func(item BTreeMapItem[K, V]) bool {
+	m.tree.Ascend(func(item BtreeMapItem[K, V]) bool {
 		result = append(result, item.Key)
 
 		return true
@@ -62,33 +52,47 @@ func (m *BtreeMap[K, V]) Keys() []K {
 }
 
 func (m *BtreeMap[K, V]) Insert(key K, value V) {
-	m.tree.ReplaceOrInsert(BTreeMapItem[K, V]{Key: key, Value: value})
+	m.tree.ReplaceOrInsert(BtreeMapItem[K, V]{Key: key, Value: value})
 }
 
-type BTreeSet[T any] BtreeMap[T, struct{}]
-
-func NewBtreeSet[T cmp.Ordered](degree int) *BTreeSet[T] {
-	btreeMap := NewBtreeMap[T, struct{}](degree)
-	return (*BTreeSet[T])(btreeMap)
+type BtreeSet[T any] struct {
+	tree *btree.BTreeG[T]
 }
 
-func NewBtreeSetWithLessFunc[T any](degree int, less btree.LessFunc[BTreeMapItem[T, struct{}]]) *BTreeSet[T] {
-	btreeMap := NewBtreeMapWithLessFunc[T, struct{}](degree, less)
-	return (*BTreeSet[T])(btreeMap)
+func NewBtreeSet[T cmp.Ordered](degree int) *BtreeSet[T] {
+	if degree < 2 {
+		degree = 2
+	}
+
+	return &BtreeSet[T]{
+		tree: btree.NewG[T](degree, func(a, b T) bool {
+			return a < b
+		}),
+	}
 }
 
-func (s *BTreeSet[T]) Len() int {
+func NewBtreeSetWithLessFunc[T any](degree int, less btree.LessFunc[T]) *BtreeSet[T] {
+	if degree < 2 {
+		degree = 2
+	}
+
+	return &BtreeSet[T]{
+		tree: btree.NewG[T](degree, less),
+	}
+}
+
+func (s *BtreeSet[T]) Len() int {
 	return s.tree.Len()
 }
 
-func (s *BTreeSet[T]) Has(key T) bool {
-	return s.tree.Has(BTreeMapItem[T, struct{}]{Key: key})
+func (s *BtreeSet[T]) Has(item T) bool {
+	return s.tree.Has(item)
 }
 
-func (s *BTreeSet[T]) Keys() []T {
+func (s *BtreeSet[T]) Items() []T {
 	result := make([]T, 0, s.tree.Len())
-	s.tree.Ascend(func(item BTreeMapItem[T, struct{}]) bool {
-		result = append(result, item.Key)
+	s.tree.Ascend(func(item T) bool {
+		result = append(result, item)
 
 		return true
 	})
@@ -96,6 +100,6 @@ func (s *BTreeSet[T]) Keys() []T {
 	return result
 }
 
-func (s *BTreeSet[T]) Insert(key T) {
-	s.tree.ReplaceOrInsert(BTreeMapItem[T, struct{}]{Key: key})
+func (s *BtreeSet[T]) Insert(item T) {
+	s.tree.ReplaceOrInsert(item)
 }

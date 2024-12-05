@@ -72,10 +72,8 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	for _, device := range available.Devices() {
 		hintKey := device.TopologyHintKey()
 
-		var ds DeviceSet
-		if availableDevicesByHintKeyMap.Has(hintKey) {
-			ds = availableDevicesByHintKeyMap.Get(hintKey)
-		} else {
+		ds := availableDevicesByHintKeyMap.Get(hintKey)
+		if ds == nil {
 			ds = NewDeviceSet()
 		}
 

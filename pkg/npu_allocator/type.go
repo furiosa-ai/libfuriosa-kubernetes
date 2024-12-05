@@ -40,9 +40,9 @@ type deviceSet struct {
 
 func NewDeviceSet(devices ...Device) DeviceSet {
 	btreeSet := util.NewBtreeSetWithLessFunc(len(devices), func(a, b util.BTreeMapItem[Device, struct{}]) bool {
-		idx1, idx2 := a.Key.(Device).Index(), b.Key.(Device).Index()
+		idx1, idx2 := a.Key.Index(), b.Key.Index()
 		if idx1 == idx2 {
-			id1, id2 := a.Key.(Device).ID(), b.Key.(Device).ID()
+			id1, id2 := a.Key.ID(), b.Key.ID()
 			return id1 < id2
 		}
 

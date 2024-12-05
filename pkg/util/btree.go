@@ -2,6 +2,7 @@ package util
 
 import (
 	"cmp"
+
 	"github.com/google/btree"
 )
 
@@ -43,6 +44,10 @@ func (m *BtreeMap[K, V]) Get(key K) V {
 	}
 
 	return item.Value
+}
+
+func (m *BtreeMap[K, V]) Has(key K) bool {
+	return m.tree.Has(BTreeMapItem[K, V]{Key: key})
 }
 
 func (m *BtreeMap[K, V]) Keys() []K {

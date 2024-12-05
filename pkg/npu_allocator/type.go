@@ -25,10 +25,11 @@ type Device interface {
 }
 
 type DeviceSet interface {
-	Contains(target DeviceSet) bool
-	Equal(target DeviceSet) bool
-	Difference(target DeviceSet) DeviceSet
-	Union(target DeviceSet) DeviceSet
+	Contains(target ...Device) bool
+	Equal(target ...Device) bool
+	Difference(target ...Device) DeviceSet
+	Union(target ...Device) DeviceSet
+	Insert(target ...Device)
 	Devices() []Device
 	Len() int
 }
@@ -37,7 +38,7 @@ type deviceSet struct {
 	btreeSet *util.BTreeSet[Device]
 }
 
-func NewDeviceSet(devices []Device) DeviceSet {
+func NewDeviceSet(devices ...Device) DeviceSet {
 	btreeSet := util.NewBtreeSetWithLessFunc(len(devices), func(a, b util.BTreeMapItem[Device, struct{}]) bool {
 		idx1, idx2 := a.Key.(Device).Index(), b.Key.(Device).Index()
 		if idx1 == idx2 {
@@ -55,17 +56,13 @@ func NewDeviceSet(devices []Device) DeviceSet {
 	return &deviceSet{btreeSet: btreeSet}
 }
 
-func NewEmptyDeviceSet() DeviceSet {
-	return NewDeviceSet(make([]Device, 0))
-}
-
 // Contains checks whether source DeviceSet contains target DeviceSet.
-func (source *deviceSet) Contains(target DeviceSet) bool {
-	if source.Len() == 0 || target.Len() == 0 {
+func (source *deviceSet) Contains(target ...Device) bool {
+	if source.Len() == 0 || len(target) == 0 {
 		return false
 	}
 
-	for _, targetDevice := range target.Devices() {
+	for _, targetDevice := range target {
 		if !source.btreeSet.Has(targetDevice) {
 			return false
 		}
@@ -75,20 +72,21 @@ func (source *deviceSet) Contains(target DeviceSet) bool {
 }
 
 // Equal check whether source DeviceSet and target DeviceSet is identical regardless of element order.
-func (source *deviceSet) Equal(target DeviceSet) bool {
-	if source.Len() == 0 || target.Len() == 0 {
+func (source *deviceSet) Equal(target ...Device) bool {
+	if source.Len() == 0 && len(target) == 0 {
+		return true
+	}
+
+	if source.Len() == 0 || len(target) == 0 {
 		return false
 	}
 
-	if source.Len() != target.Len() {
+	if source.Len() != len(target) {
 		return false
 	}
 
-	sourceDevices := source.Devices()
-	targetDevices := target.Devices()
-
-	for i := range sourceDevices {
-		if !sourceDevices[i].Equal(targetDevices[i]) {
+	for _, targetDevice := range target {
+		if !source.btreeSet.Has(targetDevice) {
 			return false
 		}
 	}
@@ -97,24 +95,33 @@ func (source *deviceSet) Equal(target DeviceSet) bool {
 }
 
 // Difference returns a subset of the source DeviceSet that has no intersection with the target DeviceSet.
-func (source *deviceSet) Difference(target DeviceSet) DeviceSet {
-	difference := make([]Device, 0)
-	for _, targetDevice := range target.Devices() {
-		if !source.btreeSet.Has(targetDevice) {
-			difference = append(difference, targetDevice)
+func (source *deviceSet) Difference(target ...Device) DeviceSet {
+	targetDeviceSet := NewDeviceSet(target...)
+
+	difference := NewDeviceSet()
+	for _, sourceDevice := range source.Devices() {
+		if !targetDeviceSet.Contains(sourceDevice) {
+			difference.Insert(sourceDevice)
 		}
 	}
 
-	return NewDeviceSet(difference)
+	return difference
 }
 
 // Union returns new DeviceSet containing elements of source and target DeviceSets
-func (source *deviceSet) Union(target DeviceSet) DeviceSet {
-	devices := make([]Device, 0)
-	devices = append(devices, source.Devices()...)
-	devices = append(devices, target.Devices()...)
+func (source *deviceSet) Union(target ...Device) DeviceSet {
+	ds := NewDeviceSet(source.Devices()...)
+	for _, targetDevice := range target {
+		ds.Insert(targetDevice)
+	}
 
-	return NewDeviceSet(devices)
+	return ds
+}
+
+func (source *deviceSet) Insert(target ...Device) {
+	for _, device := range target {
+		source.btreeSet.Insert(device)
+	}
 }
 
 func (source *deviceSet) Devices() []Device {

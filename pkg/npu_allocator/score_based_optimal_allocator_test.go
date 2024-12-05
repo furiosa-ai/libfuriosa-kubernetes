@@ -10,30 +10,30 @@ import (
 func TestGenerateNonDuplicatedDeviceSet(t *testing.T) {
 	tests := []struct {
 		description string
-		devices     DeviceSet
+		deviceSet   DeviceSet
 		size        int
 		expected    []DeviceSet
 	}{
 		{
 			description: "empty input",
-			devices:     nil,
+			deviceSet:   NewDeviceSet(),
 			size:        4,
 			expected:    []DeviceSet{},
 		},
 		{
 			description: "size 0",
-			devices:     nil,
+			deviceSet:   NewDeviceSet(),
 			size:        0,
 			expected:    []DeviceSet{},
 		},
 		{
 			description: "size 1",
-			devices:     buildMockDeviceSet(0, 3),
+			deviceSet:   buildMockDeviceSet(0, 3),
 			size:        1,
 			expected: func() []DeviceSet {
 				deviceSets := make([]DeviceSet, 0)
 				for i := 0; i <= 3; i++ {
-					deviceSets = append(deviceSets, []Device{buildMockDevice(i)})
+					deviceSets = append(deviceSets, NewDeviceSet(buildMockDevice(i)))
 				}
 
 				return deviceSets
@@ -41,13 +41,13 @@ func TestGenerateNonDuplicatedDeviceSet(t *testing.T) {
 		},
 		{
 			description: "size greater than input slice length",
-			devices:     buildMockDeviceSet(0, 7),
+			deviceSet:   buildMockDeviceSet(0, 7),
 			size:        10,
 			expected:    []DeviceSet{},
 		},
 		{
 			description: "size equal to input slice length",
-			devices:     buildMockDeviceSet(0, 7),
+			deviceSet:   buildMockDeviceSet(0, 7),
 			size:        8,
 			expected: []DeviceSet{
 				buildMockDeviceSet(0, 7),
@@ -55,16 +55,13 @@ func TestGenerateNonDuplicatedDeviceSet(t *testing.T) {
 		},
 		{
 			description: "generate combinations of two from eight",
-			devices:     buildMockDeviceSet(0, 7),
+			deviceSet:   buildMockDeviceSet(0, 7),
 			size:        2,
 			expected: func() []DeviceSet {
 				deviceSets := make([]DeviceSet, 0)
 				for i := 0; i <= 7; i++ {
 					for j := i + 1; j <= 7; j++ {
-						deviceSets = append(deviceSets, []Device{
-							buildMockDevice(i),
-							buildMockDevice(j),
-						})
+						deviceSets = append(deviceSets, NewDeviceSet(buildMockDevice(i), buildMockDevice(j)))
 					}
 				}
 
@@ -75,14 +72,14 @@ func TestGenerateNonDuplicatedDeviceSet(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.description, func(t *testing.T) {
-			actual := generateKDeviceSet(tc.devices, tc.size)
+			actual := generateKDeviceSet(tc.deviceSet, tc.size)
 
 			assert.Len(t, actual, len(tc.expected))
 
 			for idx, inner := range tc.expected {
 				inner2 := actual[idx]
 
-				assert.Equal(t, inner, inner2)
+				assert.Equal(t, inner.Devices(), inner2.Devices())
 			}
 		})
 	}
@@ -119,7 +116,7 @@ func TestAllocation(t *testing.T) {
 		{
 			description: "[topology hint 0x0011] request eight devices from total eight devices",
 			available:   buildMockDeviceSet(0, 7),
-			required:    nil,
+			required:    NewDeviceSet(),
 			request:     8,
 			hints:       buildStaticHintMatrixForTwoSocketBalancedConfig(),
 			expected:    buildMockDeviceSet(0, 7),
@@ -127,7 +124,7 @@ func TestAllocation(t *testing.T) {
 		{
 			description: "[topology hint 0x0011] request six devices from total eight devices",
 			available:   buildMockDeviceSet(0, 7),
-			required:    nil,
+			required:    NewDeviceSet(),
 			request:     6,
 			hints:       buildStaticHintMatrixForTwoSocketBalancedConfig(),
 			expected:    buildMockDeviceSet(0, 5),
@@ -135,7 +132,7 @@ func TestAllocation(t *testing.T) {
 		{
 			description: "[topology hint 0x0011] request four devices from total eight devices",
 			available:   buildMockDeviceSet(0, 7),
-			required:    nil,
+			required:    NewDeviceSet(),
 			request:     4,
 			hints:       buildStaticHintMatrixForTwoSocketBalancedConfig(),
 			expected:    buildMockDeviceSet(0, 3),
@@ -143,7 +140,7 @@ func TestAllocation(t *testing.T) {
 		{
 			description: "[topology hint 0x0001] request four devices from filtered devices",
 			available:   buildMockDeviceSet(0, 3),
-			required:    nil,
+			required:    NewDeviceSet(),
 			request:     4,
 			hints:       buildStaticHintMatrixForTwoSocketBalancedConfig(),
 			expected:    buildMockDeviceSet(0, 3),
@@ -151,7 +148,7 @@ func TestAllocation(t *testing.T) {
 		{
 			description: "[topology hint 0x0001] request two devices from filtered devices",
 			available:   buildMockDeviceSet(0, 3),
-			required:    nil,
+			required:    NewDeviceSet(),
 			request:     2,
 			hints:       buildStaticHintMatrixForTwoSocketBalancedConfig(),
 			expected:    buildMockDeviceSet(0, 1),
@@ -159,7 +156,7 @@ func TestAllocation(t *testing.T) {
 		{
 			description: "[topology hint 0x0010] request four devices from filtered devices",
 			available:   buildMockDeviceSet(4, 7),
-			required:    nil,
+			required:    NewDeviceSet(),
 			request:     4,
 			hints:       buildStaticHintMatrixForTwoSocketBalancedConfig(),
 			expected:    buildMockDeviceSet(4, 7),
@@ -167,50 +164,48 @@ func TestAllocation(t *testing.T) {
 		{
 			description: "[topology hint 0x0010] request two devices from filtered devices",
 			available:   buildMockDeviceSet(4, 7),
-			required:    nil,
+			required:    NewDeviceSet(),
 			request:     2,
 			hints:       buildStaticHintMatrixForTwoSocketBalancedConfig(),
 			expected:    buildMockDeviceSet(4, 5),
 		},
 		{
 			description: "[topology hint 0x0011] request four devices from five devices",
-			available: DeviceSet{
+			available: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(1),
 				buildMockDevice(3),
 				buildMockDevice(4),
 				buildMockDevice(7),
-			},
-			required: nil,
+			),
+			required: NewDeviceSet(),
 			request:  4,
 			hints:    buildStaticHintMatrixForTwoSocketBalancedConfig(),
-			expected: DeviceSet{
+			expected: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(1),
 				buildMockDevice(3),
 				buildMockDevice(4),
-			},
+			),
 		},
 		{
 			description: "[topology hint 0x0011] request four devices from five devices, require specific device",
-			available: DeviceSet{
+			available: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(1),
 				buildMockDevice(3),
 				buildMockDevice(4),
 				buildMockDevice(7),
-			},
-			required: DeviceSet{
-				buildMockDevice(7),
-			},
-			request: 4,
-			hints:   buildStaticHintMatrixForTwoSocketBalancedConfig(),
-			expected: DeviceSet{
+			),
+			required: NewDeviceSet(buildMockDevice(7)),
+			request:  4,
+			hints:    buildStaticHintMatrixForTwoSocketBalancedConfig(),
+			expected: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(1),
 				buildMockDevice(3),
 				buildMockDevice(7),
-			},
+			),
 		},
 		{
 			description: "[topology hint 0x0010] request four devices from eight devices, require specific device set",
@@ -218,154 +213,138 @@ func TestAllocation(t *testing.T) {
 			required:    buildMockDeviceSet(4, 5),
 			request:     4,
 			hints:       buildStaticHintMatrixForTwoSocketBalancedConfig(),
-			expected: DeviceSet{
+			expected: NewDeviceSet(
 				buildMockDevice(4),
 				buildMockDevice(5),
 				buildMockDevice(6),
 				buildMockDevice(7),
-			},
+			),
 		},
 		{
 			description: "[no topology hint] request four devices from six devices",
-			available: DeviceSet{
+			available: NewDeviceSet(
 				buildMockDevice(1),
 				buildMockDevice(3),
 				buildMockDevice(4),
 				buildMockDevice(5),
 				buildMockDevice(7),
-			},
-			required: nil,
+			),
+			required: NewDeviceSet(),
 			request:  4,
 			hints:    buildStaticHintMatrixForTwoSocketBalancedConfig(),
-			expected: DeviceSet{
+			expected: NewDeviceSet(
 				buildMockDevice(1),
 				buildMockDevice(4),
 				buildMockDevice(5),
 				buildMockDevice(7),
-			},
+			),
 		},
 		{
 			description: "[no topology hint] request four devices from 6 devices, require specific device set",
-			available: DeviceSet{
+			available: NewDeviceSet(
 				buildMockDevice(1),
 				buildMockDevice(3),
 				buildMockDevice(4),
 				buildMockDevice(5),
 				buildMockDevice(7),
-			},
-			required: DeviceSet{
+			),
+			required: NewDeviceSet(
 				buildMockDevice(1),
 				buildMockDevice(3),
-			},
+			),
 			request: 4,
 			hints:   buildStaticHintMatrixForTwoSocketBalancedConfig(),
-			expected: DeviceSet{
+			expected: NewDeviceSet(
 				buildMockDevice(1),
 				buildMockDevice(3),
 				buildMockDevice(4),
 				buildMockDevice(5),
-			},
+			),
 		},
 		{
 			description: "[no topology hint] request two devices from five devices",
-			available: DeviceSet{
+			available: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(2),
 				buildMockDevice(3),
 				buildMockDevice(5),
 				buildMockDevice(6),
-			},
-			required: nil,
+			),
+			required: NewDeviceSet(),
 			request:  2,
 			hints:    buildStaticHintMatrixForTwoSocketBalancedConfig(),
-			expected: DeviceSet{
+			expected: NewDeviceSet(
 				buildMockDevice(2),
 				buildMockDevice(3),
-			},
+			),
 		},
 		{
 			description: "[no topology hint] request two devices from five devices, require specific device set",
-			available: DeviceSet{
+			available: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(2),
 				buildMockDevice(3),
 				buildMockDevice(5),
 				buildMockDevice(6),
-			},
-			required: DeviceSet{
-				buildMockDevice(5),
-			},
-			request: 2,
-			hints:   buildStaticHintMatrixForTwoSocketBalancedConfig(),
-			expected: DeviceSet{
+			),
+			required: NewDeviceSet(buildMockDevice(5)),
+			request:  2,
+			hints:    buildStaticHintMatrixForTwoSocketBalancedConfig(),
+			expected: NewDeviceSet(
 				buildMockDevice(5),
 				buildMockDevice(6),
-			},
+			),
 		},
 		{
 			description: "[no topology hint] request two devices from eight devices, require specific device set",
 			available:   buildMockDeviceSet(0, 7),
-			required: DeviceSet{
-				buildMockDevice(4),
-			},
-			request: 2,
-			hints:   buildStaticHintMatrixForTwoSocketBalancedConfig(),
-			expected: DeviceSet{
+			required:    NewDeviceSet(buildMockDevice(4)),
+			request:     2,
+			hints:       buildStaticHintMatrixForTwoSocketBalancedConfig(),
+			expected: NewDeviceSet(
 				buildMockDevice(4),
 				buildMockDevice(5),
-			},
+			),
 		},
 		{
 			description: "[no topology hint] request one device from eight devices",
 			available:   buildMockDeviceSet(0, 7),
-			required:    nil,
+			required:    NewDeviceSet(),
 			request:     1,
 			hints:       buildStaticHintMatrixForTwoSocketBalancedConfig(),
-			expected: DeviceSet{
-				buildMockDevice(0),
-			},
+			expected:    NewDeviceSet(buildMockDevice(0)),
 		},
 		{
 			description: "[no topology hint] request one device from eight devices, require specific device set",
 			available:   buildMockDeviceSet(0, 7),
-			required: DeviceSet{
-				buildMockDevice(3),
-			},
-			request: 1,
-			hints:   buildStaticHintMatrixForTwoSocketBalancedConfig(),
-			expected: DeviceSet{
-				buildMockDevice(3),
-			},
+			required:    NewDeviceSet(buildMockDevice(3)),
+			request:     1,
+			hints:       buildStaticHintMatrixForTwoSocketBalancedConfig(),
+			expected:    NewDeviceSet(buildMockDevice(3)),
 		},
 		{
 			description: "[no topology hint] request one device from three devices",
-			available: DeviceSet{
+			available: NewDeviceSet(
 				buildMockDevice(3),
 				buildMockDevice(5),
 				buildMockDevice(7),
-			},
-			required: nil,
+			),
+			required: NewDeviceSet(),
 			request:  1,
 			hints:    buildStaticHintMatrixForTwoSocketBalancedConfig(),
-			expected: DeviceSet{
-				buildMockDevice(3),
-			},
+			expected: NewDeviceSet(buildMockDevice(3)),
 		},
 		{
 			description: "[no topology hint] request one device from three devices, require specific device",
-			available: DeviceSet{
+			available: NewDeviceSet(
 				buildMockDevice(3),
 				buildMockDevice(5),
 				buildMockDevice(7),
-			},
-			required: DeviceSet{
-				buildMockDevice(7),
-			},
-			request: 1,
-			hints:   buildStaticHintMatrixForTwoSocketBalancedConfig(),
-			expected: DeviceSet{
-				buildMockDevice(7),
-			},
+			),
+			required: NewDeviceSet(buildMockDevice(7)),
+			request:  1,
+			hints:    buildStaticHintMatrixForTwoSocketBalancedConfig(),
+			expected: NewDeviceSet(buildMockDevice(7)),
 		},
 		{
 			description: "[reboot] allocate reserved resources",
@@ -382,14 +361,12 @@ func TestAllocation(t *testing.T) {
 			allocator, _ := NewMockScoreBasedOptimalNpuAllocator(mockTopologyHintProvider(tc.hints))
 			actualResult := allocator.Allocate(tc.available, tc.required, tc.request)
 
-			assert.Len(t, actualResult, len(tc.expected))
+			assert.Equal(t, tc.expected.Len(), actualResult.Len())
 
-			actualResult.Sort()
-			tc.expected.Sort()
-
-			for idx, actual := range actualResult {
-				assert.Equalf(t, tc.expected[idx].ID(), actual.ID(), "expected %v but got %v", actual.(*mockDevice), tc.expected[idx].(*mockDevice))
-				assert.Equalf(t, tc.expected[idx].TopologyHintKey(), actual.TopologyHintKey(), "expected %v but got %v", actual.(*mockDevice), tc.expected[idx].(*mockDevice))
+			expected := tc.expected.Devices()
+			for idx, actual := range actualResult.Devices() {
+				assert.Equalf(t, expected[idx].ID(), actual.ID(), "expected %v but got %v", actual.(*mockDevice), expected[idx].(*mockDevice))
+				assert.Equalf(t, expected[idx].TopologyHintKey(), actual.TopologyHintKey(), "expected %v but got %v", actual.(*mockDevice), expected[idx].(*mockDevice))
 			}
 		})
 	}

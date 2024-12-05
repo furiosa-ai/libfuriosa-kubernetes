@@ -63,56 +63,62 @@ func newBinPackingNpuAllocator(topologyScoreCalculator TopologyScoreCalculator) 
 
 func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSet, size int) DeviceSet {
 	// If length of `required` already satisfies given `size`, just return it.
-	if len(required) == size {
+	if required.Len() == size {
 		return required
 	}
 
 	// Step 1: build a map with TopologyHintKey as a key to access available DeviceSet
-	availableDevicesByHintKeyMap := util.NewBtreeMap[TopologyHintKey, DeviceSet](len(available))
-	for _, device := range available {
+	availableDevicesByHintKeyMap := util.NewBtreeMap[TopologyHintKey, DeviceSet](available.Len())
+	for _, device := range available.Devices() {
 		hintKey := device.TopologyHintKey()
 
-		deviceSet := availableDevicesByHintKeyMap.Get(hintKey)
-		deviceSet = append(deviceSet, device)
-		availableDevicesByHintKeyMap.Insert(hintKey, deviceSet)
+		var ds DeviceSet
+		if availableDevicesByHintKeyMap.Has(hintKey) {
+			ds = availableDevicesByHintKeyMap.Get(hintKey)
+		} else {
+			ds = NewDeviceSet()
+		}
+
+		ds.Insert(device)
+		availableDevicesByHintKeyMap.Insert(hintKey, ds)
 	}
 
 	// Step 2: Process the required DeviceSet first. Collect required keys to prioritize allocations from the same physical card.
-	collectedDevices := make(DeviceSet, 0, size)
-	requiredHintKeySet := util.NewBtreeSet[TopologyHintKey](len(required))
+	collectedDevices := NewDeviceSet()
+	requiredHintKeySet := util.NewBtreeSet[TopologyHintKey](required.Len())
 
-	for _, device := range required {
-		collectedDevices = append(collectedDevices, device)
+	for _, device := range required.Devices() {
+		collectedDevices.Insert(device)
 
 		hintKey := device.TopologyHintKey()
 		requiredHintKeySet.Insert(hintKey)
 
-		deviceSet := availableDevicesByHintKeyMap.Get(hintKey)
-		deviceSet = deviceSet.Difference(DeviceSet{device})
-		availableDevicesByHintKeyMap.Insert(hintKey, deviceSet)
+		ds := availableDevicesByHintKeyMap.Get(hintKey)
+		ds = ds.Difference(device)
+		availableDevicesByHintKeyMap.Insert(hintKey, ds)
 	}
 
-	if len(collectedDevices) == size {
+	if collectedDevices.Len() == size {
 		return collectedDevices
 	}
 
 	// Step 3: Consume required keys first to mitigate fragmentation.
 	for _, hintKey := range requiredHintKeySet.Keys() {
-		for _, device := range availableDevicesByHintKeyMap.Get(hintKey) {
-			collectedDevices = append(collectedDevices, device)
+		for _, device := range availableDevicesByHintKeyMap.Get(hintKey).Devices() {
+			collectedDevices.Insert(device)
 
-			deviceSet := availableDevicesByHintKeyMap.Get(hintKey)
-			deviceSet = deviceSet.Difference(DeviceSet{device})
-			availableDevicesByHintKeyMap.Insert(hintKey, deviceSet)
+			ds := availableDevicesByHintKeyMap.Get(hintKey)
+			ds = ds.Difference(device)
+			availableDevicesByHintKeyMap.Insert(hintKey, ds)
 
-			if len(collectedDevices) == size {
+			if collectedDevices.Len() == size {
 				return collectedDevices
 			}
 		}
 	}
 
 	// Step 4: Calculate device count to be allocated.
-	remainingDevicesSize := size - len(collectedDevices)
+	remainingDevicesSize := size - collectedDevices.Len()
 
 	unusedHintKeys := make([]TopologyHintKey, 0)
 	deviceCountByHintKeyMap := make(map[TopologyHintKey]int)
@@ -122,7 +128,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 			unusedHintKeys = append(unusedHintKeys, hintKey)
 		}
 
-		deviceCountByHintKeyMap[hintKey] = len(devices)
+		deviceCountByHintKeyMap[hintKey] = devices.Len()
 	}
 
 	// Step 5: Generate combinations using unused hint keys, with size ranging form up to the number of unused hint keys.
@@ -151,9 +157,10 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	// Step 8: Add to collectedDevices and return.
 BestHintKeysLoop:
 	for _, hintKey := range bestHintKeys {
-		for _, device := range availableDevicesByHintKeyMap.Get(hintKey) {
-			collectedDevices = append(collectedDevices, device)
-			if len(collectedDevices) == size {
+		for _, device := range availableDevicesByHintKeyMap.Get(hintKey).Devices() {
+			collectedDevices.Insert(device)
+
+			if collectedDevices.Len() == size {
 				break BestHintKeysLoop
 			}
 		}

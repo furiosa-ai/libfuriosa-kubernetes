@@ -148,9 +148,9 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 
 	sut, _ := NewMockBinPackingNpuAllocator(staticHintMatrix)
 	generateMockDevices := func(devicesPerBoard int) DeviceSet {
-		mockDevices := make(DeviceSet, 0)
+		mockDevices := NewDeviceSet()
 		for idx, hintKey := range getStaticHintKeys() {
-			mockDevices = mockDevices.Union(generateSameBoardMockDeviceSet(idx, devicesPerBoard, hintKey))
+			mockDevices = mockDevices.Union(generateSameBoardMockDeviceSet(idx, devicesPerBoard, hintKey).Devices()...)
 		}
 
 		return mockDevices
@@ -168,7 +168,7 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 		//	  6, 6,
 		//	  7, 7,
 		// ]
-		mockDevices := generateMockDevices(2)
+		mockDevices := generateMockDevices(2).Devices()
 
 		tests := []struct {
 			description      string
@@ -179,12 +179,12 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 		}{
 			{
 				description: "all devices are available, no required devices exist, 4 requested",
-				available:   mockDevices[:],
-				required:    DeviceSet{},
+				available:   NewDeviceSet(mockDevices[:]...),
+				required:    NewDeviceSet(),
 				request:     4,
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
-					for _, device := range deviceSet {
+					for _, device := range deviceSet.Devices() {
 						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
@@ -192,8 +192,8 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 						return fmt.Errorf("expected 2 hintKeys, got %d", len(hintKeyCntMap))
 					}
 
-					if len(deviceSet) != 4 {
-						return fmt.Errorf("expected 4 devices, got %d", len(deviceSet))
+					if deviceSet.Len() != 4 {
+						return fmt.Errorf("expected 4 devices, got %d", deviceSet.Len())
 					}
 
 					return nil
@@ -201,12 +201,12 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 			},
 			{
 				description: "all devices are available, no required devices exist, 7 requested",
-				available:   mockDevices[:],
-				required:    DeviceSet{},
+				available:   NewDeviceSet(mockDevices[:]...),
+				required:    NewDeviceSet(),
 				request:     7,
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
-					for _, device := range deviceSet {
+					for _, device := range deviceSet.Devices() {
 						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
@@ -214,8 +214,8 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 						return fmt.Errorf("expected 4 hintKeys, got %d", len(hintKeyCntMap))
 					}
 
-					if len(deviceSet) != 7 {
-						return fmt.Errorf("expected 7 devices, got %d", len(deviceSet))
+					if deviceSet.Len() != 7 {
+						return fmt.Errorf("expected 7 devices, got %d", deviceSet.Len())
 					}
 
 					return nil
@@ -223,7 +223,7 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 			},
 			{
 				description: "15 devices are available, no required devices exist, 8 requested",
-				available: DeviceSet{
+				available: NewDeviceSet(
 					mockDevices[0],
 					mockDevices[2],
 					mockDevices[3],
@@ -239,12 +239,12 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 					mockDevices[13],
 					mockDevices[14],
 					mockDevices[15],
-				},
-				required: DeviceSet{},
+				),
+				required: NewDeviceSet(),
 				request:  8,
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
-					for _, device := range deviceSet {
+					for _, device := range deviceSet.Devices() {
 						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
@@ -264,17 +264,17 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 			},
 			{
 				description: "all devices are available, 4 required devices exist, 8 requested",
-				available:   mockDevices[:],
-				required: DeviceSet{
+				available:   NewDeviceSet(mockDevices[:]...),
+				required: NewDeviceSet(
 					mockDevices[0],
 					mockDevices[1],
 					mockDevices[2],
 					mockDevices[4],
-				},
+				),
 				request: 7,
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
-					for _, device := range deviceSet {
+					for _, device := range deviceSet.Devices() {
 						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
@@ -294,17 +294,17 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 			},
 			{
 				description: "all devices are available, 4 required devices exist, 4 requested",
-				available:   mockDevices[:],
-				required: DeviceSet{
+				available:   NewDeviceSet(mockDevices[:]...),
+				required: NewDeviceSet(
 					mockDevices[4],
 					mockDevices[5],
 					mockDevices[6],
 					mockDevices[7],
-				},
+				),
 				request: 4,
 				verificationFunc: func(deviceSet DeviceSet) error {
 					idCheckMap := make(map[string]struct{})
-					for _, device := range deviceSet {
+					for _, device := range deviceSet.Devices() {
 						idCheckMap[device.ID()] = struct{}{}
 					}
 
@@ -324,10 +324,10 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 
 		for _, tc := range tests {
 			t.Run(tc.description, func(t *testing.T) {
-				allocatedDevices := sut.Allocate(tc.available, tc.required, tc.request)
+				allocatedDeviceSet := sut.Allocate(tc.available, tc.required, tc.request)
 
-				assert.Equal(t, tc.request, len(allocatedDevices))
-				assert.NoError(t, tc.verificationFunc(allocatedDevices))
+				assert.Equal(t, tc.request, allocatedDeviceSet.Len())
+				assert.NoError(t, tc.verificationFunc(allocatedDeviceSet))
 			})
 		}
 	})
@@ -344,7 +344,7 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 		//	  6, 6, 6, 6,
 		//	  7, 7, 7, 7,
 		// ]
-		mockDevices := generateMockDevices(4)
+		mockDevices := generateMockDevices(4).Devices()
 
 		tests := []struct {
 			description      string
@@ -355,12 +355,12 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 		}{
 			{
 				description: "all devices are available, no required devices exist, 4 requested",
-				available:   mockDevices[:],
-				required:    DeviceSet{},
+				available:   NewDeviceSet(mockDevices[:]...),
+				required:    NewDeviceSet(),
 				request:     4,
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
-					for _, device := range deviceSet {
+					for _, device := range deviceSet.Devices() {
 						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
@@ -368,8 +368,8 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 						return fmt.Errorf("expected 1 hintKeys, got %d", len(hintKeyCntMap))
 					}
 
-					if len(deviceSet) != 4 {
-						return fmt.Errorf("expected 4 devices, got %d", len(deviceSet))
+					if deviceSet.Len() != 4 {
+						return fmt.Errorf("expected 4 devices, got %d", deviceSet.Len())
 					}
 
 					return nil
@@ -377,12 +377,12 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 			},
 			{
 				description: "all devices are available, no required devices exist, 7 requested",
-				available:   mockDevices[:],
-				required:    DeviceSet{},
+				available:   NewDeviceSet(mockDevices[:]...),
+				required:    NewDeviceSet(),
 				request:     7,
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
-					for _, device := range deviceSet {
+					for _, device := range deviceSet.Devices() {
 						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
@@ -390,8 +390,8 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 						return fmt.Errorf("expected 4 hintKeys, got %d", len(hintKeyCntMap))
 					}
 
-					if len(deviceSet) != 7 {
-						return fmt.Errorf("expected 7 devices, got %d", len(deviceSet))
+					if deviceSet.Len() != 7 {
+						return fmt.Errorf("expected 7 devices, got %d", deviceSet.Len())
 					}
 
 					return nil
@@ -399,12 +399,12 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 			},
 			{
 				description: "all devices are available, no required devices exist, 8 requested",
-				available:   mockDevices[:],
-				required:    DeviceSet{},
+				available:   NewDeviceSet(mockDevices[:]...),
+				required:    NewDeviceSet(),
 				request:     8,
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
-					for _, device := range deviceSet {
+					for _, device := range deviceSet.Devices() {
 						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
@@ -427,12 +427,12 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 			},
 			{
 				description: "all devices are available, no required devices exist, 10 requested",
-				available:   mockDevices[:],
-				required:    DeviceSet{},
+				available:   NewDeviceSet(mockDevices[:]...),
+				required:    NewDeviceSet(),
 				request:     10,
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
-					for _, device := range deviceSet {
+					for _, device := range deviceSet.Devices() {
 						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
@@ -456,7 +456,7 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 			{
 				description: "21 devices are available, 2 required devices exist, 6 requested",
 				// devices in the same line means they share same topologyHintKey.
-				available: DeviceSet{
+				available: NewDeviceSet(
 					mockDevices[0], mockDevices[1], mockDevices[3], // 3ea
 					mockDevices[4], mockDevices[5], mockDevices[6], mockDevices[7], // 4ea
 					mockDevices[8],                   // 1ea
@@ -465,15 +465,15 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 					mockDevices[20], mockDevices[21], mockDevices[22], // 3ea
 					// 0ea
 					mockDevices[28], mockDevices[29], mockDevices[30], mockDevices[31], // 4ea
-				},
-				required: DeviceSet{
+				),
+				required: NewDeviceSet(
 					mockDevices[8],
 					mockDevices[28],
-				},
+				),
 				request: 6,
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
-					for _, device := range deviceSet {
+					for _, device := range deviceSet.Devices() {
 						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
@@ -504,17 +504,17 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 			},
 			{
 				description: "all devices are available, 4 required devices exist, 4 requested",
-				available:   mockDevices[:],
-				required: DeviceSet{
+				available:   NewDeviceSet(mockDevices[:]...),
+				required: NewDeviceSet(
 					mockDevices[8],
 					mockDevices[15],
 					mockDevices[22],
 					mockDevices[27],
-				},
+				),
 				request: 4,
 				verificationFunc: func(deviceSet DeviceSet) error {
 					idCheckMap := make(map[string]struct{})
-					for _, device := range deviceSet {
+					for _, device := range deviceSet.Devices() {
 						idCheckMap[device.ID()] = struct{}{}
 					}
 
@@ -534,10 +534,10 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 
 		for _, tc := range tests {
 			t.Run(tc.description, func(t *testing.T) {
-				allocatedDevices := sut.Allocate(tc.available, tc.required, tc.request)
+				allocatedDeviceSet := sut.Allocate(tc.available, tc.required, tc.request)
 
-				assert.Equal(t, tc.request, len(allocatedDevices))
-				assert.NoError(t, tc.verificationFunc(allocatedDevices))
+				assert.Equal(t, tc.request, allocatedDeviceSet.Len())
+				assert.NoError(t, tc.verificationFunc(allocatedDeviceSet))
 			})
 		}
 	})
@@ -554,7 +554,7 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 		//	  6, 6, 6, 6, 6, 6, 6, 6,
 		//	  7, 7, 7, 7, 7, 7, 7, 7,
 		// ]
-		mockDevices := generateMockDevices(8)
+		mockDevices := generateMockDevices(8).Devices()
 
 		tests := []struct {
 			description      string
@@ -565,12 +565,12 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 		}{
 			{
 				description: "all devices are available, no required devices exist, 8 requested",
-				available:   mockDevices[:],
-				required:    DeviceSet{},
+				available:   NewDeviceSet(mockDevices[:]...),
+				required:    NewDeviceSet(),
 				request:     8,
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
-					for _, device := range deviceSet {
+					for _, device := range deviceSet.Devices() {
 						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
@@ -578,8 +578,8 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 						return fmt.Errorf("expected 1 hintKeys, got %d", len(hintKeyCntMap))
 					}
 
-					if len(deviceSet) != 8 {
-						return fmt.Errorf("expected 8 devices, got %d", len(deviceSet))
+					if deviceSet.Len() != 8 {
+						return fmt.Errorf("expected 8 devices, got %d", deviceSet.Len())
 					}
 
 					return nil
@@ -587,12 +587,12 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 			},
 			{
 				description: "all devices are available, no required devices exist, 16 requested",
-				available:   mockDevices[:],
-				required:    DeviceSet{},
+				available:   NewDeviceSet(mockDevices[:]...),
+				required:    NewDeviceSet(),
 				request:     16,
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
-					for _, device := range deviceSet {
+					for _, device := range deviceSet.Devices() {
 						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
@@ -615,12 +615,12 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 			},
 			{
 				description: "all devices are available, no required devices exist, 20 requested",
-				available:   mockDevices[:],
-				required:    DeviceSet{},
+				available:   NewDeviceSet(mockDevices[:]...),
+				required:    NewDeviceSet(),
 				request:     20,
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
-					for _, device := range deviceSet {
+					for _, device := range deviceSet.Devices() {
 						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
@@ -643,7 +643,7 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 			},
 			{
 				description: "58 devices are available, 4 required devices exist, 20 requested",
-				available: DeviceSet{
+				available: NewDeviceSet(
 					mockDevices[0], mockDevices[1], // 2ea
 					mockDevices[8], mockDevices[9], mockDevices[10], mockDevices[11], mockDevices[12], mockDevices[13], mockDevices[14], mockDevices[15], // 8ea
 					mockDevices[16], mockDevices[17], mockDevices[18], mockDevices[19], mockDevices[20], mockDevices[21], mockDevices[22], mockDevices[23], // 8ea
@@ -652,14 +652,14 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 					mockDevices[40], mockDevices[41], mockDevices[42], mockDevices[43], mockDevices[44], mockDevices[45], mockDevices[46], mockDevices[47], // 8ea
 					mockDevices[48], mockDevices[49], mockDevices[50], mockDevices[51], mockDevices[52], mockDevices[53], mockDevices[54], mockDevices[55], // 8ea
 					mockDevices[56], mockDevices[57], mockDevices[58], mockDevices[59], mockDevices[60], mockDevices[61], mockDevices[62], mockDevices[63], // 8ea
-				},
-				required: DeviceSet{
+				),
+				required: NewDeviceSet(
 					mockDevices[8], mockDevices[9], mockDevices[10], mockDevices[11],
-				},
+				),
 				request: 20,
 				verificationFunc: func(deviceSet DeviceSet) error {
 					hintKeyCntMap := make(map[TopologyHintKey]int)
-					for _, device := range deviceSet {
+					for _, device := range deviceSet.Devices() {
 						hintKeyCntMap[device.TopologyHintKey()] += 1
 					}
 
@@ -692,8 +692,8 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 			},
 			{
 				description: "all devices are available, 8 required devices exist, 8 requested",
-				available:   mockDevices[:],
-				required: DeviceSet{
+				available:   NewDeviceSet(mockDevices[:]...),
+				required: NewDeviceSet(
 					mockDevices[1],
 					mockDevices[4],
 					mockDevices[6],
@@ -702,11 +702,11 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 					mockDevices[16],
 					mockDevices[22],
 					mockDevices[27],
-				},
+				),
 				request: 8,
 				verificationFunc: func(deviceSet DeviceSet) error {
 					idCheckMap := make(map[string]struct{})
-					for _, device := range deviceSet {
+					for _, device := range deviceSet.Devices() {
 						idCheckMap[device.ID()] = struct{}{}
 					}
 
@@ -726,20 +726,20 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 				description: "single board is available, no required devices, 4 requested",
 				available: func() DeviceSet {
 					// Simulates devices are given with non-ordered through `Allocate(...)` call.
-					partialMockDevices := make(DeviceSet, 8)
+					partialMockDevices := make([]Device, 8)
 					copy(partialMockDevices, mockDevices[0:8])
 
 					rand.Shuffle(len(partialMockDevices), func(i, j int) {
 						partialMockDevices[i], partialMockDevices[j] = partialMockDevices[j], partialMockDevices[i]
 					})
 
-					return partialMockDevices
+					return NewDeviceSet(partialMockDevices...)
 				}(),
-				required: DeviceSet{},
+				required: NewDeviceSet(),
 				request:  4,
 				verificationFunc: func(deviceSet DeviceSet) error {
 					idCheckMap := make(map[string]struct{})
-					for _, device := range deviceSet {
+					for _, device := range deviceSet.Devices() {
 						idCheckMap[device.ID()] = struct{}{}
 					}
 
@@ -758,10 +758,10 @@ func TestBinPackingNpuAllocator(t *testing.T) {
 
 		for _, tc := range tests {
 			t.Run(tc.description, func(t *testing.T) {
-				allocatedDevices := sut.Allocate(tc.available, tc.required, tc.request)
+				allocatedDeviceSet := sut.Allocate(tc.available, tc.required, tc.request)
 
-				assert.Equal(t, tc.request, len(allocatedDevices))
-				assert.NoError(t, tc.verificationFunc(allocatedDevices))
+				assert.Equal(t, tc.request, allocatedDeviceSet.Len())
+				assert.NoError(t, tc.verificationFunc(allocatedDeviceSet))
 			})
 		}
 	})

@@ -19,9 +19,9 @@ func NewMockDevice(index int, id string, topologyHintKey TopologyHintKey) Device
 }
 
 func buildMockDeviceSet(start, end int) DeviceSet {
-	result := DeviceSet{}
+	result := NewDeviceSet()
 	for i := start; i <= end; i++ {
-		result = append(result, buildMockDevice(i))
+		result.Insert(buildMockDevice(i))
 	}
 
 	return result
@@ -85,9 +85,9 @@ func (m *mockDevice) Equal(target Device) bool {
 func generateSameBoardMockDeviceSet(index int, cnt int, hintKey TopologyHintKey) DeviceSet {
 	UUID, _ := uuid.NewUUID()
 
-	devices := make(DeviceSet, 0, cnt)
+	devices := NewDeviceSet()
 	for i := range iter.N(cnt) {
-		devices = append(devices, NewMockDevice(index, fmt.Sprintf("%s_%d", UUID.String(), i), hintKey))
+		devices.Insert(NewMockDevice(index, fmt.Sprintf("%s_%d", UUID.String(), i), hintKey))
 	}
 
 	return devices

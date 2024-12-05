@@ -68,7 +68,12 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	}
 
 	// Step 1: build a map with TopologyHintKey as a key to access available DeviceSet
-	availableDevicesByHintKeyMap := util.NewBtreeMap[TopologyHintKey, DeviceSet](available.Len())
+	availableDevicesByHintKeyMap := util.NewBtreeMapWithLessFunc[TopologyHintKey, DeviceSet](available.Len(), func(a, b util.BtreeMapItem[TopologyHintKey, DeviceSet]) bool {
+		key1, key2 := a.Key, b.Key
+
+		return key1 < key2
+	})
+
 	for _, device := range available.Devices() {
 		hintKey := device.TopologyHintKey()
 
@@ -83,7 +88,9 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 
 	// Step 2: Process the required DeviceSet first. Collect required keys to prioritize allocations from the same physical card.
 	collectedDevices := NewDeviceSet()
-	requiredHintKeySet := util.NewBtreeSet[TopologyHintKey](required.Len())
+	requiredHintKeySet := util.NewBtreeSetWithLessFunc[TopologyHintKey](required.Len(), func(a, b TopologyHintKey) bool {
+		return a < b
+	})
 
 	for _, device := range required.Devices() {
 		collectedDevices.Insert(device)

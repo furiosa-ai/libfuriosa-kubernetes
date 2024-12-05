@@ -1,8 +1,6 @@
 package util
 
 import (
-	"cmp"
-
 	"github.com/google/btree"
 )
 
@@ -15,15 +13,13 @@ type BtreeMap[K any, V any] struct {
 	tree *btree.BTreeG[BtreeMapItem[K, V]]
 }
 
-func NewBtreeMap[K cmp.Ordered, V any](degree int) *BtreeMap[K, V] {
+func NewBtreeMapWithLessFunc[K any, V any](degree int, less btree.LessFunc[BtreeMapItem[K, V]]) *BtreeMap[K, V] {
 	if degree < 2 {
 		degree = 2
 	}
 
 	return &BtreeMap[K, V]{
-		tree: btree.NewG(degree, func(a, b BtreeMapItem[K, V]) bool {
-			return a.Key < b.Key
-		}),
+		tree: btree.NewG(degree, less),
 	}
 }
 
@@ -57,18 +53,6 @@ func (m *BtreeMap[K, V]) Insert(key K, value V) {
 
 type BtreeSet[T any] struct {
 	tree *btree.BTreeG[T]
-}
-
-func NewBtreeSet[T cmp.Ordered](degree int) *BtreeSet[T] {
-	if degree < 2 {
-		degree = 2
-	}
-
-	return &BtreeSet[T]{
-		tree: btree.NewG[T](degree, func(a, b T) bool {
-			return a < b
-		}),
-	}
 }
 
 func NewBtreeSetWithLessFunc[T any](degree int, less btree.LessFunc[T]) *BtreeSet[T] {

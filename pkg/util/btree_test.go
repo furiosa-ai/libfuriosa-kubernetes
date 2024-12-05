@@ -24,7 +24,9 @@ func TestBtreeMap(t *testing.T) {
 			expected := make([]int, 10)
 			copy(expected, numbers)
 
-			sut := NewBtreeMap[int, struct{}](10)
+			sut := NewBtreeMapWithLessFunc[int, struct{}](10, func(a, b BtreeMapItem[int, struct{}]) bool {
+				return a.Key < b.Key
+			})
 			for idx := range assign {
 				sut.Insert(assign[idx], struct{}{})
 			}
@@ -51,7 +53,9 @@ func TestBtreeSet(t *testing.T) {
 			expected := make([]int, 10)
 			copy(expected, numbers)
 
-			sut := NewBtreeSet[int](10)
+			sut := NewBtreeSetWithLessFunc[int](10, func(a, b int) bool {
+				return a < b
+			})
 			for idx := range assign {
 				sut.Insert(assign[idx])
 			}

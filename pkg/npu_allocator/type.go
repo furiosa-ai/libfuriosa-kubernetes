@@ -58,6 +58,10 @@ func NewDeviceSet(devices ...Device) DeviceSet {
 
 // Contains checks whether source DeviceSet contains target DeviceSet.
 func (source *deviceSet) Contains(target ...Device) bool {
+	if source == nil || source.btreeSet == nil {
+		return false
+	}
+
 	if source.Len() == 0 || len(target) == 0 {
 		return false
 	}
@@ -73,12 +77,12 @@ func (source *deviceSet) Contains(target ...Device) bool {
 
 // Equal check whether source DeviceSet and target DeviceSet is identical regardless of element order.
 func (source *deviceSet) Equal(target ...Device) bool {
-	if source.Len() == 0 && len(target) == 0 {
-		return true
+	if source == nil || source.btreeSet == nil {
+		return false
 	}
 
-	if source.Len() == 0 || len(target) == 0 {
-		return false
+	if source.Len() == 0 && len(target) == 0 {
+		return true
 	}
 
 	if source.Len() != len(target) {
@@ -96,6 +100,10 @@ func (source *deviceSet) Equal(target ...Device) bool {
 
 // Difference returns a subset of the source DeviceSet that has no intersection with the target DeviceSet.
 func (source *deviceSet) Difference(target ...Device) DeviceSet {
+	if source == nil || source.btreeSet == nil {
+		return nil
+	}
+
 	targetDeviceSet := NewDeviceSet(target...)
 
 	difference := NewDeviceSet()
@@ -110,6 +118,10 @@ func (source *deviceSet) Difference(target ...Device) DeviceSet {
 
 // Union returns new DeviceSet containing elements of source and target DeviceSets
 func (source *deviceSet) Union(target ...Device) DeviceSet {
+	if source == nil || source.btreeSet == nil {
+		return nil
+	}
+
 	ds := NewDeviceSet(source.Devices()...)
 	for _, targetDevice := range target {
 		ds.Insert(targetDevice)
@@ -119,16 +131,28 @@ func (source *deviceSet) Union(target ...Device) DeviceSet {
 }
 
 func (source *deviceSet) Insert(target ...Device) {
+	if source == nil || source.btreeSet == nil {
+		return
+	}
+
 	for _, device := range target {
 		source.btreeSet.Insert(device)
 	}
 }
 
 func (source *deviceSet) Devices() []Device {
+	if source == nil || source.btreeSet == nil {
+		return nil
+	}
+
 	return source.btreeSet.Items()
 }
 
 func (source *deviceSet) Len() int {
+	if source == nil || source.btreeSet == nil {
+		return 0
+	}
+
 	return source.btreeSet.Len()
 }
 

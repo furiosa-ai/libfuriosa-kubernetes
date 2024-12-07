@@ -1,6 +1,7 @@
 package npu_allocator
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/bradfitz/iter"
@@ -18,9 +19,9 @@ func NewMockDevice(index int, id string, topologyHintKey TopologyHintKey) Device
 }
 
 func buildMockDeviceSet(start, end int) DeviceSet {
-	result := DeviceSet{}
+	result := NewDeviceSet()
 	for i := start; i <= end; i++ {
-		result = append(result, buildMockDevice(i))
+		result.Insert(buildMockDevice(i))
 	}
 
 	return result
@@ -81,11 +82,12 @@ func (m *mockDevice) Equal(target Device) bool {
 	return false
 }
 
-func generateSameBoardMockDeviceSet(cnt int, hintKey TopologyHintKey) DeviceSet {
-	devices := make(DeviceSet, 0, cnt)
+func generateSameBoardMockDeviceSet(index int, cnt int, hintKey TopologyHintKey) DeviceSet {
+	UUID, _ := uuid.NewUUID()
+
+	devices := NewDeviceSet()
 	for i := range iter.N(cnt) {
-		UUID, _ := uuid.NewUUID()
-		devices = append(devices, NewMockDevice(i, UUID.String(), hintKey))
+		devices.Insert(NewMockDevice(index, fmt.Sprintf("%s_%d", UUID.String(), i), hintKey))
 	}
 
 	return devices

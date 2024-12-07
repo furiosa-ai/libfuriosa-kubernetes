@@ -15,91 +15,91 @@ func TestDeviceSetContains(t *testing.T) {
 	}{
 		{
 			description: "compare empty source and empty target",
-			source:      nil,
-			target:      nil,
+			source:      NewDeviceSet(),
+			target:      NewDeviceSet(),
 			expected:    false,
 		},
 		{
 			description: "compare source and empty target",
-			source: DeviceSet{
+			source: NewDeviceSet(
 				buildMockDevice(3),
 				buildMockDevice(5),
-			},
-			target:   nil,
+			),
+			target:   NewDeviceSet(),
 			expected: false,
 		},
 		{
 			description: "compare empty source and target",
-			source:      nil,
-			target: DeviceSet{
+			source:      NewDeviceSet(),
+			target: NewDeviceSet(
 				buildMockDevice(3),
 				buildMockDevice(5),
-			},
+			),
 			expected: false,
 		},
 		{
 			description: "compare source and subset",
-			source: DeviceSet{
+			source: NewDeviceSet(
 				buildMockDevice(3),
 				buildMockDevice(5),
 				buildMockDevice(6),
 				buildMockDevice(7),
-			},
-			target: DeviceSet{
+			),
+			target: NewDeviceSet(
 				buildMockDevice(3),
 				buildMockDevice(7),
-			},
+			),
 			expected: true,
 		},
 		{
 			description: "compare source and non subset",
-			source: DeviceSet{
+			source: NewDeviceSet(
 				buildMockDevice(3),
 				buildMockDevice(5),
 				buildMockDevice(6),
 				buildMockDevice(7),
-			},
-			target: DeviceSet{
+			),
+			target: NewDeviceSet(
 				buildMockDevice(1),
 				buildMockDevice(4),
-			},
+			),
 			expected: false,
 		},
 		{
 			description: "compare subset and target",
-			source: DeviceSet{
+			source: NewDeviceSet(
 				buildMockDevice(3),
 				buildMockDevice(5),
-			},
-			target: DeviceSet{
+			),
+			target: NewDeviceSet(
 				buildMockDevice(3),
 				buildMockDevice(5),
 				buildMockDevice(6),
 				buildMockDevice(7),
-			},
+			),
 			expected: false,
 		},
 		{
 			description: "compare identical DeviceSets",
-			source: DeviceSet{
+			source: NewDeviceSet(
 				buildMockDevice(3),
 				buildMockDevice(5),
 				buildMockDevice(6),
 				buildMockDevice(7),
-			},
-			target: DeviceSet{
+			),
+			target: NewDeviceSet(
 				buildMockDevice(3),
 				buildMockDevice(5),
 				buildMockDevice(6),
 				buildMockDevice(7),
-			},
+			),
 			expected: true,
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.description, func(t *testing.T) {
-			actual := tc.source.Contains(tc.target)
+			actual := tc.source.Contains(tc.target.Devices()...)
 
 			assert.Equal(t, tc.expected, actual)
 		})
@@ -113,54 +113,50 @@ func TestDeviceSetSort(t *testing.T) {
 		expected    DeviceSet
 	}{
 		{
-			description: "sort nil device set",
-			source:      nil,
-			expected:    nil,
-		},
-		{
 			description: "sort empty device set",
-			source:      DeviceSet{},
-			expected:    DeviceSet{},
+			source:      NewDeviceSet(),
+			expected:    NewDeviceSet(),
 		},
 		{
 			description: "sort unsorted device set",
-			source: DeviceSet{
+			source: NewDeviceSet(
 				buildMockDevice(7),
 				buildMockDevice(5),
 				buildMockDevice(6),
 				buildMockDevice(3),
-			},
-			expected: DeviceSet{
+			),
+			expected: NewDeviceSet(
 				buildMockDevice(3),
 				buildMockDevice(5),
 				buildMockDevice(6),
 				buildMockDevice(7),
-			},
+			),
 		},
 		{
 			description: "sort sorted device set",
-			source: DeviceSet{
+			source: NewDeviceSet(
 				buildMockDevice(3),
 				buildMockDevice(5),
 				buildMockDevice(6),
 				buildMockDevice(7),
-			},
-			expected: DeviceSet{
+			),
+			expected: NewDeviceSet(
 				buildMockDevice(3),
 				buildMockDevice(5),
 				buildMockDevice(6),
 				buildMockDevice(7),
-			},
+			),
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.description, func(t *testing.T) {
-			tc.source.Sort()
-			for idx, sourceDevice := range tc.source {
+			source := tc.source.Devices()
+			expected := tc.expected.Devices()
 
-				assert.Equal(t, tc.expected[idx].ID(), sourceDevice.ID())
-				assert.Equal(t, tc.expected[idx].TopologyHintKey(), tc.source[idx].TopologyHintKey())
+			for idx, sourceDevice := range tc.source.Devices() {
+				assert.Equal(t, expected[idx].ID(), sourceDevice.ID())
+				assert.Equal(t, expected[idx].TopologyHintKey(), source[idx].TopologyHintKey())
 			}
 		})
 	}
@@ -174,86 +170,80 @@ func TestDeviceSetEqual(t *testing.T) {
 		expected    bool
 	}{
 		{
-			description: "compare nil DeviceSets",
-			source:      nil,
-			target:      nil,
-			expected:    true,
-		},
-		{
 			description: "compare empty DeviceSets",
-			source:      DeviceSet{},
-			target:      DeviceSet{},
+			source:      NewDeviceSet(),
+			target:      NewDeviceSet(),
 			expected:    true,
 		},
 		{
 			description: "compare un-identical DeviceSets",
-			source: DeviceSet{
+			source: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(3),
 				buildMockDevice(5),
 				buildMockDevice(7),
-			},
-			target: DeviceSet{
+			),
+			target: NewDeviceSet(
 				buildMockDevice(1),
 				buildMockDevice(2),
 				buildMockDevice(4),
 				buildMockDevice(6),
-			},
+			),
 			expected: false,
 		},
 		{
 			description: "compare un-identical DeviceSets with intersection",
-			source: DeviceSet{
+			source: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(3),
 				buildMockDevice(5),
 				buildMockDevice(7),
-			},
-			target: DeviceSet{
+			),
+			target: NewDeviceSet(
 				buildMockDevice(1),
 				buildMockDevice(3),
 				buildMockDevice(5),
 				buildMockDevice(6),
-			},
+			),
 			expected: false,
 		},
 		{
 			description: "compare identical DeviceSets in different order",
-			source: DeviceSet{
+			source: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(3),
 				buildMockDevice(5),
 				buildMockDevice(7),
-			},
-			target: DeviceSet{
+			),
+			target: NewDeviceSet(
 				buildMockDevice(7),
 				buildMockDevice(3),
 				buildMockDevice(0),
 				buildMockDevice(5),
-			},
+			),
 			expected: true,
 		},
 		{
 			description: "compare identical DeviceSets in same order",
-			source: DeviceSet{
+			source: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(3),
 				buildMockDevice(5),
 				buildMockDevice(7),
-			},
-			target: DeviceSet{
+			),
+			target: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(3),
 				buildMockDevice(5),
 				buildMockDevice(7),
-			},
+			),
 			expected: true,
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.description, func(t *testing.T) {
-			actual := tc.source.Equal(tc.target)
+			actual := tc.source.Equal(tc.target.Devices()...)
 
 			assert.Equal(t, tc.expected, actual)
 		})
@@ -269,77 +259,78 @@ func TestDeviceSetDifference(t *testing.T) {
 	}{
 		{
 			description: "diff nil DeviceSets",
-			source:      nil,
-			target:      nil,
-			expected:    DeviceSet{},
+			source:      NewDeviceSet(),
+			target:      NewDeviceSet(),
+			expected:    NewDeviceSet(),
 		},
 		{
 			description: "diff empty DeviceSets",
-			source:      DeviceSet{},
-			target:      DeviceSet{},
-			expected:    DeviceSet{},
+			source:      NewDeviceSet(),
+			target:      NewDeviceSet(),
+			expected:    NewDeviceSet(),
 		},
 		{
 			description: "diff source and empty target",
-			source: DeviceSet{
+			source: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(1),
-			},
-			target: nil,
-			expected: DeviceSet{
+			),
+			target: NewDeviceSet(),
+			expected: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(1),
-			},
+			),
 		},
 		{
 			description: "diff source and target without intersection",
-			source: DeviceSet{
+			source: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(1),
-			},
-			target: DeviceSet{
+			),
+			target: NewDeviceSet(
 				buildMockDevice(2),
 				buildMockDevice(3),
-			},
-			expected: DeviceSet{
+			),
+			expected: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(1),
-			},
+			),
 		},
 		{
 			description: "diff empty source and target",
-			source:      nil,
-			target: DeviceSet{
+			source:      NewDeviceSet(),
+			target: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(1),
-			},
-			expected: DeviceSet{},
+			),
+			expected: NewDeviceSet(),
 		},
 		{
 			description: "diff source and target with intersection",
-			source: DeviceSet{
+			source: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(1),
 				buildMockDevice(2),
 				buildMockDevice(3),
-			},
-			target: DeviceSet{
+			),
+			target: NewDeviceSet(
 				buildMockDevice(2),
 				buildMockDevice(3),
-			},
-			expected: DeviceSet{
+			),
+			expected: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(1),
-			},
+			),
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.description, func(t *testing.T) {
-			actual := tc.source.Difference(tc.target)
-			if !actual.Equal(tc.expected) {
-				t.Errorf("expected %v but got %v", tc.expected, actual)
-			}
+			target := tc.target.Devices()
+			expected := tc.expected.Devices()
+
+			actual := tc.source.Difference(target...).Devices()
+			assert.Equal(t, expected, actual)
 		})
 	}
 }
@@ -353,65 +344,66 @@ func TestDeviceSetUnion(t *testing.T) {
 	}{
 		{
 			description: "Union nil DeviceSets",
-			source:      nil,
-			target:      nil,
-			expected:    DeviceSet{},
+			source:      NewDeviceSet(),
+			target:      NewDeviceSet(),
+			expected:    NewDeviceSet(),
 		},
 		{
 			description: "Union empty DeviceSets",
-			source:      DeviceSet{},
-			target:      DeviceSet{},
-			expected:    DeviceSet{},
+			source:      NewDeviceSet(),
+			target:      NewDeviceSet(),
+			expected:    NewDeviceSet(),
 		},
 		{
 			description: "Union empty target",
-			source: DeviceSet{
+			source: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(1),
-			},
-			target: DeviceSet{},
-			expected: DeviceSet{
+			),
+			target: NewDeviceSet(),
+			expected: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(1),
-			},
+			),
 		},
 		{
 			description: "Union empty source",
-			source:      DeviceSet{},
-			target: DeviceSet{
+			source:      NewDeviceSet(),
+			target: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(1),
-			},
-			expected: DeviceSet{
+			),
+			expected: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(1),
-			},
+			),
 		},
 		{
 			description: "Union source and target",
-			source: DeviceSet{
+			source: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(1),
-			},
-			target: DeviceSet{
+			),
+			target: NewDeviceSet(
 				buildMockDevice(2),
 				buildMockDevice(3),
-			},
-			expected: DeviceSet{
+			),
+			expected: NewDeviceSet(
 				buildMockDevice(0),
 				buildMockDevice(1),
 				buildMockDevice(2),
 				buildMockDevice(3),
-			},
+			),
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.description, func(t *testing.T) {
-			actual := tc.source.Union(tc.target)
-			if !actual.Equal(tc.expected) {
-				t.Errorf("expected %v but got %v", tc.expected, actual)
-			}
+			target := tc.target.Devices()
+			expected := tc.expected.Devices()
+
+			actual := tc.source.Union(target...).Devices()
+			assert.Equal(t, expected, actual)
 		})
 	}
 }

@@ -2,6 +2,7 @@ package npu_allocator
 
 import (
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/util"
 	"gonum.org/v1/gonum/stat/combin"
 )
 
@@ -62,71 +63,85 @@ func newBinPackingNpuAllocator(topologyScoreCalculator TopologyScoreCalculator) 
 
 func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSet, size int) DeviceSet {
 	// If length of `required` already satisfies given `size`, just return it.
-	if len(required) == size {
+	if required.Len() == size {
 		return required
 	}
 
 	// Step 1: build a map with TopologyHintKey as a key to access available DeviceSet
-	availableDevicesByHintKeyMap := make(map[TopologyHintKey]DeviceSet)
-	for _, device := range available {
+	availableDevicesByHintKeyMap := util.NewBtreeMapWithLessFunc[TopologyHintKey, DeviceSet](available.Len(), func(a, b util.BtreeMapItem[TopologyHintKey, DeviceSet]) bool {
+		key1, key2 := a.Key, b.Key
+
+		return key1 < key2
+	})
+
+	for _, device := range available.Devices() {
 		hintKey := device.TopologyHintKey()
-		if _, ok := availableDevicesByHintKeyMap[hintKey]; !ok {
-			availableDevicesByHintKeyMap[hintKey] = make(DeviceSet, 0)
+
+		ds := availableDevicesByHintKeyMap.Get(hintKey)
+		if ds == nil {
+			ds = NewDeviceSet()
 		}
 
-		availableDevicesByHintKeyMap[hintKey] = append(availableDevicesByHintKeyMap[hintKey], device)
+		ds.Insert(device)
+		availableDevicesByHintKeyMap.Insert(hintKey, ds)
 	}
 
 	// Step 2: Process the required DeviceSet first. Collect required keys to prioritize allocations from the same physical card.
-	collectedDevices := make(DeviceSet, 0, size)
-	requiredHintKeySet := make(map[TopologyHintKey]struct{})
-	for _, device := range required {
-		collectedDevices = append(collectedDevices, device)
+	collectedDevices := NewDeviceSet()
+	requiredHintKeySet := util.NewBtreeSetWithLessFunc[TopologyHintKey](required.Len(), func(a, b TopologyHintKey) bool {
+		return a < b
+	})
+
+	for _, device := range required.Devices() {
+		collectedDevices.Insert(device)
 
 		hintKey := device.TopologyHintKey()
-		requiredHintKeySet[hintKey] = struct{}{}
+		requiredHintKeySet.Insert(hintKey)
 
-		availableDevicesByHintKeyMap[hintKey] = availableDevicesByHintKeyMap[hintKey].Difference(DeviceSet{device})
+		ds := availableDevicesByHintKeyMap.Get(hintKey)
+		ds = ds.Difference(device)
+		availableDevicesByHintKeyMap.Insert(hintKey, ds)
 	}
 
-	if len(collectedDevices) == size {
+	if collectedDevices.Len() == size {
 		return collectedDevices
 	}
 
 	// Step 3: Consume required keys first to mitigate fragmentation.
-	for hintKey := range requiredHintKeySet {
-		devices := availableDevicesByHintKeyMap[hintKey]
-		for _, device := range devices {
-			collectedDevices = append(collectedDevices, device)
-			availableDevicesByHintKeyMap[hintKey] = availableDevicesByHintKeyMap[hintKey].Difference(DeviceSet{device})
+	for _, hintKey := range requiredHintKeySet.Items() {
+		for _, device := range availableDevicesByHintKeyMap.Get(hintKey).Devices() {
+			collectedDevices.Insert(device)
 
-			if len(collectedDevices) == size {
+			ds := availableDevicesByHintKeyMap.Get(hintKey)
+			ds = ds.Difference(device)
+			availableDevicesByHintKeyMap.Insert(hintKey, ds)
+
+			if collectedDevices.Len() == size {
 				return collectedDevices
 			}
 		}
 	}
 
 	// Step 4: Calculate device count to be allocated.
-	remainingDevicesSize := size - len(collectedDevices)
+	remainingDevicesSize := size - collectedDevices.Len()
 
 	unusedHintKeys := make([]TopologyHintKey, 0)
 	deviceCountByHintKeyMap := make(map[TopologyHintKey]int)
-	for hintKey, devices := range availableDevicesByHintKeyMap {
-		if _, ok := requiredHintKeySet[hintKey]; !ok {
+	for _, hintKey := range availableDevicesByHintKeyMap.Keys() {
+		devices := availableDevicesByHintKeyMap.Get(hintKey)
+		if !requiredHintKeySet.Has(hintKey) {
 			unusedHintKeys = append(unusedHintKeys, hintKey)
 		}
 
-		deviceCountByHintKeyMap[hintKey] = len(devices)
+		deviceCountByHintKeyMap[hintKey] = devices.Len()
 	}
 
 	// Step 5: Generate combinations using unused hint keys, with size ranging form up to the number of unused hint keys.
 	validCombinationsOfHintKeys := generateValidHintKeysCombinations(unusedHintKeys, deviceCountByHintKeyMap, remainingDevicesSize)
 
 	// Step 6: If required keys exists, add them to all combinations to ensure correct scoring.
-	requiredHintKeys := make([]TopologyHintKey, 0, len(requiredHintKeySet))
-	for hintKey := range requiredHintKeySet {
-		requiredHintKeys = append(requiredHintKeys, hintKey)
-	}
+	requiredHintKeys := make([]TopologyHintKey, 0, requiredHintKeySet.Len())
+	requiredHintKeys = append(requiredHintKeys, requiredHintKeySet.Items()...)
 
 	for i := range validCombinationsOfHintKeys {
 		validCombinationsOfHintKeys[i] = append(validCombinationsOfHintKeys[i], requiredHintKeys...)
@@ -147,10 +162,10 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 	// Step 8: Add to collectedDevices and return.
 BestHintKeysLoop:
 	for _, hintKey := range bestHintKeys {
-		devices := availableDevicesByHintKeyMap[hintKey]
-		for _, device := range devices {
-			collectedDevices = append(collectedDevices, device)
-			if len(collectedDevices) == size {
+		for _, device := range availableDevicesByHintKeyMap.Get(hintKey).Devices() {
+			collectedDevices.Insert(device)
+
+			if collectedDevices.Len() == size {
 				break BestHintKeysLoop
 			}
 		}

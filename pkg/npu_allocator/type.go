@@ -1,8 +1,6 @@
 package npu_allocator
 
 import (
-	"sort"
-
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
 	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/util"
 )
@@ -26,21 +24,50 @@ type Device interface {
 	Equal(target Device) bool
 }
 
-type DeviceSet []Device
+type DeviceSet interface {
+	Contains(target ...Device) bool
+	Equal(target ...Device) bool
+	Difference(target ...Device) DeviceSet
+	Union(target ...Device) DeviceSet
+	Insert(target ...Device)
+	Devices() []Device
+	Len() int
+}
+
+type deviceSet struct {
+	btreeSet *util.BtreeSet[Device]
+}
+
+func NewDeviceSet(devices ...Device) DeviceSet {
+	btreeSet := util.NewBtreeSetWithLessFunc(len(devices), func(a, b Device) bool {
+		idx1, idx2 := a.Index(), b.Index()
+		if idx1 == idx2 {
+			id1, id2 := a.ID(), b.ID()
+			return id1 < id2
+		}
+
+		return idx1 < idx2
+	})
+
+	for _, device := range devices {
+		btreeSet.Insert(device)
+	}
+
+	return &deviceSet{btreeSet: btreeSet}
+}
 
 // Contains checks whether source DeviceSet contains target DeviceSet.
-func (source DeviceSet) Contains(target DeviceSet) bool {
-	if len(source) == 0 || len(target) == 0 {
+func (source *deviceSet) Contains(target ...Device) bool {
+	if source == nil || source.btreeSet == nil {
 		return false
 	}
 
-	visited := map[string]bool{}
-	for _, device := range source {
-		visited[device.ID()] = true
+	if source.Len() == 0 || len(target) == 0 {
+		return false
 	}
 
-	for _, device := range target {
-		if _, ok := visited[device.ID()]; !ok {
+	for _, targetDevice := range target {
+		if !source.btreeSet.Has(targetDevice) {
 			return false
 		}
 	}
@@ -48,30 +75,22 @@ func (source DeviceSet) Contains(target DeviceSet) bool {
 	return true
 }
 
-// Sort sorts source DeviceSet.
-func (source DeviceSet) Sort() {
-	if source == nil {
-		return
-	}
-
-	sort.Slice(source, func(i, j int) bool {
-		return source[i].Index() < source[j].Index()
-	})
-}
-
 // Equal check whether source DeviceSet and target DeviceSet is identical regardless of element order.
-func (source DeviceSet) Equal(target DeviceSet) bool {
-	if len(source) != len(target) {
+func (source *deviceSet) Equal(target ...Device) bool {
+	if source == nil || source.btreeSet == nil {
 		return false
 	}
 
-	visited := make(map[string]TopologyHintKey)
-	for _, device := range source {
-		visited[device.ID()] = device.TopologyHintKey()
+	if source.Len() == 0 && len(target) == 0 {
+		return true
 	}
 
-	for _, device := range target {
-		if visited[device.ID()] != device.TopologyHintKey() {
+	if source.Len() != len(target) {
+		return false
+	}
+
+	for _, targetDevice := range target {
+		if !source.btreeSet.Has(targetDevice) {
 			return false
 		}
 	}
@@ -80,10 +99,17 @@ func (source DeviceSet) Equal(target DeviceSet) bool {
 }
 
 // Difference returns a subset of the source DeviceSet that has no intersection with the target DeviceSet.
-func (source DeviceSet) Difference(target DeviceSet) (difference DeviceSet) {
-	for _, device := range source {
-		if !target.Contains(DeviceSet{device}) {
-			difference = append(difference, device)
+func (source *deviceSet) Difference(target ...Device) DeviceSet {
+	if source == nil || source.btreeSet == nil {
+		return nil
+	}
+
+	targetDeviceSet := NewDeviceSet(target...)
+
+	difference := NewDeviceSet()
+	for _, sourceDevice := range source.Devices() {
+		if !targetDeviceSet.Contains(sourceDevice) {
+			difference.Insert(sourceDevice)
 		}
 	}
 
@@ -91,20 +117,43 @@ func (source DeviceSet) Difference(target DeviceSet) (difference DeviceSet) {
 }
 
 // Union returns new DeviceSet containing elements of source and target DeviceSets
-func (source DeviceSet) Union(target DeviceSet) (union DeviceSet) {
-	union = append(union, source...)
-	visited := map[string]bool{}
-	for _, device := range source {
-		visited[device.ID()] = true
+func (source *deviceSet) Union(target ...Device) DeviceSet {
+	if source == nil || source.btreeSet == nil {
+		return nil
+	}
+
+	ds := NewDeviceSet(source.Devices()...)
+	for _, targetDevice := range target {
+		ds.Insert(targetDevice)
+	}
+
+	return ds
+}
+
+func (source *deviceSet) Insert(target ...Device) {
+	if source == nil || source.btreeSet == nil {
+		return
 	}
 
 	for _, device := range target {
-		if _, ok := visited[device.ID()]; !ok {
-			union = append(union, device)
-		}
+		source.btreeSet.Insert(device)
+	}
+}
+
+func (source *deviceSet) Devices() []Device {
+	if source == nil || source.btreeSet == nil {
+		return nil
 	}
 
-	return union
+	return source.btreeSet.Items()
+}
+
+func (source *deviceSet) Len() int {
+	if source == nil || source.btreeSet == nil {
+		return 0
+	}
+
+	return source.btreeSet.Len()
 }
 
 // TODO(@bg): impl Intersection()

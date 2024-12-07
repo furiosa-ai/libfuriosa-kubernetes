@@ -46,24 +46,19 @@ func newScoreBasedOptimalNpuAllocator(hintProvider TopologyHintProvider) NpuAllo
 }
 
 func (n *scoreBasedOptimalNpuAllocator) Allocate(available DeviceSet, required DeviceSet, request int) DeviceSet {
-	subsetLen := request - len(required)
+	subsetLen := request - required.Len()
 	// length of required equals to request, it means allocating specific device sets
 	if subsetLen == 0 {
 		return required
 	}
 
-	// sort device set
-	available.Sort()
-	required.Sort()
-
 	// generate seed sets using differences
-	difference := available.Difference(required)
+	difference := available.Difference(required.Devices()...)
 	combinations := generateKDeviceSet(difference, subsetLen)
 
 	// union subset and required to build full device set combination
 	for idx, combination := range combinations {
-		newDeviceSet := combination.Union(required)
-		newDeviceSet.Sort()
+		newDeviceSet := combination.Union(required.Devices()...)
 		combinations[idx] = newDeviceSet
 	}
 
@@ -83,19 +78,21 @@ func (n *scoreBasedOptimalNpuAllocator) Allocate(available DeviceSet, required D
 	return bestSet
 }
 
-func generateKDeviceSet(devices DeviceSet, size int) (result []DeviceSet) {
+func generateKDeviceSet(ds DeviceSet, size int) (result []DeviceSet) {
 	// NOTE(@bg): combin.Combinations internally uses binomial coefficient C(n, k) implementation,
 	// which call panic() if k > n and either n and k is negative number.
 	// https://github.com/gonum/gonum/blob/f74f45f5f3e9cc7c1d0f0af2ffd19ccf8972a87e/stat/combin/combin.go#L29
-	if len(devices) < 1 || size < 1 || size > len(devices) {
+	if ds.Len() < 1 || size < 1 || size > ds.Len() {
 		return result
 	}
 
+	devices := ds.Devices()
 	for _, indices := range combin.Combinations(len(devices), size) {
-		newDeviceSet := DeviceSet{}
+		newDeviceSet := NewDeviceSet()
 		for _, index := range indices {
-			newDeviceSet = append(newDeviceSet, devices[index])
+			newDeviceSet.Insert(devices[index])
 		}
+
 		result = append(result, newDeviceSet)
 	}
 
@@ -106,8 +103,8 @@ func (n *scoreBasedOptimalNpuAllocator) scoreDeviceSet(deviceSet DeviceSet) uint
 	total := uint(0)
 
 	// calculate total score using distance of  two device
-	for i, d1 := range deviceSet {
-		for j, d2 := range deviceSet {
+	for i, d1 := range deviceSet.Devices() {
+		for j, d2 := range deviceSet.Devices() {
 			if j > i {
 				total += n.scoreDevicePair(d1, d2)
 			}

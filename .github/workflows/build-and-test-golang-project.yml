@@ -19,12 +19,28 @@ jobs:
 
     steps:
       - name: checkout furiosa-smi
+        id: furiosa-smi-checkout
         uses: actions/checkout@v4
         with:
           repository: furiosa-ai/furiosa-smi
-          token: ${{ secrets.TOKEN_FOR_CLONE_ANOTHER_REPO}}
+          token: ${{ secrets.TOKEN_FOR_CLONE_ANOTHER_REPO }}
           path: furiosa-smi
-      - name: install furiosa-smi
+      - name: create `furiosa-smi` dependencies related directories
+        run: |
+          sudo mkdir -p /usr/local/lib
+          sudo mkdir -p /usr/local/include/furiosa
+          sudo chown -R $(id -u -n):$(id -g -n) /usr/local/lib
+          sudo chown -R $(id -u -n):$(id -g -n) /usr/local/include/furiosa
+      - name: cache & restore `furiosa-smi` library
+        id: restore-furiosa-smi
+        uses: actions/cache@v4
+        with:
+          key: '${{ steps.furiosa-smi-checkout.outputs.commit }}'
+          path: |
+            /usr/local/lib/libfuriosa_smi.so
+            /usr/local/include/furiosa/furiosa_smi.h
+      - name: build & install furiosa-smi
+        if: steps.restore-furiosa-smi.outputs.cache-hit != 'true'
         run: |
           cd furiosa-smi
           rustup component add clippy rustfmt

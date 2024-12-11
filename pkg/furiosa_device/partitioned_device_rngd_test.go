@@ -1,6 +1,5 @@
 package furiosa_device
 
-/*
 import (
 	"fmt"
 	"slices"
@@ -22,13 +21,13 @@ func TestFinalIndexGeneration_RNGD_PartitionedDevice(t *testing.T) {
 
 	tests := []struct {
 		description                  string
-		strategy                     config.ResourceUnitStrategy
+		strategy                     PartitioningPolicy
 		expectedIndexes              []int
 		expectedIndexToDeviceUUIDMap map[int]string // key: index, value: uuid
 	}{
 		{
 			description: "Single Core Strategy",
-			strategy:    config.SingleCoreStrategy,
+			strategy:    SingleCorePolicy,
 			expectedIndexes: func() []int {
 				indexes := make([]int, 64)
 				for i := range indexes {
@@ -49,7 +48,7 @@ func TestFinalIndexGeneration_RNGD_PartitionedDevice(t *testing.T) {
 		},
 		{
 			description: "Dual Core Strategy",
-			strategy:    config.DualCoreStrategy,
+			strategy:    DualCorePolicy,
 			expectedIndexes: func() []int {
 				indexes := make([]int, 32)
 				for i := range indexes {
@@ -70,7 +69,7 @@ func TestFinalIndexGeneration_RNGD_PartitionedDevice(t *testing.T) {
 		},
 		{
 			description: "Quad Core Strategy",
-			strategy:    config.QuadCoreStrategy,
+			strategy:    QuadCorePolicy,
 			expectedIndexes: func() []int {
 				indexes := make([]int, 16)
 				for i := range indexes {
@@ -93,13 +92,7 @@ func TestFinalIndexGeneration_RNGD_PartitionedDevice(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.description, func(t *testing.T) {
-			deviceMgr, _ := NewDeviceManager(smi.ArchRngd, rngdMockDevices, tc.strategy, nil, false)
-
-			furiosaDeviceMap := deviceMgr.(*deviceManager).furiosaDevices
-			furiosaDevices := make([]FuriosaDevice, 0, len(furiosaDeviceMap))
-			for _, device := range furiosaDeviceMap {
-				furiosaDevices = append(furiosaDevices, device)
-			}
+			furiosaDevices, _ := NewFuriosaDevices(rngdMockDevices, nil, tc.strategy)
 
 			slices.SortFunc(furiosaDevices, func(dev1, dev2 FuriosaDevice) int {
 				return dev1.Index() - dev2.Index()
@@ -129,13 +122,13 @@ func TestDeviceIDs_RNGD_PartitionedDevice(t *testing.T) {
 	tests := []struct {
 		description     string
 		mockDevice      smi.Device
-		strategy        config.ResourceUnitStrategy
+		strategy        PartitioningPolicy
 		expectedResults []string
 	}{
 		{
 			description: "should return a list of RNGD Device ID for single core strategy",
 			mockDevice:  rngdMockDevice,
-			strategy:    config.SingleCoreStrategy,
+			strategy:    SingleCorePolicy,
 			expectedResults: []string{
 				fmt.Sprintf("%s%s%s", rngdMockDeviceUUID, deviceIdDelimiter, "0"),
 				fmt.Sprintf("%s%s%s", rngdMockDeviceUUID, deviceIdDelimiter, "1"),
@@ -150,7 +143,7 @@ func TestDeviceIDs_RNGD_PartitionedDevice(t *testing.T) {
 		{
 			description: "should return a list of RNGD Device ID for dual core strategy",
 			mockDevice:  rngdMockDevice,
-			strategy:    config.DualCoreStrategy,
+			strategy:    DualCorePolicy,
 			expectedResults: []string{
 				fmt.Sprintf("%s%s%s", rngdMockDeviceUUID, deviceIdDelimiter, "0-1"),
 				fmt.Sprintf("%s%s%s", rngdMockDeviceUUID, deviceIdDelimiter, "2-3"),
@@ -161,7 +154,7 @@ func TestDeviceIDs_RNGD_PartitionedDevice(t *testing.T) {
 		{
 			description: "should return a list of RNGD Device ID for quad core strategy",
 			mockDevice:  rngdMockDevice,
-			strategy:    config.QuadCoreStrategy,
+			strategy:    QuadCorePolicy,
 			expectedResults: []string{
 				fmt.Sprintf("%s%s%s", rngdMockDeviceUUID, deviceIdDelimiter, "0-3"),
 				fmt.Sprintf("%s%s%s", rngdMockDeviceUUID, deviceIdDelimiter, "4-7"),
@@ -197,19 +190,19 @@ func TestPCIBusIDs_RNGD_PartitionedDevice(t *testing.T) {
 	tests := []struct {
 		description    string
 		mockDevice     smi.Device
-		strategy       config.ResourceUnitStrategy
+		strategy       PartitioningPolicy
 		expectedResult string
 	}{
 		{
 			description:    "returned devices must have same PCI Bus IDs - RNGD 0",
 			mockDevice:     rngdMockDevice0,
-			strategy:       config.SingleCoreStrategy,
+			strategy:       SingleCorePolicy,
 			expectedResult: rngdMockDevice0PciBusId,
 		},
 		{
 			description:    "returned devices must have same PCI Bus IDs - RNGD 1",
 			mockDevice:     rngdMockDevice1,
-			strategy:       config.SingleCoreStrategy,
+			strategy:       SingleCorePolicy,
 			expectedResult: rngdMockDevice1PciBusId,
 		},
 	}
@@ -239,19 +232,19 @@ func TestNUMANode_RNGD_PartitionedDevice(t *testing.T) {
 	tests := []struct {
 		description    string
 		mockDevice     smi.Device
-		strategy       config.ResourceUnitStrategy
+		strategy       PartitioningPolicy
 		expectedResult int
 	}{
 		{
 			description:    "returned devices must have same NUMA node - RNGD 0",
 			mockDevice:     rngdMockDevice0,
-			strategy:       config.SingleCoreStrategy,
+			strategy:       SingleCorePolicy,
 			expectedResult: rngdMockDevice0NUMANode,
 		},
 		{
 			description:    "returned devices must have same NUMA node - RNGD 1",
 			mockDevice:     rngdMockDevice1,
-			strategy:       config.SingleCoreStrategy,
+			strategy:       SingleCorePolicy,
 			expectedResult: rngdMockDevice1NUMANode,
 		},
 	}
@@ -632,25 +625,25 @@ func TestDeviceSpecs_RNGD_PartitionedDevice(t *testing.T) {
 	tests := []struct {
 		description              string
 		mockDevice               smi.Device
-		strategy                 config.ResourceUnitStrategy
+		strategy                 PartitioningPolicy
 		expectedResultCandidates [][]*devicePluginAPIv1Beta1.DeviceSpec
 	}{
 		{
 			description:              "[SingleCoreStrategy] each RNGD mock device must contains all DeviceSpecs",
 			mockDevice:               rngdMockDevice,
-			strategy:                 config.SingleCoreStrategy,
+			strategy:                 SingleCorePolicy,
 			expectedResultCandidates: rngdExpectedResultCandidatesForSingleCoreStrategy,
 		},
 		{
 			description:              "[DualCoreStrategy] each RNGD mock device must contains all DeviceSpecs",
 			mockDevice:               rngdMockDevice,
-			strategy:                 config.DualCoreStrategy,
+			strategy:                 DualCorePolicy,
 			expectedResultCandidates: rngdExpectedResultCandidatesForDualCoreStrategy,
 		},
 		{
 			description:              "[QuadCoreStrategy] each RNGD mock device must contains all DeviceSpecs",
 			mockDevice:               rngdMockDevice,
-			strategy:                 config.QuadCoreStrategy,
+			strategy:                 QuadCorePolicy,
 			expectedResultCandidates: rngdExpectedResultCandidatesForQuadCoreStrategy,
 		},
 	}
@@ -676,21 +669,21 @@ func TestIsHealthy_RNGD_PartitionedDevice(t *testing.T) {
 	tests := []struct {
 		description     string
 		mockDevice      smi.Device
-		strategy        config.ResourceUnitStrategy
+		strategy        PartitioningPolicy
 		isDisabled      bool
 		expectedResults bool
 	}{
 		{
 			description:     "Enabled device must be healthy - RNGD",
 			mockDevice:      smi.GetStaticMockDevices(smi.ArchRngd)[0],
-			strategy:        config.SingleCoreStrategy,
+			strategy:        SingleCorePolicy,
 			isDisabled:      true,
 			expectedResults: false,
 		},
 		{
 			description:     "Disabled device must be unhealthy - RNGD",
 			mockDevice:      smi.GetStaticMockDevices(smi.ArchRngd)[0],
-			strategy:        config.SingleCoreStrategy,
+			strategy:        SingleCorePolicy,
 			isDisabled:      true,
 			expectedResults: false,
 		},
@@ -730,13 +723,13 @@ func TestMounts_RNGD_PartitionedDevice(t *testing.T) {
 	tests := []struct {
 		description     string
 		mockDevice      smi.Device
-		strategy        config.ResourceUnitStrategy
+		strategy        PartitioningPolicy
 		expectedResults []*devicePluginAPIv1Beta1.Mount
 	}{
 		{
 			description:     "each RNGD mock device must contains all Mounts",
 			mockDevice:      rngdMockDevice,
-			strategy:        config.SingleCoreStrategy,
+			strategy:        SingleCorePolicy,
 			expectedResults: rngdMockDeviceMounts,
 		},
 	}
@@ -762,13 +755,13 @@ func TestID_RNGD_PartitionedDevice(t *testing.T) {
 	tests := []struct {
 		description     string
 		mockDevice      smi.Device
-		strategy        config.ResourceUnitStrategy
+		strategy        PartitioningPolicy
 		expectedResults []string
 	}{
 		{
 			description: "should return a list of RNGD Device ID for single core strategy",
 			mockDevice:  rngdMockDevice,
-			strategy:    config.SingleCoreStrategy,
+			strategy:    SingleCorePolicy,
 			expectedResults: []string{
 				fmt.Sprintf("%s%s%s", rngdMockDeviceUUID, deviceIdDelimiter, "0"),
 				fmt.Sprintf("%s%s%s", rngdMockDeviceUUID, deviceIdDelimiter, "1"),
@@ -783,7 +776,7 @@ func TestID_RNGD_PartitionedDevice(t *testing.T) {
 		{
 			description: "should return a list of RNGD Device ID for dual core strategy",
 			mockDevice:  rngdMockDevice,
-			strategy:    config.DualCoreStrategy,
+			strategy:    DualCorePolicy,
 			expectedResults: []string{
 				fmt.Sprintf("%s%s%s", rngdMockDeviceUUID, deviceIdDelimiter, "0-1"),
 				fmt.Sprintf("%s%s%s", rngdMockDeviceUUID, deviceIdDelimiter, "2-3"),
@@ -794,7 +787,7 @@ func TestID_RNGD_PartitionedDevice(t *testing.T) {
 		{
 			description: "should return a list of RNGD Device ID for quad core strategy",
 			mockDevice:  rngdMockDevice,
-			strategy:    config.QuadCoreStrategy,
+			strategy:    QuadCorePolicy,
 			expectedResults: []string{
 				fmt.Sprintf("%s%s%s", rngdMockDeviceUUID, deviceIdDelimiter, "0-3"),
 				fmt.Sprintf("%s%s%s", rngdMockDeviceUUID, deviceIdDelimiter, "4-7"),
@@ -830,19 +823,19 @@ func TestTopologyHintKey_RNGD_PartitionedDevice(t *testing.T) {
 	tests := []struct {
 		description    string
 		mockDevice     smi.Device
-		strategy       config.ResourceUnitStrategy
+		strategy       PartitioningPolicy
 		expectedResult npu_allocator.TopologyHintKey
 	}{
 		{
 			description:    "returned devices must have same TopologyHintKeys - RNGD 0",
 			mockDevice:     rngdMockDevice0,
-			strategy:       config.SingleCoreStrategy,
+			strategy:       SingleCorePolicy,
 			expectedResult: npu_allocator.TopologyHintKey(rngdMockDevice0PciBusId),
 		},
 		{
 			description:    "returned devices must have same TopologyHintKeys - RNGD 1",
 			mockDevice:     rngdMockDevice1,
-			strategy:       config.SingleCoreStrategy,
+			strategy:       SingleCorePolicy,
 			expectedResult: npu_allocator.TopologyHintKey(rngdMockDevice1PciBusId),
 		},
 	}
@@ -867,21 +860,21 @@ func TestEqual_RNGD_PartitionedDevice(t *testing.T) {
 		description      string
 		mockSourceDevice smi.Device
 		mockTargetDevice smi.Device
-		strategy         config.ResourceUnitStrategy
+		strategy         PartitioningPolicy
 		expected         bool
 	}{
 		{
 			description:      "expect source and target are identical",
 			mockSourceDevice: smi.GetStaticMockDevices(smi.ArchRngd)[0],
 			mockTargetDevice: smi.GetStaticMockDevices(smi.ArchRngd)[0],
-			strategy:         config.SingleCoreStrategy,
+			strategy:         SingleCorePolicy,
 			expected:         true,
 		},
 		{
 			description:      "expect source and target are not identical",
 			mockSourceDevice: smi.GetStaticMockDevices(smi.ArchRngd)[0],
 			mockTargetDevice: smi.GetStaticMockDevices(smi.ArchRngd)[1],
-			strategy:         config.SingleCoreStrategy,
+			strategy:         SingleCorePolicy,
 			expected:         false,
 		},
 	}
@@ -909,4 +902,3 @@ func TestEqual_RNGD_PartitionedDevice(t *testing.T) {
 		})
 	}
 }
-*/

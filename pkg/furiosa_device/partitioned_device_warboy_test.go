@@ -1,6 +1,5 @@
 package furiosa_device
 
-/*
 import (
 	"fmt"
 	"slices"
@@ -22,13 +21,13 @@ func TestFinalIndexGeneration_Warboy_PartitionedDevice(t *testing.T) {
 
 	tests := []struct {
 		description                  string
-		strategy                     config.ResourceUnitStrategy
+		strategy                     PartitioningPolicy
 		expectedIndexes              []int
 		expectedIndexToDeviceUUIDMap map[int]string // key: index, value: uuid
 	}{
 		{
 			description: "Single Core Strategy",
-			strategy:    config.SingleCoreStrategy,
+			strategy:    SingleCorePolicy,
 			expectedIndexes: func() []int {
 				indexes := make([]int, 16)
 				for i := range indexes {
@@ -49,7 +48,7 @@ func TestFinalIndexGeneration_Warboy_PartitionedDevice(t *testing.T) {
 		},
 		{
 			description: "Dual Core Strategy",
-			strategy:    config.DualCoreStrategy,
+			strategy:    DualCorePolicy,
 			expectedIndexes: func() []int {
 				indexes := make([]int, 8)
 				for i := range indexes {
@@ -72,13 +71,7 @@ func TestFinalIndexGeneration_Warboy_PartitionedDevice(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.description, func(t *testing.T) {
-			deviceMgr, _ := NewDeviceManager(smi.ArchWarboy, warboyMockDevices, tc.strategy, nil, false)
-
-			furiosaDeviceMap := deviceMgr.(*deviceManager).furiosaDevices
-			furiosaDevices := make([]FuriosaDevice, 0, len(furiosaDeviceMap))
-			for _, device := range furiosaDeviceMap {
-				furiosaDevices = append(furiosaDevices, device)
-			}
+			furiosaDevices, _ := NewFuriosaDevices(warboyMockDevices, nil, tc.strategy)
 
 			slices.SortFunc(furiosaDevices, func(dev1, dev2 FuriosaDevice) int {
 				return dev1.Index() - dev2.Index()
@@ -108,13 +101,13 @@ func TestDeviceIDs_Warboy_PartitionedDevice(t *testing.T) {
 	tests := []struct {
 		description     string
 		mockDevice      smi.Device
-		strategy        config.ResourceUnitStrategy
+		strategy        PartitioningPolicy
 		expectedResults []string
 	}{
 		{
 			description: "should return a list of Warboy Device ID for single core strategy",
 			mockDevice:  warboyMockDevice,
-			strategy:    config.SingleCoreStrategy,
+			strategy:    SingleCorePolicy,
 			expectedResults: []string{
 				fmt.Sprintf("%s%s%s", warboyMockDeviceUUID, deviceIdDelimiter, "0"),
 				fmt.Sprintf("%s%s%s", warboyMockDeviceUUID, deviceIdDelimiter, "1"),
@@ -123,7 +116,7 @@ func TestDeviceIDs_Warboy_PartitionedDevice(t *testing.T) {
 		{
 			description: "should return a list of Warboy Device ID for dual core strategy",
 			mockDevice:  warboyMockDevice,
-			strategy:    config.DualCoreStrategy,
+			strategy:    DualCorePolicy,
 			expectedResults: []string{
 				fmt.Sprintf("%s%s%s", warboyMockDeviceUUID, deviceIdDelimiter, "0-1"),
 			},
@@ -158,19 +151,19 @@ func TestPCIBusIDs_Warboy_PartitionedDevice(t *testing.T) {
 	tests := []struct {
 		description    string
 		mockDevice     smi.Device
-		strategy       config.ResourceUnitStrategy
+		strategy       PartitioningPolicy
 		expectedResult string
 	}{
 		{
 			description:    "returned devices must have same PCI Bus IDs - WARBOY 0",
 			mockDevice:     warboyMockDevice0,
-			strategy:       config.SingleCoreStrategy,
+			strategy:       SingleCorePolicy,
 			expectedResult: warboyMockDevice0PciBusId,
 		},
 		{
 			description:    "returned devices must have same PCI Bus IDs - WARBOY 1",
 			mockDevice:     warboyMockDevice1,
-			strategy:       config.SingleCoreStrategy,
+			strategy:       SingleCorePolicy,
 			expectedResult: warboyMockDevice1PciBusId,
 		},
 	}
@@ -201,19 +194,19 @@ func TestNUMANode_Warboy_PartitionedDevice(t *testing.T) {
 	tests := []struct {
 		description    string
 		mockDevice     smi.Device
-		strategy       config.ResourceUnitStrategy
+		strategy       PartitioningPolicy
 		expectedResult int
 	}{
 		{
 			description:    "returned devices must have same NUMA node - WARBOY 0",
 			mockDevice:     warboyMockDevice0,
-			strategy:       config.SingleCoreStrategy,
+			strategy:       SingleCorePolicy,
 			expectedResult: warboyMockDevice0NUMANode,
 		},
 		{
 			description:    "returned devices must have same NUMA node - WARBOY 1",
 			mockDevice:     warboyMockDevice1,
-			strategy:       config.SingleCoreStrategy,
+			strategy:       SingleCorePolicy,
 			expectedResult: warboyMockDevice1NUMANode,
 		},
 	}
@@ -240,13 +233,13 @@ func TestDeviceSpecs_Warboy_PartitionedDevice(t *testing.T) {
 	tests := []struct {
 		description              string
 		mockDevice               smi.Device
-		strategy                 config.ResourceUnitStrategy
+		strategy                 PartitioningPolicy
 		expectedResultCandidates [][]*devicePluginAPIv1Beta1.DeviceSpec
 	}{
 		{
 			description: "[SingleCoreStrategy] each Warboy mock device must contains all DeviceSpecs",
 			mockDevice:  warboyMockDevice,
-			strategy:    config.SingleCoreStrategy,
+			strategy:    SingleCorePolicy,
 			expectedResultCandidates: [][]*devicePluginAPIv1Beta1.DeviceSpec{
 				{
 					{
@@ -317,7 +310,7 @@ func TestDeviceSpecs_Warboy_PartitionedDevice(t *testing.T) {
 		{
 			description: "[DualCoreStrategy] each Warboy mock device must contains all DeviceSpecs",
 			mockDevice:  warboyMockDevice,
-			strategy:    config.DualCoreStrategy,
+			strategy:    DualCorePolicy,
 			expectedResultCandidates: [][]*devicePluginAPIv1Beta1.DeviceSpec{
 				{
 					{
@@ -386,21 +379,21 @@ func TestIsHealthy_Warboy_PartitionedDevice(t *testing.T) {
 	tests := []struct {
 		description     string
 		mockDevice      smi.Device
-		strategy        config.ResourceUnitStrategy
+		strategy        PartitioningPolicy
 		isDisabled      bool
 		expectedResults bool
 	}{
 		{
 			description:     "Enabled device must be healthy - WARBOY",
 			mockDevice:      smi.GetStaticMockDevices(smi.ArchWarboy)[0],
-			strategy:        config.SingleCoreStrategy,
+			strategy:        SingleCorePolicy,
 			isDisabled:      false,
 			expectedResults: true,
 		},
 		{
 			description:     "Disabled device must be unhealthy - WARBOY",
 			mockDevice:      smi.GetStaticMockDevices(smi.ArchWarboy)[0],
-			strategy:        config.SingleCoreStrategy,
+			strategy:        SingleCorePolicy,
 			isDisabled:      true,
 			expectedResults: false,
 		},
@@ -429,13 +422,13 @@ func TestID_Warboy_PartitionedDevice(t *testing.T) {
 	tests := []struct {
 		description     string
 		mockDevice      smi.Device
-		strategy        config.ResourceUnitStrategy
+		strategy        PartitioningPolicy
 		expectedResults []string
 	}{
 		{
 			description: "should return a list of Warboy Device ID for single core strategy",
 			mockDevice:  warboyMockDevice,
-			strategy:    config.SingleCoreStrategy,
+			strategy:    SingleCorePolicy,
 			expectedResults: []string{
 				fmt.Sprintf("%s%s%s", warboyMockDeviceUUID, deviceIdDelimiter, "0"),
 				fmt.Sprintf("%s%s%s", warboyMockDeviceUUID, deviceIdDelimiter, "1"),
@@ -444,7 +437,7 @@ func TestID_Warboy_PartitionedDevice(t *testing.T) {
 		{
 			description: "should return a list of Warboy Device ID for dual core strategy",
 			mockDevice:  warboyMockDevice,
-			strategy:    config.DualCoreStrategy,
+			strategy:    DualCorePolicy,
 			expectedResults: []string{
 				fmt.Sprintf("%s%s%s", warboyMockDeviceUUID, deviceIdDelimiter, "0-1"),
 			},
@@ -479,19 +472,19 @@ func TestTopologyHintKey_Warboy_PartitionedDevice(t *testing.T) {
 	tests := []struct {
 		description    string
 		mockDevice     smi.Device
-		strategy       config.ResourceUnitStrategy
+		strategy       PartitioningPolicy
 		expectedResult npu_allocator.TopologyHintKey
 	}{
 		{
 			description:    "returned devices must have same TopologyHintKeys - WARBOY 0",
 			mockDevice:     warboyMockDevice0,
-			strategy:       config.SingleCoreStrategy,
+			strategy:       SingleCorePolicy,
 			expectedResult: npu_allocator.TopologyHintKey(warboyMockDevice0PciBusId),
 		},
 		{
 			description:    "returned devices must have same TopologyHintKeys - WARBOY 1",
 			mockDevice:     warboyMockDevice1,
-			strategy:       config.SingleCoreStrategy,
+			strategy:       SingleCorePolicy,
 			expectedResult: npu_allocator.TopologyHintKey(warboyMockDevice1PciBusId),
 		},
 	}
@@ -516,21 +509,21 @@ func TestEqual_Warboy_PartitionedDevice(t *testing.T) {
 		description      string
 		mockSourceDevice smi.Device
 		mockTargetDevice smi.Device
-		strategy         config.ResourceUnitStrategy
+		strategy         PartitioningPolicy
 		expected         bool
 	}{
 		{
 			description:      "expect source and target are identical",
 			mockSourceDevice: smi.GetStaticMockDevices(smi.ArchWarboy)[0],
 			mockTargetDevice: smi.GetStaticMockDevices(smi.ArchWarboy)[0],
-			strategy:         config.SingleCoreStrategy,
+			strategy:         SingleCorePolicy,
 			expected:         true,
 		},
 		{
 			description:      "expect source and target are not identical",
 			mockSourceDevice: smi.GetStaticMockDevices(smi.ArchWarboy)[0],
 			mockTargetDevice: smi.GetStaticMockDevices(smi.ArchWarboy)[1],
-			strategy:         config.SingleCoreStrategy,
+			strategy:         SingleCorePolicy,
 			expected:         false,
 		},
 	}
@@ -558,4 +551,3 @@ func TestEqual_Warboy_PartitionedDevice(t *testing.T) {
 		})
 	}
 }
-*/

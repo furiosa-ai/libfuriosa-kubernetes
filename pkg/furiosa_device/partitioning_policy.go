@@ -25,7 +25,7 @@ func (strategy PartitioningPolicy) CoreSize() int {
 	case QuadCorePolicy:
 		return 4
 
-	default: // `GenericStrategy` should not be used here!
+	default: // CoreSize should not be used for NonePolicy
 		panic("unknown policy")
 	}
 }

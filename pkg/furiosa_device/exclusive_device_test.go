@@ -1,4 +1,4 @@
-package device
+package furiosa_device
 
 import (
 	"testing"

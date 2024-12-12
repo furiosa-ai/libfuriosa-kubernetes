@@ -1,10 +1,14 @@
-name: Golang
+name: Build & Test Golang Project
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -14,18 +18,10 @@ jobs:
         go-version: [ '1.23.2' ]
 
     steps:
-      - name: checkout furios-smi
-        uses: actions/checkout@v4
+      - name: Prepare `furiosa-smi`
+        uses: furiosa-ai/furiosa-smi/actions/prepare@main
         with:
-          repository: furiosa-ai/furiosa-smi
-          token: ${{ secrets.TOKEN_FOR_CLONE_ANOTHER_REPO}}
-          path: furiosa-smi
-      - name: install furiosa-smi
-        run: |
-          cd furiosa-smi
-          rustup component add clippy rustfmt
-          cargo build
-          make install
+          personal-access-token: '${{ secrets.TOKEN_FOR_CLONE_ANOTHER_REPO }}'
       - uses: actions/checkout@v4
       - name: Setup Go ${{ matrix.go-version }}
         uses: actions/setup-go@v4

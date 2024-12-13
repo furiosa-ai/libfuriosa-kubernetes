@@ -89,10 +89,6 @@ func (m *staticRngdMockDevice) CoreStatus() (map[uint32]CoreStatus, error) {
 	}, nil
 }
 
-func (m *staticRngdMockDevice) DeviceErrorInfo() (DeviceErrorInfo, error) {
-	return &staticMockDeviceErrorInfo{}, nil
-}
-
 func (m *staticRngdMockDevice) Liveness() (bool, error) {
 	return true, nil
 }

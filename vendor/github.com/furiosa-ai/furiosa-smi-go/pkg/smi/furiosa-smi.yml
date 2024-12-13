@@ -34,7 +34,6 @@ TRANSLATOR:
       - {target: furiosa_smi_get_device_files, tips: [0,ref]}
       - {target: furiosa_smi_get_device_core_status, tips: [0,ref]}
       - {target: furiosa_smi_get_device_liveness, tips: [0,ref]}
-      - {target: furiosa_smi_get_device_error_info, tips: [0,ref]}
       - {target: furiosa_smi_get_driver_info, tips: [ref]}
       - {target: furiosa_smi_create_observer, tips: [sref]}
       - {target: furiosa_smi_destroy_observer, tips: [sref]}

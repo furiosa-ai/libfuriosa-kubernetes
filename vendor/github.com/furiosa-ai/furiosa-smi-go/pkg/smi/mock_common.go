@@ -100,46 +100,6 @@ func (m *staticMockDeviceFile) Path() string {
 	return m.path
 }
 
-type staticMockDeviceErrorInfo struct{}
-
-var _ DeviceErrorInfo = new(staticMockDeviceErrorInfo)
-
-func (m *staticMockDeviceErrorInfo) AxiPostErrorCount() uint32 {
-	return 0
-}
-
-func (m *staticMockDeviceErrorInfo) AxiFetchErrorCount() uint32 {
-	return 0
-}
-
-func (m *staticMockDeviceErrorInfo) AxiDiscardErrorCount() uint32 {
-	return 0
-}
-
-func (m *staticMockDeviceErrorInfo) AxiDoorbellErrorCount() uint32 {
-	return 0
-}
-
-func (m *staticMockDeviceErrorInfo) PciePostErrorCount() uint32 {
-	return 0
-}
-
-func (m *staticMockDeviceErrorInfo) PcieFetchErrorCount() uint32 {
-	return 0
-}
-
-func (m *staticMockDeviceErrorInfo) PcieDiscardErrorCount() uint32 {
-	return 0
-}
-
-func (m *staticMockDeviceErrorInfo) PcieDoorbellErrorCount() uint32 {
-	return 0
-}
-
-func (m *staticMockDeviceErrorInfo) DeviceErrorCount() uint32 {
-	return 0
-}
-
 type staticMockPeUtilization struct {
 	core       uint32
 	timeWindow uint32

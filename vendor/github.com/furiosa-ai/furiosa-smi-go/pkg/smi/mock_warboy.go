@@ -38,10 +38,6 @@ func (m *staticWarboyMockDevice) CoreStatus() (map[uint32]CoreStatus, error) {
 	return map[uint32]CoreStatus{0: CoreStatusAvailable, 1: CoreStatusAvailable}, nil
 }
 
-func (m *staticWarboyMockDevice) DeviceErrorInfo() (DeviceErrorInfo, error) {
-	return &staticMockDeviceErrorInfo{}, nil
-}
-
 func (m *staticWarboyMockDevice) Liveness() (bool, error) {
 	return true, nil
 }

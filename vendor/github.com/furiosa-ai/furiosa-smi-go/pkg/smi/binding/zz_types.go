@@ -57,18 +57,6 @@ type FuriosaSmiCoreStatuses struct {
 	CoreStatus [128]FuriosaSmiCoreStatus
 }
 
-type FuriosaSmiDeviceErrorInfo struct {
-	AxiPostErrorCount      uint32
-	AxiFetchErrorCount     uint32
-	AxiDiscardErrorCount   uint32
-	AxiDoorbellErrorCount  uint32
-	PciePostErrorCount     uint32
-	PcieFetchErrorCount    uint32
-	PcieDiscardErrorCount  uint32
-	PcieDoorbellErrorCount uint32
-	DeviceErrorCount       uint32
-}
-
 type FuriosaSmiPeUtilization struct {
 	Core              uint32
 	TimeWindowMil     uint32

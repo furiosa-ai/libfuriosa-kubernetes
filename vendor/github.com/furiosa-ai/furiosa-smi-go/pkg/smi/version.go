@@ -6,11 +6,11 @@ import "github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
 type VersionInfo interface {
 	// Major returns a major part of version.
 	Major() uint32
-	// Minor returns a major part of version.
+	// Minor returns a minor part of version.
 	Minor() uint32
-	// Patch returns a major part of version.
+	// Patch returns a patch part of version.
 	Patch() uint32
-	// Metadata returns a major part of version.
+	// Metadata returns a metadata of version.
 	Metadata() string
 }
 

@@ -92,16 +92,6 @@ func FuriosaSmiGetDeviceLiveness(handle FuriosaSmiDeviceHandle, outLiveness *boo
 	return __v
 }
 
-func FuriosaSmiGetDeviceErrorInfo(handle FuriosaSmiDeviceHandle, outErrorInfo *FuriosaSmiDeviceErrorInfo) FuriosaSmiReturnCode {
-	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
-	coutErrorInfo, coutErrorInfoAllocMap := (*C.FuriosaSmiDeviceErrorInfo)(unsafe.Pointer(outErrorInfo)), cgoAllocsUnknown
-	__ret := C.furiosa_smi_get_device_error_info(chandle, coutErrorInfo)
-	runtime.KeepAlive(coutErrorInfoAllocMap)
-	runtime.KeepAlive(chandleAllocMap)
-	__v := (FuriosaSmiReturnCode)(__ret)
-	return __v
-}
-
 func FuriosaSmiGetDeviceToDeviceLinkType(handle1 FuriosaSmiDeviceHandle, handle2 FuriosaSmiDeviceHandle, outLinkType *FuriosaSmiDeviceToDeviceLinkType) FuriosaSmiReturnCode {
 	chandle1, chandle1AllocMap := (C.FuriosaSmiDeviceHandle)(handle1), cgoAllocsUnknown
 	chandle2, chandle2AllocMap := (C.FuriosaSmiDeviceHandle)(handle2), cgoAllocsUnknown

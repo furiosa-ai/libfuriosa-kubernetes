@@ -40,8 +40,6 @@ type Device interface {
 	DeviceFiles() ([]DeviceFile, error)
 	// CoreStatus examine each core of the device, whether it is occupied or available.
 	CoreStatus() (map[uint32]CoreStatus, error)
-	// DeviceErrorInfo returns error states of the device.
-	DeviceErrorInfo() (DeviceErrorInfo, error)
 	// Liveness returns a liveness state of the device.
 	Liveness() (bool, error)
 	// CoreUtilization returns a core utilization of the device.
@@ -111,16 +109,6 @@ func (d *device) CoreStatus() (map[uint32]CoreStatus, error) {
 	}
 
 	return coreStatusMap, nil
-}
-
-func (d *device) DeviceErrorInfo() (DeviceErrorInfo, error) {
-	var out binding.FuriosaSmiDeviceErrorInfo
-
-	if ret := binding.FuriosaSmiGetDeviceErrorInfo(d.handle, &out); ret != binding.FuriosaSmiReturnCodeOk {
-		return nil, toError(ret)
-	}
-
-	return newDeviceErrorInfo(out), nil
 }
 
 func (d *device) Liveness() (bool, error) {

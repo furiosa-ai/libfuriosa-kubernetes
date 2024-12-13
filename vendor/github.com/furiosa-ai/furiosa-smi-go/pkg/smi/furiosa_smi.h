@@ -28,8 +28,6 @@ typedef enum {
   FURIOSA_SMI_ARCH_RNGD_MAX,
   /// RNGD-S architecture
   FURIOSA_SMI_ARCH_RNGD_S,
-  /// Unknown architecture
-  FURIOSA_SMI_ARCH_UNKNOWN = -1,
 } FuriosaSmiArch;
 
 /// \brief Represent a core status
@@ -145,19 +143,6 @@ typedef struct {
   FuriosaSmiCoreStatus core_status[FURIOSA_SMI_MAX_CORE_STATUS_SIZE];
 } FuriosaSmiCoreStatuses;
 
-/// \brief Represent an error information of device.
-typedef struct {
-  uint32_t axi_post_error_count;
-  uint32_t axi_fetch_error_count;
-  uint32_t axi_discard_error_count;
-  uint32_t axi_doorbell_error_count;
-  uint32_t pcie_post_error_count;
-  uint32_t pcie_fetch_error_count;
-  uint32_t pcie_discard_error_count;
-  uint32_t pcie_doorbell_error_count;
-  uint32_t device_error_count;
-} FuriosaSmiDeviceErrorInfo;
-
 typedef FuriosaSmiObserver *FuriosaSmiObserverInstance;
 
 /// \brief Represent a PE utilization.
@@ -179,12 +164,14 @@ typedef struct {
   uint64_t in_use_bytes;
 } FuriosaSmiMemoryUtilization;
 
+/// \brief Represent a PE performance counter.
 typedef struct {
   long timestamp;
   uint64_t cycle_count;
   uint64_t task_execution_cycle;
 } FuriosaSmiPePerformanceCounter;
 
+/// \brief Represent a device performance counter
 typedef struct {
   uint32_t pe_count;
   FuriosaSmiPePerformanceCounter pe_performance_counters[FURIOSA_SMI_MAX_PE_SIZE];
@@ -265,14 +252,6 @@ FuriosaSmiReturnCode furiosa_smi_get_device_core_status(FuriosaSmiDeviceHandle h
 /// @return FURIOSA_SMI_RETURN_CODE_OK if successful, see `FuriosaSmiReturnCode` for error cases.
 FuriosaSmiReturnCode furiosa_smi_get_device_liveness(FuriosaSmiDeviceHandle handle,
                                                      bool *out_liveness);
-
-/// \brief Get a error information of Furiosa NPU device.
-///
-/// @param handle handle of Furiosa NPU device.
-/// @param[out] out_error_info output buffer for pointer to FuriosaSmiDeviceErrorInfo.
-/// @return FURIOSA_SMI_RETURN_CODE_OK if successful, see `FuriosaSmiReturnCode` for error cases.
-FuriosaSmiReturnCode furiosa_smi_get_device_error_info(FuriosaSmiDeviceHandle handle,
-                                                       FuriosaSmiDeviceErrorInfo *out_error_info);
 
 /// @}
 

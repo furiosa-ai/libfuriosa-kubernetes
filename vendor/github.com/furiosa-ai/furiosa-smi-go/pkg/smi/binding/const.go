@@ -25,31 +25,30 @@ const (
 	FuriosaSmiMaxCstrSize = 96
 )
 
-// FuriosaSmiArch as declared in smi/furiosa_smi.h:33
+// FuriosaSmiArch as declared in smi/furiosa_smi.h:31
 type FuriosaSmiArch int32
 
-// FuriosaSmiArch enumeration from smi/furiosa_smi.h:33
+// FuriosaSmiArch enumeration from smi/furiosa_smi.h:31
 const (
 	FuriosaSmiArchWarboy  FuriosaSmiArch = iota
 	FuriosaSmiArchRngd    FuriosaSmiArch = 1
 	FuriosaSmiArchRngdMax FuriosaSmiArch = 2
 	FuriosaSmiArchRngdS   FuriosaSmiArch = 3
-	FuriosaSmiArchUnknown FuriosaSmiArch = -1
 )
 
-// FuriosaSmiCoreStatus as declared in smi/furiosa_smi.h:41
+// FuriosaSmiCoreStatus as declared in smi/furiosa_smi.h:39
 type FuriosaSmiCoreStatus int32
 
-// FuriosaSmiCoreStatus enumeration from smi/furiosa_smi.h:41
+// FuriosaSmiCoreStatus enumeration from smi/furiosa_smi.h:39
 const (
 	FuriosaSmiCoreStatusAvailable FuriosaSmiCoreStatus = iota
 	FuriosaSmiCoreStatusOccupied  FuriosaSmiCoreStatus = 1
 )
 
-// FuriosaSmiDeviceToDeviceLinkType as declared in smi/furiosa_smi.h:55
+// FuriosaSmiDeviceToDeviceLinkType as declared in smi/furiosa_smi.h:53
 type FuriosaSmiDeviceToDeviceLinkType int32
 
-// FuriosaSmiDeviceToDeviceLinkType enumeration from smi/furiosa_smi.h:55
+// FuriosaSmiDeviceToDeviceLinkType enumeration from smi/furiosa_smi.h:53
 const (
 	FuriosaSmiDeviceToDeviceLinkTypeUnknown      FuriosaSmiDeviceToDeviceLinkType = iota
 	FuriosaSmiDeviceToDeviceLinkTypeInterconnect FuriosaSmiDeviceToDeviceLinkType = 10
@@ -58,10 +57,10 @@ const (
 	FuriosaSmiDeviceToDeviceLinkTypeNoc          FuriosaSmiDeviceToDeviceLinkType = 70
 )
 
-// FuriosaSmiReturnCode as declared in smi/furiosa_smi.h:93
+// FuriosaSmiReturnCode as declared in smi/furiosa_smi.h:91
 type FuriosaSmiReturnCode int32
 
-// FuriosaSmiReturnCode enumeration from smi/furiosa_smi.h:93
+// FuriosaSmiReturnCode enumeration from smi/furiosa_smi.h:91
 const (
 	FuriosaSmiReturnCodeOk                       FuriosaSmiReturnCode = iota
 	FuriosaSmiReturnCodeInvalidArgumentError     FuriosaSmiReturnCode = 1

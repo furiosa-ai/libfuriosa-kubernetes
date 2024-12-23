@@ -1,0 +1,192 @@
+package cdi_spec
+
+import (
+	"fmt"
+	"github.com/bradfitz/iter"
+	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
+	"path/filepath"
+
+	"tags.cncf.io/container-device-interface/specs-go"
+)
+
+const (
+	rngdDevFsRoot        = "/dev/rngd/"
+	rngdMgmtFileExp      = "%smgmt"
+	rngdMaxChannel       = 8
+	rngdMaxRemoteChannel = 8
+	rngdChannelExp       = "%sch%d"
+	rngdRemoteChannelExp = "%sch%dr"
+	rngdDmaRemappingExp  = "%sdmar"
+	rngdBar0Exp          = "%sbar0"
+	rngdBar2Exp          = "%sbar2"
+	rngdBar4Exp          = "%sbar4"
+
+	rngdSysPrefix      = "rngd!"
+	rngdSysDevicesRoot = "/sys/devices/virtual/rngd_mgmt/"
+)
+
+type rngdDeviceSpec struct {
+	device      smi.Device
+	deviceInfo  smi.DeviceInfo
+	deviceFiles []smi.DeviceFile
+}
+
+func newRngdDeviceSpec(device smi.Device) (DeviceSpec, error) {
+	deviceInfo, err := device.DeviceInfo()
+	if err != nil {
+		return nil, err
+	}
+
+	deviceFiles, err := device.DeviceFiles()
+	if err != nil {
+		return nil, err
+	}
+
+	return &rngdDeviceSpec{
+		device:      device,
+		deviceInfo:  deviceInfo,
+		deviceFiles: deviceFiles,
+	}, nil
+}
+
+func (w *rngdDeviceSpec) containerEdits() *specs.ContainerEdits {
+	return &specs.ContainerEdits{
+		Env:            nil,
+		DeviceNodes:    w.deviceNodes(),
+		Hooks:          nil,
+		Mounts:         w.mounts(),
+		IntelRdt:       nil,
+		AdditionalGIDs: nil,
+	}
+}
+
+func (w *rngdDeviceSpec) DeviceSpec() *specs.Device {
+	containerEdits := w.containerEdits()
+
+	return &specs.Device{
+		Name:           w.deviceInfo.Name(),
+		ContainerEdits: *containerEdits,
+	}
+}
+
+func (w *rngdDeviceSpec) deviceNodes() []*specs.DeviceNode {
+	var deviceNodes []*specs.DeviceNode
+	devName := w.deviceInfo.Name()
+
+	// mount npu mgmt deviceFile under "/dev/rngd"
+	deviceNodes = append(deviceNodes, &specs.DeviceNode{
+		Path:        rngdDevFsRoot + fmt.Sprintf(rngdMgmtFileExp, devName),
+		HostPath:    rngdDevFsRoot + fmt.Sprintf(rngdMgmtFileExp, devName),
+		Permissions: readWriteOpt,
+	})
+
+	// mount devFiles such as "/dev/rngd/npu0pe0", "/dev/rngd/npu0pe0-1"
+	for _, deviceFile := range w.deviceFiles {
+		deviceNodes = append(deviceNodes, &specs.DeviceNode{
+			Path:        deviceFile.Path(),
+			HostPath:    deviceFile.Path(),
+			Permissions: readWriteOpt,
+		})
+	}
+
+	// mount channel fd for dma such as "/dev/rngd/npu0ch0" ~ "/dev/rngd/npu0ch7"
+	for idx := range iter.N(rngdMaxChannel) {
+		deviceNodes = append(deviceNodes, &specs.DeviceNode{
+			Path:        rngdDevFsRoot + fmt.Sprintf(rngdChannelExp, devName, idx),
+			HostPath:    rngdDevFsRoot + fmt.Sprintf(rngdChannelExp, devName, idx),
+			Permissions: readWriteOpt,
+		})
+	}
+
+	// mount remote channel fd for dma such as "/dev/rngd/npu0ch0r" ~ "/dev/rngd/npu0ch7r"
+	for idx := range iter.N(rngdMaxRemoteChannel) {
+		deviceNodes = append(deviceNodes, &specs.DeviceNode{
+			Path:        rngdDevFsRoot + fmt.Sprintf(rngdRemoteChannelExp, devName, idx),
+			HostPath:    rngdDevFsRoot + fmt.Sprintf(rngdRemoteChannelExp, devName, idx),
+			Permissions: readWriteOpt,
+		})
+	}
+
+	// mount dma remapping fd
+	deviceNodes = append(deviceNodes, &specs.DeviceNode{
+		Path:        rngdDevFsRoot + fmt.Sprintf(rngdDmaRemappingExp, devName),
+		HostPath:    rngdDevFsRoot + fmt.Sprintf(rngdDmaRemappingExp, devName),
+		Permissions: readWriteOpt,
+	})
+
+	// mount bar0
+	deviceNodes = append(deviceNodes, &specs.DeviceNode{
+		Path:        rngdDevFsRoot + fmt.Sprintf(rngdBar0Exp, devName),
+		HostPath:    rngdDevFsRoot + fmt.Sprintf(rngdBar0Exp, devName),
+		Permissions: readWriteOpt,
+	})
+
+	// mount bar2
+	deviceNodes = append(deviceNodes, &specs.DeviceNode{
+		Path:        rngdDevFsRoot + fmt.Sprintf(rngdBar2Exp, devName),
+		HostPath:    rngdDevFsRoot + fmt.Sprintf(rngdBar2Exp, devName),
+		Permissions: readWriteOpt,
+	})
+
+	// mount bar4
+	deviceNodes = append(deviceNodes, &specs.DeviceNode{
+		Path:        rngdDevFsRoot + fmt.Sprintf(rngdBar4Exp, devName),
+		HostPath:    rngdDevFsRoot + fmt.Sprintf(rngdBar4Exp, devName),
+		Permissions: readWriteOpt,
+	})
+
+	return deviceNodes
+}
+
+func (w *rngdDeviceSpec) mounts() []*specs.Mount {
+	var mounts []*specs.Mount
+	devName := w.deviceInfo.Name()
+
+	// mount "/sys/devices/virtual/rngd_mgmt/rngd!npu{x}_mgmt" path
+	mounts = append(mounts, &specs.Mount{
+		HostPath:      rngdSysDevicesRoot + rngdSysPrefix + fmt.Sprintf(rngdMgmtFileExp, devName),
+		ContainerPath: rngdSysDevicesRoot + rngdSysPrefix + fmt.Sprintf(rngdMgmtFileExp, devName),
+		Options:       []string{readOnlyOpt, bindOpt},
+	})
+
+	// mount /sys/devices/virtual/rngd_mgmt/rngd!npu{x}bar0 path
+	mounts = append(mounts, &specs.Mount{
+		ContainerPath: rngdSysDevicesRoot + rngdSysPrefix + fmt.Sprintf(rngdBar0Exp, devName),
+		HostPath:      rngdSysDevicesRoot + rngdSysPrefix + fmt.Sprintf(rngdBar0Exp, devName),
+		Options:       []string{readOnlyOpt, bindOpt},
+	})
+
+	// mount /sys/devices/virtual/rngd_mgmt/rngd!npu{x}bar2 path
+	mounts = append(mounts, &specs.Mount{
+		ContainerPath: rngdSysDevicesRoot + rngdSysPrefix + fmt.Sprintf(rngdBar2Exp, devName),
+		HostPath:      rngdSysDevicesRoot + rngdSysPrefix + fmt.Sprintf(rngdBar2Exp, devName),
+		Options:       []string{readOnlyOpt, bindOpt},
+	})
+
+	// mount /sys/devices/virtual/rngd_mgmt/rngd!npu{x}bar4 path
+	mounts = append(mounts, &specs.Mount{
+		ContainerPath: rngdSysDevicesRoot + rngdSysPrefix + fmt.Sprintf(rngdBar4Exp, devName),
+		HostPath:      rngdSysDevicesRoot + rngdSysPrefix + fmt.Sprintf(rngdBar4Exp, devName),
+		Options:       []string{readOnlyOpt, bindOpt},
+	})
+
+	// mount /sys/devices/virtual/rngd_mgmt/rngd!npu{x}dmar path
+	mounts = append(mounts, &specs.Mount{
+		ContainerPath: rngdSysDevicesRoot + rngdSysPrefix + fmt.Sprintf(rngdDmaRemappingExp, devName),
+		HostPath:      rngdSysDevicesRoot + rngdSysPrefix + fmt.Sprintf(rngdDmaRemappingExp, devName),
+		Options:       []string{readOnlyOpt, bindOpt},
+	})
+
+	// mount /sys/class/rngd_mgmt/rngd!npu{x}pe{y} paths
+	for _, deviceFile := range w.deviceFiles {
+		file := filepath.Base(deviceFile.Path())
+
+		mounts = append(mounts, &specs.Mount{
+			ContainerPath: rngdSysDevicesRoot + rngdSysPrefix + file,
+			HostPath:      rngdSysDevicesRoot + rngdSysPrefix + file,
+			Options:       []string{readOnlyOpt, bindOpt},
+		})
+	}
+
+	return mounts
+}

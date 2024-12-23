@@ -14,6 +14,12 @@ import (
 	"unsafe"
 )
 
+func FuriosaSmiInit() FuriosaSmiReturnCode {
+	__ret := C.furiosa_smi_init()
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}
+
 func FuriosaSmiGetDeviceHandles(outHandles *FuriosaSmiDeviceHandles) FuriosaSmiReturnCode {
 	coutHandles, coutHandlesAllocMap := (*C.FuriosaSmiDeviceHandles)(unsafe.Pointer(outHandles)), cgoAllocsUnknown
 	__ret := C.furiosa_smi_get_device_handles(coutHandles)

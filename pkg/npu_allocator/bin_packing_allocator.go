@@ -67,7 +67,7 @@ func (b *binPackingNpuAllocator) Allocate(available DeviceSet, required DeviceSe
 		return required
 	}
 
-	// Step 1: build a map with TopologyHintKey as a key to access available DeviceSet
+	// Step 1: build a map with PCIBusID as a key to access available DeviceSet
 	availableDevicesByHintKeyMap := util.NewBtreeMapWithLessFunc[TopologyHintKey, DeviceSet](available.Len(), func(a, b util.BtreeMapItem[TopologyHintKey, DeviceSet]) bool {
 		key1, key2 := a.Key, b.Key
 

@@ -188,6 +188,17 @@ typedef struct {
   double ambient;
 } FuriosaSmiDeviceTemperature;
 
+/// @defgroup Initialize Initialize
+/// @brief Initialize module for Furiosa smi.
+/// @{
+
+/// \brief Initialize Furiosa SMI library.
+///
+/// @return FURIOSA_SMI_RETURN_CODE_OK if successful, see `FuriosaSmiReturnCode` for error cases.
+FuriosaSmiReturnCode furiosa_smi_init(void);
+
+/// @}
+
 /// @defgroup Device Device
 /// @brief Device module for Furiosa smi.
 /// @{

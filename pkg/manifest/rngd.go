@@ -2,7 +2,6 @@ package manifest
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/bradfitz/iter"
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
@@ -60,7 +59,7 @@ func (w rngdManifest) Annotations() map[string]string {
 
 func (w rngdManifest) DeviceNodes() []*DeviceNode {
 	var deviceNodes []*DeviceNode
-	devName := filepath.Base(w.deviceInfo.Name())
+	devName := w.deviceInfo.Name()
 
 	// mount npu mgmt file under "/dev/rngd"
 	deviceNodes = append(deviceNodes, &DeviceNode{
@@ -108,7 +107,7 @@ func (w rngdManifest) DeviceNodes() []*DeviceNode {
 
 func (w rngdManifest) MountPaths() []*Mount {
 	var mounts []*Mount
-	devName := filepath.Base(w.deviceInfo.Name())
+	devName := w.deviceInfo.Name()
 
 	// mount "/sys/class/rngd_mgmt/rngd!npu{x}_mgmt" path
 	mounts = append(mounts, &Mount{

@@ -9,11 +9,12 @@ import (
 )
 
 const (
+	devFsWarboyMgmtFileExp   = "/dev/%s_mgmt"
 	warboyMgmtFileExp        = "%s_mgmt"
 	warboySysClassRoot       = "/sys/class/npu_mgmt/"
 	warboySysDevicesRoot     = "/sys/devices/virtual/npu_mgmt/"
 	warboyMaxChannel     int = 4
-	warboyChannelExp         = "%sch%d"
+	warboyChannelExp         = "/dev/%sch%d"
 )
 
 var _ Manifest = (*warboyManifest)(nil)
@@ -60,8 +61,8 @@ func (w warboyManifest) DeviceNodes() []*DeviceNode {
 
 	// mount npu mgmt file under "/dev"
 	deviceNodes = append(deviceNodes, &DeviceNode{
-		ContainerPath: fmt.Sprintf(warboyMgmtFileExp, devName),
-		HostPath:      fmt.Sprintf(warboyMgmtFileExp, devName),
+		ContainerPath: fmt.Sprintf(devFsWarboyMgmtFileExp, devName),
+		HostPath:      fmt.Sprintf(devFsWarboyMgmtFileExp, devName),
 		Permissions:   readWriteOpt,
 	})
 
@@ -88,7 +89,7 @@ func (w warboyManifest) DeviceNodes() []*DeviceNode {
 
 func (w warboyManifest) MountPaths() []*Mount {
 	var mounts []*Mount
-	devName := filepath.Base(w.deviceInfo.Name())
+	devName := w.deviceInfo.Name()
 
 	// mount "/sys/class/npu_mgmt/npu{x}_mgmt" path
 	mounts = append(mounts, &Mount{

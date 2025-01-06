@@ -38,20 +38,20 @@ func TestWarboyDeviceNodes(t *testing.T) {
 					HostPath:      "/dev/npu0pe0-1",
 					Permissions:   readWriteOpt,
 				}, {
-					ContainerPath: "/dev/" + fmt.Sprintf(warboyChannelExp, "npu0", 0),
-					HostPath:      "/dev/" + fmt.Sprintf(warboyChannelExp, "npu0", 0),
+					ContainerPath: fmt.Sprintf(warboyChannelExp, "npu0", 0),
+					HostPath:      fmt.Sprintf(warboyChannelExp, "npu0", 0),
 					Permissions:   readWriteOpt,
 				}, {
-					ContainerPath: "/dev/" + fmt.Sprintf(warboyChannelExp, "npu0", 1),
-					HostPath:      "/dev/" + fmt.Sprintf(warboyChannelExp, "npu0", 1),
+					ContainerPath: fmt.Sprintf(warboyChannelExp, "npu0", 1),
+					HostPath:      fmt.Sprintf(warboyChannelExp, "npu0", 1),
 					Permissions:   readWriteOpt,
 				}, {
-					ContainerPath: "/dev/" + fmt.Sprintf(warboyChannelExp, "npu0", 2),
-					HostPath:      "/dev/" + fmt.Sprintf(warboyChannelExp, "npu0", 2),
+					ContainerPath: fmt.Sprintf(warboyChannelExp, "npu0", 2),
+					HostPath:      fmt.Sprintf(warboyChannelExp, "npu0", 2),
 					Permissions:   readWriteOpt,
 				}, {
-					ContainerPath: "/dev/" + fmt.Sprintf(warboyChannelExp, "npu0", 3),
-					HostPath:      "/dev/" + fmt.Sprintf(warboyChannelExp, "npu0", 3),
+					ContainerPath: fmt.Sprintf(warboyChannelExp, "npu0", 3),
+					HostPath:      fmt.Sprintf(warboyChannelExp, "npu0", 3),
 					Permissions:   readWriteOpt,
 				},
 			},

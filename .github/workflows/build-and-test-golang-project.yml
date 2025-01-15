@@ -19,9 +19,9 @@ jobs:
 
     steps:
       - name: Prepare `furiosa-smi`
-        uses: furiosa-ai/furiosa-smi/actions/prepare@main
+        uses: furiosa-ai/furiosa-smi/actions/prepare@add-ssh-key-input-into-the-prepare-furiosa-smi-action
         with:
-          personal-access-token: '${{ secrets.TOKEN_FOR_CLONE_ANOTHER_REPO }}'
+          ssh-key: ${{ secrets.FURIOSA_SMI_RDONLY_DEPLOY_KEY }}
       - uses: actions/checkout@v4
       - name: Setup Go ${{ matrix.go-version }}
         uses: actions/setup-go@v4

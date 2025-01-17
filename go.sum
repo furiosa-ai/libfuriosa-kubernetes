@@ -103,8 +103,8 @@ github.com/foxcpp/go-mockdns v1.1.0 h1:jI0rD8M0wuYAxL7r/ynTrCQQq0BVqfB99Vgk7Dlme
 github.com/foxcpp/go-mockdns v1.1.0/go.mod h1:IhLeSFGed3mJIAXPH2aiRQB+kqz7oqu8ld2qVbOu7Wk=
 github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=
 github.com/frankban/quicktest v1.14.6/go.mod h1:4ptaffx2x8+WTWXmUCuVU6aPUX1/Mz7zb5vbUoiM6w0=
-github.com/furiosa-ai/furiosa-smi-go v0.1.4 h1:fnPHqMaySqrWuJCVLm7VHlIjx57dkd9oc8xqVySpMOs=
-github.com/furiosa-ai/furiosa-smi-go v0.1.4/go.mod h1:JUgTeSIOzCKqdRfbqFLYCPBtyFM0i0G9i8F2AGnTIGc=
+github.com/furiosa-ai/furiosa-smi-go v0.1.5 h1:2Ekx9KbuGIek8B4D+qnmJW+fzDG0wN7XMjHp8pCYm0c=
+github.com/furiosa-ai/furiosa-smi-go v0.1.5/go.mod h1:JUgTeSIOzCKqdRfbqFLYCPBtyFM0i0G9i8F2AGnTIGc=
 github.com/fxamacker/cbor/v2 v2.7.0 h1:iM5WgngdRBanHcxugY4JySA0nk1wZorNOpTgCMedv5E=
 github.com/fxamacker/cbor/v2 v2.7.0/go.mod h1:pxXPTn3joSm21Gbwsv0w9OSA2y1HFR9qXEeXQVeNoDQ=
 github.com/go-errors/errors v1.5.1 h1:ZwEMSLRCapFLflTpT7NKaAc7ukJ8ZPEjzlxt8rPN8bk=

@@ -156,7 +156,7 @@ func (m *staticRngdMockDeviceInfo) NumaNode() uint32 {
 }
 
 func (m *staticRngdMockDeviceInfo) Name() string {
-	return fmt.Sprintf("/dev/rngd/npu%d", m.nodeIdx)
+	return fmt.Sprintf("npu%d", m.nodeIdx)
 }
 
 func (m *staticRngdMockDeviceInfo) Serial() string {

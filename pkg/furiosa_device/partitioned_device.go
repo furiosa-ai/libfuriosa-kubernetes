@@ -2,13 +2,12 @@ package furiosa_device
 
 import (
 	"fmt"
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/cdi_spec"
 	"strconv"
+	"tags.cncf.io/container-device-interface/specs-go"
 
 	"github.com/bradfitz/iter"
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/manifest"
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/npu_allocator"
-	devicePluginAPIv1Beta1 "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
 )
 
 var _ FuriosaDevice = (*partitionedDevice)(nil)
@@ -18,24 +17,24 @@ var _ FuriosaDevice = (*partitionedDevice)(nil)
 const deviceIdDelimiter = "_cores_"
 
 // Partition contains the index of PE cores.
-// If partition has PE cores from 0 to 4, `start` will be 0 and `end` wil be 4.
+// If partition has PE cores from 0 to 4, `Start` will be 0 and `End` wil be 4.
 type Partition struct {
-	start int
-	end   int
+	Start int
+	End   int
 }
 
 func (p Partition) String() string {
-	if p.start == p.end {
-		return strconv.Itoa(p.start)
+	if p.Start == p.End {
+		return strconv.Itoa(p.Start)
 	}
 
-	return fmt.Sprintf("%d-%d", p.start, p.end)
+	return fmt.Sprintf("%d-%d", p.Start, p.End)
 }
 
 type partitionedDevice struct {
 	index      int
 	origin     smi.Device
-	manifest   manifest.Manifest
+	renderer   cdi_spec.Renderer
 	uuid       string
 	partition  Partition
 	pciBusID   string
@@ -48,39 +47,21 @@ func generateIndexForPartitionedDevice(originalIndex, partitionIndex, partitions
 	return originalIndex*partitionsLength + partitionIndex
 }
 
-// NewPartitionedDevices returns list of FuriosaDevice based on given config.ResourceUnitStrategy.
-func NewPartitionedDevices(originDevice smi.Device, numOfCoresPerPartition int, numOfPartitions int, isDisabled bool) ([]FuriosaDevice, error) {
-	arch, uuid, pciBusID, numaNode, originIndex, err := parseDeviceInfo(originDevice)
+// newPartitionedDevices returns list of FuriosaDevice based on given config.ResourceUnitStrategy.
+func newPartitionedDevices(originDevice smi.Device, numOfCoresPerPartition int, numOfPartitions int, isDisabled bool) ([]FuriosaDevice, error) {
+	uuid, pciBusID, numaNode, originIndex, err := parseDeviceInfo(originDevice)
 	if err != nil {
 		return nil, err
-	}
-
-	// This block checks architecture and gets manifest of it.
-	// If architecture is invalid, it returns error.
-	var originalManifest manifest.Manifest
-	switch arch {
-	case smi.ArchWarboy:
-		if originalManifest, err = manifest.NewWarboyManifest(originDevice); err != nil {
-			return nil, err
-		}
-
-	case smi.ArchRngd:
-		if originalManifest, err = manifest.NewRngdManifest(originDevice); err != nil {
-			return nil, err
-		}
-
-	default:
-		return nil, fmt.Errorf("unsupported architecture: %s", arch.ToString())
 	}
 
 	partitionedDevices := make([]FuriosaDevice, 0)
 	for partitionIndex := range iter.N(numOfPartitions) {
 		partition := Partition{
-			start: partitionIndex * numOfCoresPerPartition,
-			end:   (partitionIndex+1)*numOfCoresPerPartition - 1,
+			Start: partitionIndex * numOfCoresPerPartition,
+			End:   (partitionIndex+1)*numOfCoresPerPartition - 1,
 		}
 
-		partitionedManifest, err := NewPartitionedDeviceManifest(arch, originalManifest, partition)
+		partitionedManifest, err := cdi_spec.NewPartitionedDeviceSpecRenderer(originDevice, partition.Start, partition.End)
 		if err != nil {
 			return nil, err
 		}
@@ -88,7 +69,7 @@ func NewPartitionedDevices(originDevice smi.Device, numOfCoresPerPartition int, 
 		partitionedDevices = append(partitionedDevices, &partitionedDevice{
 			index:      generateIndexForPartitionedDevice(originIndex, partitionIndex, numOfPartitions),
 			origin:     originDevice,
-			manifest:   partitionedManifest,
+			renderer:   partitionedManifest,
 			uuid:       uuid,
 			partition:  partition,
 			pciBusID:   pciBusID,
@@ -127,78 +108,14 @@ func (p *partitionedDevice) IsHealthy() (bool, error) {
 	return liveness, nil
 }
 
-func (p *partitionedDevice) IsExclusiveDevice() bool {
-	return false
-}
-
-func (p *partitionedDevice) EnvVars() map[string]string {
-	return p.manifest.EnvVars()
-}
-
-func (p *partitionedDevice) Annotations() map[string]string {
-	return p.manifest.Annotations()
-}
-
-func (p *partitionedDevice) DeviceSpecs() []*devicePluginAPIv1Beta1.DeviceSpec {
-	deviceSpecs := make([]*devicePluginAPIv1Beta1.DeviceSpec, 0)
-	for _, deviceNode := range p.manifest.DeviceNodes() {
-		deviceSpecs = append(deviceSpecs, &devicePluginAPIv1Beta1.DeviceSpec{
-			ContainerPath: deviceNode.ContainerPath,
-			HostPath:      deviceNode.HostPath,
-			Permissions:   deviceNode.Permissions,
-		})
+func (p *partitionedDevice) CDISpec() (*specs.Device, error) {
+	renderer, err := cdi_spec.NewPartitionedDeviceSpecRenderer(p.origin, p.partition.Start, p.partition.End)
+	if err != nil {
+		return nil, err
 	}
-
-	return deviceSpecs
-}
-
-func (p *partitionedDevice) Mounts() []*devicePluginAPIv1Beta1.Mount {
-	mounts := make([]*devicePluginAPIv1Beta1.Mount, 0)
-	for _, mount := range p.manifest.MountPaths() {
-		readOnly := false
-		for _, opt := range mount.Options {
-			if opt == readOnlyOpt {
-				readOnly = true
-				break
-			}
-		}
-
-		mounts = append(mounts, &devicePluginAPIv1Beta1.Mount{
-			ContainerPath: mount.ContainerPath,
-			HostPath:      mount.HostPath,
-			ReadOnly:      readOnly,
-		})
-	}
-
-	return mounts
-}
-
-func (p *partitionedDevice) CDIDevices() []*devicePluginAPIv1Beta1.CDIDevice {
-	// TODO: implement it when CDI is ready.
-	return nil
+	return renderer.Render(), nil
 }
 
 func (p *partitionedDevice) Index() int {
 	return p.index
-}
-
-func (p *partitionedDevice) ID() string {
-	return p.DeviceID()
-}
-
-func (p *partitionedDevice) TopologyHintKey() npu_allocator.TopologyHintKey {
-	return npu_allocator.TopologyHintKey(p.PCIBusID())
-}
-
-func (p *partitionedDevice) Equal(target npu_allocator.Device) bool {
-	converted, isPartitionedDevice := target.(*partitionedDevice)
-	if !isPartitionedDevice {
-		return false
-	}
-
-	if p.DeviceID() != converted.DeviceID() {
-		return false
-	}
-
-	return true
 }

@@ -105,7 +105,7 @@ func (m *staticWarboyMockDeviceInfo) NumaNode() uint32 {
 }
 
 func (m *staticWarboyMockDeviceInfo) Name() string {
-	return fmt.Sprintf("/dev/npu%d", m.nodeIdx)
+	return fmt.Sprintf("npu%d", m.nodeIdx)
 }
 
 func (m *staticWarboyMockDeviceInfo) Serial() string {

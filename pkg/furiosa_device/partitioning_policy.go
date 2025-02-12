@@ -37,7 +37,7 @@ func newDeviceFuncResolver(policy PartitioningPolicy) (ret newDeviceFunc) {
 	switch policy {
 	case NonePolicy:
 		ret = func(originDevice smi.Device, isDisabled bool) ([]FuriosaDevice, error) {
-			newExclusiveDevice, err := NewExclusiveDevice(originDevice, isDisabled)
+			newExclusiveDevice, err := newExclusiveDevice(originDevice, isDisabled)
 			if err != nil {
 				return nil, err
 			}
@@ -54,7 +54,7 @@ func newDeviceFuncResolver(policy PartitioningPolicy) (ret newDeviceFunc) {
 
 			numOfCoresPerPartition := policy.CoreSize()
 			totalCores := int(deviceInfo.CoreNum())
-			newPartitionedDevices, err := NewPartitionedDevices(originDevice, numOfCoresPerPartition, totalCores/numOfCoresPerPartition, isDisabled)
+			newPartitionedDevices, err := newPartitionedDevices(originDevice, numOfCoresPerPartition, totalCores/numOfCoresPerPartition, isDisabled)
 			if err != nil {
 				return nil, err
 			}

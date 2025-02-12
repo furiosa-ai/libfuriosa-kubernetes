@@ -2,6 +2,7 @@ package npu_allocator
 
 import (
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/furiosa_device"
 	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/util"
 )
 
@@ -14,6 +15,7 @@ type Device interface {
 	// Index must be injected from `furiosa-device-plugin`, and should not be modified by `libfuriosa-kubernetes`.
 	Index() int
 
+	// ID
 	// ID returns a unique ID of Device to identify the device.
 	ID() string
 
@@ -22,6 +24,30 @@ type Device interface {
 
 	// Equal check whether source Device is identical to the target Device.
 	Equal(target Device) bool
+}
+
+func NewDevice(origin furiosa_device.FuriosaDevice) Device {
+	return &device{origin: origin}
+}
+
+type device struct {
+	origin furiosa_device.FuriosaDevice
+}
+
+func (d *device) Index() int {
+	return d.origin.Index()
+}
+
+func (d *device) ID() string {
+	return d.origin.DeviceID()
+}
+
+func (d *device) TopologyHintKey() TopologyHintKey {
+	return TopologyHintKey(d.origin.PCIBusID())
+}
+
+func (d *device) Equal(target Device) bool {
+	return d.ID() == target.ID()
 }
 
 type DeviceSet interface {

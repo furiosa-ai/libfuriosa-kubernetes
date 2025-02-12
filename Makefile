@@ -76,12 +76,3 @@ base-rel:
 base-no-cache-rel:
 	docker build . --no-cache -t registry.corp.furiosa.ai/furiosa/libfuriosa-kubernetes:latest --progress=plain --platform=linux/amd64 --build-arg BASE_IMAGE=$(BASE_IMAGE)
 
-.PHONY: furiosa-smi-go-boilerplate
-furiosa-smi-go-boilerplate:
-	c-for-go -debug -nostamp -out pkg/smi pkg/smi/furiosa-smi.yml
-	go build -o clean_cgo tools/clean_cgo.go
-	./clean_cgo -source=pkg/smi/binding/types.go -output=pkg/smi/binding/zz_types.go
-	./clean_cgo -source=pkg/smi/binding/binding.go -output=pkg/smi/binding/zz_binding.go
-	rm -rf pkg/smi/binding/types.go
-	rm -rf pkg/smi/binding/binding.go
-	rm -rf pkg/smi/binding/cgo_helpers.go

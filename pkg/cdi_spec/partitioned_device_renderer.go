@@ -15,7 +15,7 @@ func NewPartitionedDeviceSpecRenderer(device smi.Device, coreStart int, coreEnd 
 		return nil, err
 	}
 
-	var deviceSpec DeviceSpec = nil
+	var deviceSpec CDISpec = nil
 	switch deviceInfo.Arch() {
 	case smi.ArchWarboy:
 		return nil, fmt.Errorf("partitioned device is not supported for Warboy")
@@ -35,7 +35,7 @@ func NewPartitionedDeviceSpecRenderer(device smi.Device, coreStart int, coreEnd 
 }
 
 type partitionedDeviceSpecRenderer struct {
-	spec      DeviceSpec
+	spec      CDISpec
 	coreStart int
 	coreEnd   int
 }
@@ -53,7 +53,7 @@ var (
 	deviceNodeSubExps = deviceNodePeRegex.SubexpNames()
 )
 
-func (p partitionedDeviceSpecRenderer) Render() *specs.Device {
+func (p *partitionedDeviceSpecRenderer) Render() *specs.Device {
 	mutatedSpec := p.spec.DeviceSpec()
 	mutatedSpec.ContainerEdits.DeviceNodes = filterPartitionedDeviceNodes(p.spec, p.coreStart, p.coreEnd)
 	return mutatedSpec
@@ -67,7 +67,7 @@ func (p partitionedDeviceSpecRenderer) Render() *specs.Device {
 //   - npu0pe0-3
 //   - npu0pe0-1, npu0pe2-3
 //   - npu0pe0, npu0pe1, npu0pe2, npu0pe3
-func filterPartitionedDeviceNodes(original DeviceSpec, startCore int, endCore int) []*specs.DeviceNode {
+func filterPartitionedDeviceNodes(original CDISpec, startCore int, endCore int) []*specs.DeviceNode {
 	peLowerBound, peUpperBound := startCore, endCore
 
 	var survivedDeviceNodes []*specs.DeviceNode

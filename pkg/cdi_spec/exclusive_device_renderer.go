@@ -11,7 +11,7 @@ func NewExclusiveDeviceSpecRenderer(device smi.Device) (Renderer, error) {
 		return nil, err
 	}
 
-	var deviceSpec DeviceSpec = nil
+	var deviceSpec CDISpec = nil
 	switch deviceInfo.Arch() {
 	case smi.ArchWarboy:
 		deviceSpec, err = newWarboyDeviceSpec(device)
@@ -31,9 +31,9 @@ func NewExclusiveDeviceSpecRenderer(device smi.Device) (Renderer, error) {
 var _ Renderer = (*exclusiveDeviceSpecRenderer)(nil)
 
 type exclusiveDeviceSpecRenderer struct {
-	spec DeviceSpec
+	spec CDISpec
 }
 
-func (e exclusiveDeviceSpecRenderer) Render() *specs.Device {
+func (e *exclusiveDeviceSpecRenderer) Render() *specs.Device {
 	return e.spec.DeviceSpec()
 }

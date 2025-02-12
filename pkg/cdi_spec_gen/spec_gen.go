@@ -72,10 +72,6 @@ func NewSpec(opts ...Option) Spec {
 		opt(gen)
 	}
 
-	if gen.devices == nil {
-		return nil
-	}
-
 	return gen.Build()
 }
 
@@ -107,7 +103,7 @@ func mergeDeviceSpec(specName string, isolation bool, devices []furiosa_device.F
 	var deviceSpecs []specs.Device
 
 	for idx, device := range devices {
-		target := device.DeviceSpec()
+		target := device.CDISpec()
 		if isolation {
 			target = mutateContainerPath(target, idx)
 		}
@@ -144,7 +140,7 @@ func (b *specGenerator) Build() Spec {
 
 	// handle native devices
 	for _, device := range b.devices {
-		deviceSpecs = append(deviceSpecs, *device.DeviceSpec())
+		deviceSpecs = append(deviceSpecs, *device.CDISpec())
 	}
 
 	// handle aggregated device

@@ -34,7 +34,7 @@ func (p Partition) String() string {
 type partitionedDevice struct {
 	index      int
 	origin     smi.Device
-	manifest   cdi_spec.Renderer
+	renderer   cdi_spec.Renderer
 	uuid       string
 	partition  Partition
 	pciBusID   string
@@ -69,7 +69,7 @@ func newPartitionedDevices(originDevice smi.Device, numOfCoresPerPartition int, 
 		partitionedDevices = append(partitionedDevices, &partitionedDevice{
 			index:      generateIndexForPartitionedDevice(originIndex, partitionIndex, numOfPartitions),
 			origin:     originDevice,
-			manifest:   partitionedManifest,
+			renderer:   partitionedManifest,
 			uuid:       uuid,
 			partition:  partition,
 			pciBusID:   pciBusID,
@@ -108,7 +108,7 @@ func (p *partitionedDevice) IsHealthy() (bool, error) {
 	return liveness, nil
 }
 
-func (p *partitionedDevice) DeviceSpec() *specs.Device {
+func (p *partitionedDevice) CDISpec() *specs.Device {
 	renderer, _ := cdi_spec.NewPartitionedDeviceSpecRenderer(p.origin, p.partition.Start, p.partition.End)
 	return renderer.Render()
 }

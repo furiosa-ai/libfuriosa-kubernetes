@@ -307,10 +307,10 @@ func TestNUMANode_RNGD_PartitionedDevice(t *testing.T) {
 /*func TestDeviceSpecs_RNGD_PartitionedDevice(t *testing.T) {
 	rngdMockDevice := smi.GetStaticMockDevices(smi.ArchRngd)[0]
 
-	rngdExpectedResultCandidatesForSingleCoreStrategy := func() [][]*devicePluginAPIv1Beta1.DeviceSpec {
-		candidates := make([][]*devicePluginAPIv1Beta1.DeviceSpec, 0, 8)
+	rngdExpectedResultCandidatesForSingleCoreStrategy := func() [][]*devicePluginAPIv1Beta1.CDISpec {
+		candidates := make([][]*devicePluginAPIv1Beta1.CDISpec, 0, 8)
 		for i := 0; i < 8; i++ {
-			candidates = append(candidates, []*devicePluginAPIv1Beta1.DeviceSpec{
+			candidates = append(candidates, []*devicePluginAPIv1Beta1.CDISpec{
 				{
 					ContainerPath: "/dev/rngd/npu0mgmt",
 					HostPath:      "/dev/rngd/npu0mgmt",
@@ -412,10 +412,10 @@ func TestNUMANode_RNGD_PartitionedDevice(t *testing.T) {
 		return candidates
 	}()
 
-	rngdExpectedResultCandidatesForDualCoreStrategy := func() [][]*devicePluginAPIv1Beta1.DeviceSpec {
-		candidates := make([][]*devicePluginAPIv1Beta1.DeviceSpec, 0, 8)
+	rngdExpectedResultCandidatesForDualCoreStrategy := func() [][]*devicePluginAPIv1Beta1.CDISpec {
+		candidates := make([][]*devicePluginAPIv1Beta1.CDISpec, 0, 8)
 		for i := 0; i < 8; i += 2 {
-			candidates = append(candidates, []*devicePluginAPIv1Beta1.DeviceSpec{
+			candidates = append(candidates, []*devicePluginAPIv1Beta1.CDISpec{
 				{
 					ContainerPath: "/dev/rngd/npu0mgmt",
 					HostPath:      "/dev/rngd/npu0mgmt",
@@ -527,10 +527,10 @@ func TestNUMANode_RNGD_PartitionedDevice(t *testing.T) {
 		return candidates
 	}()
 
-	rngdExpectedResultCandidatesForQuadCoreStrategy := func() [][]*devicePluginAPIv1Beta1.DeviceSpec {
-		candidates := make([][]*devicePluginAPIv1Beta1.DeviceSpec, 0, 8)
+	rngdExpectedResultCandidatesForQuadCoreStrategy := func() [][]*devicePluginAPIv1Beta1.CDISpec {
+		candidates := make([][]*devicePluginAPIv1Beta1.CDISpec, 0, 8)
 		for i := 0; i < 8; i += 4 {
-			candidates = append(candidates, []*devicePluginAPIv1Beta1.DeviceSpec{
+			candidates = append(candidates, []*devicePluginAPIv1Beta1.CDISpec{
 				{
 					ContainerPath: "/dev/rngd/npu0mgmt",
 					HostPath:      "/dev/rngd/npu0mgmt",
@@ -666,7 +666,7 @@ func TestNUMANode_RNGD_PartitionedDevice(t *testing.T) {
 		description              string
 		mockDevice               smi.Device
 		strategy                 PartitioningPolicy
-		expectedResultCandidates [][]*devicePluginAPIv1Beta1.DeviceSpec
+		expectedResultCandidates [][]*devicePluginAPIv1Beta1.CDISpec
 	}{
 		{
 			description:              "[SingleCoreStrategy] each RNGD mock device must contains all DeviceSpecs",

@@ -28,7 +28,7 @@ type warboyDeviceSpec struct {
 	deviceFiles []smi.DeviceFile
 }
 
-func newWarboyDeviceSpec(device smi.Device) (DeviceSpec, error) {
+func newWarboyDeviceSpec(device smi.Device) (CDISpec, error) {
 	deviceInfo, err := device.DeviceInfo()
 	if err != nil {
 		return nil, err

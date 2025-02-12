@@ -17,7 +17,7 @@ func TestFilterPartitionedDeviceNodes(t *testing.T) {
 
 	tests := []struct {
 		description  string
-		spec         DeviceSpec
+		spec         CDISpec
 		startCore    int
 		endCore      int
 		mustContains []*specs.DeviceNode

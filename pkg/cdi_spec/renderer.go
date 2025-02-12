@@ -8,7 +8,7 @@ type Renderer interface {
 	Render() *specs.Device
 }
 
-type DeviceSpec interface {
+type CDISpec interface {
 	DeviceSpec() *specs.Device
 	containerEdits() *specs.ContainerEdits
 	deviceNodes() []*specs.DeviceNode

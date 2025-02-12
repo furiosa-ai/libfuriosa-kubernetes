@@ -11,7 +11,7 @@ var _ FuriosaDevice = (*exclusiveDevice)(nil)
 type exclusiveDevice struct {
 	index      int
 	origin     smi.Device
-	manifest   cdi_spec.Renderer
+	renderer   cdi_spec.Renderer
 	deviceID   string
 	pciBusID   string
 	numaNode   int
@@ -32,7 +32,7 @@ func newExclusiveDevice(originDevice smi.Device, isDisabled bool) (FuriosaDevice
 	return &exclusiveDevice{
 		index:      originIndex,
 		origin:     originDevice,
-		manifest:   newExclusiveDeviceManifest,
+		renderer:   newExclusiveDeviceManifest,
 		deviceID:   deviceID,
 		pciBusID:   pciBusID,
 		numaNode:   int(numaNode),
@@ -64,7 +64,7 @@ func (f *exclusiveDevice) IsHealthy() (bool, error) {
 	return liveness, nil
 }
 
-func (f *exclusiveDevice) DeviceSpec() *specs.Device {
+func (f *exclusiveDevice) CDISpec() *specs.Device {
 	renderer, _ := cdi_spec.NewExclusiveDeviceSpecRenderer(f.origin)
 	return renderer.Render()
 }

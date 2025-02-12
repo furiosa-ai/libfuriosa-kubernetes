@@ -31,7 +31,7 @@ type rngdDeviceSpec struct {
 	deviceFiles []smi.DeviceFile
 }
 
-func newRngdDeviceSpec(device smi.Device) (DeviceSpec, error) {
+func newRngdDeviceSpec(device smi.Device) (CDISpec, error) {
 	deviceInfo, err := device.DeviceInfo()
 	if err != nil {
 		return nil, err

@@ -14,7 +14,7 @@ var (
 	bdfRegExp = regexp.MustCompile(bdfPattern)
 )
 
-// ParseBusIDFromBDF parses bdf and returns PCI bus ID.
+// ParseBusIDFromBDF parses bdf and returns PCI bus DeviceID.
 func ParseBusIDFromBDF(bdf string) (string, error) {
 	matches := bdfRegExp.FindStringSubmatch(bdf)
 	if matches == nil {

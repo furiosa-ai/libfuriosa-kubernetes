@@ -64,9 +64,12 @@ func (f *exclusiveDevice) IsHealthy() (bool, error) {
 	return liveness, nil
 }
 
-func (f *exclusiveDevice) CDISpec() *specs.Device {
-	renderer, _ := cdi_spec.NewExclusiveDeviceSpecRenderer(f.origin)
-	return renderer.Render()
+func (f *exclusiveDevice) CDISpec() (*specs.Device, error) {
+	renderer, err := cdi_spec.NewExclusiveDeviceSpecRenderer(f.origin)
+	if err != nil {
+		return nil, err
+	}
+	return renderer.Render(), err
 }
 
 func (f *exclusiveDevice) Index() int {

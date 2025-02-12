@@ -108,9 +108,12 @@ func (p *partitionedDevice) IsHealthy() (bool, error) {
 	return liveness, nil
 }
 
-func (p *partitionedDevice) CDISpec() *specs.Device {
-	renderer, _ := cdi_spec.NewPartitionedDeviceSpecRenderer(p.origin, p.partition.Start, p.partition.End)
-	return renderer.Render()
+func (p *partitionedDevice) CDISpec() (*specs.Device, error) {
+	renderer, err := cdi_spec.NewPartitionedDeviceSpecRenderer(p.origin, p.partition.Start, p.partition.End)
+	if err != nil {
+		return nil, err
+	}
+	return renderer.Render(), nil
 }
 
 func (p *partitionedDevice) Index() int {

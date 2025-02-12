@@ -58,7 +58,7 @@ func (s *spec) Write() error {
 	return nil
 }
 
-func NewSpec(opts ...Option) Spec {
+func NewSpec(opts ...Option) (Spec, error) {
 	gen := &specGenerator{
 		root:                 DefaultStaticDir,
 		filename:             DefaultSpecFileName,
@@ -90,9 +90,9 @@ type specGenerator struct {
 	withAggregatedDevice bool
 }
 
-func mergeDeviceSpec(specName string, isolation bool, devices []furiosa_device.FuriosaDevice) *specs.Device {
+func mergeDeviceSpec(specName string, isolation bool, devices []furiosa_device.FuriosaDevice) (*specs.Device, error) {
 	if len(devices) == 0 {
-		return nil
+		return nil, nil
 	}
 
 	// sort devices to ascending order by index
@@ -103,10 +103,15 @@ func mergeDeviceSpec(specName string, isolation bool, devices []furiosa_device.F
 	var deviceSpecs []specs.Device
 
 	for idx, device := range devices {
-		target := device.CDISpec()
+		target, err := device.CDISpec()
+		if err != nil {
+			return nil, err
+		}
+
 		if isolation {
 			target = mutateContainerPath(target, idx)
 		}
+
 		deviceSpecs = append(deviceSpecs, *target)
 	}
 
@@ -132,20 +137,28 @@ func mergeDeviceSpec(specName string, isolation bool, devices []furiosa_device.F
 		},
 	}
 
-	return &aggregatedDevice
+	return &aggregatedDevice, nil
 }
 
-func (b *specGenerator) Build() Spec {
+func (b *specGenerator) Build() (Spec, error) {
 	var deviceSpecs []specs.Device
 
 	// handle native devices
 	for _, device := range b.devices {
-		deviceSpecs = append(deviceSpecs, *device.CDISpec())
+		deviceSpec, err := device.CDISpec()
+		if err != nil {
+			return nil, err
+		}
+		deviceSpecs = append(deviceSpecs, *deviceSpec)
 	}
 
 	// handle aggregated device
 	if b.withAggregatedDevice {
-		aggregatedDevice := mergeDeviceSpec(aggregatedDeviceName, false, b.devices)
+		merged, err := mergeDeviceSpec(aggregatedDeviceName, false, b.devices)
+		if err != nil {
+			return nil, err
+		}
+		aggregatedDevice := merged
 		if aggregatedDevice != nil {
 			deviceSpecs = append(deviceSpecs, *aggregatedDevice)
 		}
@@ -153,7 +166,11 @@ func (b *specGenerator) Build() Spec {
 
 	// handle group devices
 	for _, group := range b.groupDevices {
-		merged := mergeDeviceSpec(group.groupDeviceName, group.isolation, group.tenantDevices)
+		merged, err := mergeDeviceSpec(group.groupDeviceName, group.isolation, group.tenantDevices)
+		if err != nil {
+			return nil, err
+		}
+
 		if merged != nil {
 			deviceSpecs = append(deviceSpecs, *merged)
 		}
@@ -170,7 +187,7 @@ func (b *specGenerator) Build() Spec {
 			Annotations: nil,
 			Devices:     deviceSpecs,
 		},
-	}
+	}, nil
 }
 
 type Option func(*specGenerator)

@@ -11,7 +11,7 @@ type FuriosaDevice interface {
 	PCIBusID() string
 	NUMANode() int
 	IsHealthy() (bool, error)
-	CDISpec() *specs.Device
+	CDISpec() (*specs.Device, error)
 }
 
 func NewFuriosaDevices(devices []smi.Device, blockedList []string, policy PartitioningPolicy) ([]FuriosaDevice, error) {

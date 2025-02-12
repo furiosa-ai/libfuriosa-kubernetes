@@ -29,7 +29,7 @@ func main() {
 
 	medianIdx := len(furiosaDevices) / 2
 
-	cdiSpec := cdi_spec_gen.NewSpec(cdi_spec_gen.WithDevices(furiosaDevices...),
+	cdiSpec, err := cdi_spec_gen.NewSpec(cdi_spec_gen.WithDevices(furiosaDevices...),
 		cdi_spec_gen.WithAggregatedDevice(),
 		cdi_spec_gen.WithSpecDirs(cdi_spec_gen.DefaultStaticDir),
 		cdi_spec_gen.WithSpecFileName("furiosa.yaml"),
@@ -39,6 +39,11 @@ func main() {
 		cdi_spec_gen.WithGroupDevice("group3", false, furiosaDevices[medianIdx:]...),
 		cdi_spec_gen.WithGroupDevice("group4", true, furiosaDevices[medianIdx:]...),
 	)
+
+	if err != nil {
+		fmt.Printf("%s\n", err.Error())
+		os.Exit(1)
+	}
 
 	err = cdiSpec.Write()
 	if err != nil {

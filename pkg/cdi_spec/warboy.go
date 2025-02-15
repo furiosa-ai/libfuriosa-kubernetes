@@ -51,7 +51,7 @@ func (w *warboyDeviceSpec) containerEdits() *specs.ContainerEdits {
 		Env:            nil,
 		DeviceNodes:    w.deviceNodes(),
 		Hooks:          nil,
-		Mounts:         nil,
+		Mounts:         w.mounts(),
 		IntelRdt:       nil,
 		AdditionalGIDs: nil,
 	}

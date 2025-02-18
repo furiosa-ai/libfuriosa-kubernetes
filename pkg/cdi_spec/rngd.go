@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"github.com/bradfitz/iter"
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
-	"path/filepath"
-
 	"tags.cncf.io/container-device-interface/specs-go"
 )
 
@@ -139,54 +137,5 @@ func (w *rngdDeviceSpec) deviceNodes() []*specs.DeviceNode {
 }
 
 func (w *rngdDeviceSpec) mounts() []*specs.Mount {
-	var mounts []*specs.Mount
-	devName := w.deviceInfo.Name()
-
-	// mount "/sys/devices/virtual/rngd_mgmt/rngd!npu{x}_mgmt" path
-	mounts = append(mounts, &specs.Mount{
-		HostPath:      rngdSysDevicesRoot + rngdSysPrefix + fmt.Sprintf(rngdMgmtFileExp, devName),
-		ContainerPath: rngdSysDevicesRoot + rngdSysPrefix + fmt.Sprintf(rngdMgmtFileExp, devName),
-		Options:       []string{readOnlyOpt, bindOpt},
-	})
-
-	// mount /sys/devices/virtual/rngd_mgmt/rngd!npu{x}bar0 path
-	mounts = append(mounts, &specs.Mount{
-		ContainerPath: rngdSysDevicesRoot + rngdSysPrefix + fmt.Sprintf(rngdBar0Exp, devName),
-		HostPath:      rngdSysDevicesRoot + rngdSysPrefix + fmt.Sprintf(rngdBar0Exp, devName),
-		Options:       []string{readOnlyOpt, bindOpt},
-	})
-
-	// mount /sys/devices/virtual/rngd_mgmt/rngd!npu{x}bar2 path
-	mounts = append(mounts, &specs.Mount{
-		ContainerPath: rngdSysDevicesRoot + rngdSysPrefix + fmt.Sprintf(rngdBar2Exp, devName),
-		HostPath:      rngdSysDevicesRoot + rngdSysPrefix + fmt.Sprintf(rngdBar2Exp, devName),
-		Options:       []string{readOnlyOpt, bindOpt},
-	})
-
-	// mount /sys/devices/virtual/rngd_mgmt/rngd!npu{x}bar4 path
-	mounts = append(mounts, &specs.Mount{
-		ContainerPath: rngdSysDevicesRoot + rngdSysPrefix + fmt.Sprintf(rngdBar4Exp, devName),
-		HostPath:      rngdSysDevicesRoot + rngdSysPrefix + fmt.Sprintf(rngdBar4Exp, devName),
-		Options:       []string{readOnlyOpt, bindOpt},
-	})
-
-	// mount /sys/devices/virtual/rngd_mgmt/rngd!npu{x}dmar path
-	mounts = append(mounts, &specs.Mount{
-		ContainerPath: rngdSysDevicesRoot + rngdSysPrefix + fmt.Sprintf(rngdDmaRemappingExp, devName),
-		HostPath:      rngdSysDevicesRoot + rngdSysPrefix + fmt.Sprintf(rngdDmaRemappingExp, devName),
-		Options:       []string{readOnlyOpt, bindOpt},
-	})
-
-	// mount /sys/class/rngd_mgmt/rngd!npu{x}pe{y} paths
-	for _, deviceFile := range w.deviceFiles {
-		file := filepath.Base(deviceFile.Path())
-
-		mounts = append(mounts, &specs.Mount{
-			ContainerPath: rngdSysDevicesRoot + rngdSysPrefix + file,
-			HostPath:      rngdSysDevicesRoot + rngdSysPrefix + file,
-			Options:       []string{readOnlyOpt, bindOpt},
-		})
-	}
-
-	return mounts
+	return nil
 }

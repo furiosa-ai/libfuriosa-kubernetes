@@ -11,15 +11,8 @@ import (
 const (
 	devFsWarboyMgmtFileExp     = "/dev/%s_mgmt"
 	warboyMgmtFileExp          = "%s_mgmt"
-	warboySysDevicesRoot       = "/sys/devices/virtual/npu_mgmt/"
 	warboyMaxChannel       int = 4
 	warboyChannelExp           = "/dev/%sch%d"
-
-	warboySinglePeExp = "pe%d"
-	warboyDualPeExp   = "pe%d-%d"
-	warboyBar0Exp     = "%s_bar0"
-	warboyBar2Exp     = "%s_bar2"
-	warboyBar4Exp     = "%s_bar4"
 )
 
 type warboyDeviceSpec struct {
@@ -99,60 +92,5 @@ func (w *warboyDeviceSpec) deviceNodes() []*specs.DeviceNode {
 }
 
 func (w *warboyDeviceSpec) mounts() []*specs.Mount {
-	var mounts []*specs.Mount
-	devName := w.deviceInfo.Name()
-
-	// mount "/sys/devices/virtual/npu_mgmt/npu{x}" path
-	mounts = append(mounts, &specs.Mount{
-		HostPath:      warboySysDevicesRoot + devName,
-		ContainerPath: warboySysDevicesRoot + devName,
-		Options:       []string{readOnlyOpt, bindOpt},
-	})
-
-	// mount /sys/devices/virtual/npu_mgmt/npu{x}pe0 path
-	// mount /sys/devices/virtual/npu_mgmt/npu{x}pe1 path
-	for idx := range iter.N(2) {
-		mounts = append(mounts, &specs.Mount{
-			ContainerPath: warboySysDevicesRoot + devName + fmt.Sprintf(warboySinglePeExp, idx),
-			HostPath:      warboySysDevicesRoot + devName + fmt.Sprintf(warboySinglePeExp, idx),
-			Options:       []string{readOnlyOpt, bindOpt},
-		})
-	}
-
-	// mount /sys/devices/virtual/npu_mgmt/npu{x}pe0-1 path
-	mounts = append(mounts, &specs.Mount{
-		ContainerPath: warboySysDevicesRoot + devName + fmt.Sprintf(warboyDualPeExp, 0, 1),
-		HostPath:      warboySysDevicesRoot + devName + fmt.Sprintf(warboyDualPeExp, 0, 1),
-		Options:       []string{readOnlyOpt, bindOpt},
-	})
-
-	// mount /sys/devices/virtual/npu_mgmt/npu{x}_mgmt path
-	mounts = append(mounts, &specs.Mount{
-		HostPath:      warboySysDevicesRoot + fmt.Sprintf(warboyMgmtFileExp, devName),
-		ContainerPath: warboySysDevicesRoot + fmt.Sprintf(warboyMgmtFileExp, devName),
-		Options:       []string{readOnlyOpt, bindOpt},
-	})
-
-	// mount /sys/devices/virtual/npu_mgmt/npu{x}_bar0 path
-	mounts = append(mounts, &specs.Mount{
-		ContainerPath: warboySysDevicesRoot + fmt.Sprintf(warboyBar0Exp, devName),
-		HostPath:      warboySysDevicesRoot + fmt.Sprintf(warboyBar0Exp, devName),
-		Options:       []string{readOnlyOpt, bindOpt},
-	})
-
-	// mount /sys/devices/virtual/npu_mgmt/npu{x}_bar2 path
-	mounts = append(mounts, &specs.Mount{
-		ContainerPath: warboySysDevicesRoot + fmt.Sprintf(warboyBar2Exp, devName),
-		HostPath:      warboySysDevicesRoot + fmt.Sprintf(warboyBar2Exp, devName),
-		Options:       []string{readOnlyOpt, bindOpt},
-	})
-
-	// mount /sys/devices/virtual/npu_mgmt/npu{x}_bar4 path
-	mounts = append(mounts, &specs.Mount{
-		ContainerPath: warboySysDevicesRoot + fmt.Sprintf(warboyBar4Exp, devName),
-		HostPath:      warboySysDevicesRoot + fmt.Sprintf(warboyBar4Exp, devName),
-		Options:       []string{readOnlyOpt, bindOpt},
-	})
-
-	return mounts
+	return nil
 }

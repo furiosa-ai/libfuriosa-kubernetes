@@ -78,7 +78,6 @@ func NewSpec(opts ...Option) (Spec, error) {
 type groupDevice struct {
 	groupDeviceName string
 	tenantDevices   []furiosa_device.FuriosaDevice
-	isolation       bool
 }
 
 type specGenerator struct {
@@ -90,7 +89,7 @@ type specGenerator struct {
 	withAggregatedDevice bool
 }
 
-func mergeDeviceSpec(specName string, isolation bool, devices []furiosa_device.FuriosaDevice) (*specs.Device, error) {
+func mergeDeviceSpec(specName string, devices []furiosa_device.FuriosaDevice) (*specs.Device, error) {
 	if len(devices) == 0 {
 		return nil, nil
 	}
@@ -102,14 +101,10 @@ func mergeDeviceSpec(specName string, isolation bool, devices []furiosa_device.F
 
 	var deviceSpecs []specs.Device
 
-	for idx, device := range devices {
+	for _, device := range devices {
 		target, err := device.CDISpec()
 		if err != nil {
 			return nil, err
-		}
-
-		if isolation {
-			target = mutateContainerPath(target, idx)
 		}
 
 		deviceSpecs = append(deviceSpecs, *target)
@@ -154,7 +149,7 @@ func (b *specGenerator) Build() (Spec, error) {
 
 	// handle aggregated device
 	if b.withAggregatedDevice {
-		merged, err := mergeDeviceSpec(aggregatedDeviceName, false, b.devices)
+		merged, err := mergeDeviceSpec(aggregatedDeviceName, b.devices)
 		if err != nil {
 			return nil, err
 		}
@@ -166,7 +161,7 @@ func (b *specGenerator) Build() (Spec, error) {
 
 	// handle group devices
 	for _, group := range b.groupDevices {
-		merged, err := mergeDeviceSpec(group.groupDeviceName, group.isolation, group.tenantDevices)
+		merged, err := mergeDeviceSpec(group.groupDeviceName, group.tenantDevices)
 		if err != nil {
 			return nil, err
 		}
@@ -222,12 +217,11 @@ func WithFilePermissions(permissions int) Option {
 	}
 }
 
-func WithGroupDevice(groupDeviceName string, isolation bool, tenantDevices ...furiosa_device.FuriosaDevice) Option {
+func WithGroupDevice(groupDeviceName string, tenantDevices ...furiosa_device.FuriosaDevice) Option {
 	return func(b *specGenerator) {
 		b.groupDevices[groupDeviceName] = groupDevice{
 			groupDeviceName: groupDeviceName,
 			tenantDevices:   tenantDevices,
-			isolation:       isolation,
 		}
 	}
 }

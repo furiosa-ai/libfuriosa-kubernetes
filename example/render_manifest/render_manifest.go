@@ -34,10 +34,8 @@ func main() {
 		cdi_spec_gen.WithSpecDirs(cdi_spec_gen.DefaultStaticDir),
 		cdi_spec_gen.WithSpecFileName("furiosa.yaml"),
 		cdi_spec_gen.WithFilePermissions(cdi_spec_gen.DefaultPermissions),
-		cdi_spec_gen.WithGroupDevice("group1", false, furiosaDevices...),
-		cdi_spec_gen.WithGroupDevice("group2", true, furiosaDevices...),
-		cdi_spec_gen.WithGroupDevice("group3", false, furiosaDevices[medianIdx:]...),
-		cdi_spec_gen.WithGroupDevice("group4", true, furiosaDevices[medianIdx:]...),
+		cdi_spec_gen.WithGroupDevice("group1", furiosaDevices...),
+		cdi_spec_gen.WithGroupDevice("group2", furiosaDevices[medianIdx:]...),
 	)
 
 	if err != nil {

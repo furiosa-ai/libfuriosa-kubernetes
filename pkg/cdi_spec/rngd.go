@@ -18,9 +18,6 @@ const (
 	rngdBar0Exp          = "%sbar0"
 	rngdBar2Exp          = "%sbar2"
 	rngdBar4Exp          = "%sbar4"
-
-	rngdSysPrefix      = "rngd!"
-	rngdSysDevicesRoot = "/sys/devices/virtual/rngd_mgmt/"
 )
 
 type rngdDeviceSpec struct {

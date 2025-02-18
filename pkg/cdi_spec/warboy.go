@@ -11,15 +11,8 @@ import (
 const (
 	devFsWarboyMgmtFileExp     = "/dev/%s_mgmt"
 	warboyMgmtFileExp          = "%s_mgmt"
-	warboySysDevicesRoot       = "/sys/devices/virtual/npu_mgmt/"
 	warboyMaxChannel       int = 4
 	warboyChannelExp           = "/dev/%sch%d"
-
-	warboySinglePeExp = "pe%d"
-	warboyDualPeExp   = "pe%d-%d"
-	warboyBar0Exp     = "%s_bar0"
-	warboyBar2Exp     = "%s_bar2"
-	warboyBar4Exp     = "%s_bar4"
 )
 
 type warboyDeviceSpec struct {

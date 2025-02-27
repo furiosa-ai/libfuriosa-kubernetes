@@ -109,8 +109,8 @@ github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHk
 github.com/frankban/quicktest v1.14.6/go.mod h1:4ptaffx2x8+WTWXmUCuVU6aPUX1/Mz7zb5vbUoiM6w0=
 github.com/fsnotify/fsnotify v1.7.0 h1:8JEhPFa5W2WU7YfeZzPNqzMP6Lwt7L2715Ggo0nosvA=
 github.com/fsnotify/fsnotify v1.7.0/go.mod h1:40Bi/Hjc2AVfZrqy+aj+yEI+/bRxZnMJyTJwOpGvigM=
-github.com/furiosa-ai/furiosa-smi-go v0.2.1-0.20250226065007-1a0864c05aa2 h1:b/x7VVjSk0PStD67mEfdH3vQiol/bSHQ4AG8g7eY8UI=
-github.com/furiosa-ai/furiosa-smi-go v0.2.1-0.20250226065007-1a0864c05aa2/go.mod h1:g9RQukYp9O4LWsyHnzo4xaLf1uG50jWhpY8UMljZbUU=
+github.com/furiosa-ai/furiosa-smi-go v0.2.1-0.20250227061826-271a8ae5d9b2 h1:hz7hkcZoKjK6J0SwuTU+hRqzcb5gmCWYWsk8PZ8/oH4=
+github.com/furiosa-ai/furiosa-smi-go v0.2.1-0.20250227061826-271a8ae5d9b2/go.mod h1:LFM3hIYEdUMwaQ7AuVZQZTeRlQ2AhgIeshFJnVKolFc=
 github.com/fxamacker/cbor/v2 v2.7.0 h1:iM5WgngdRBanHcxugY4JySA0nk1wZorNOpTgCMedv5E=
 github.com/fxamacker/cbor/v2 v2.7.0/go.mod h1:pxXPTn3joSm21Gbwsv0w9OSA2y1HFR9qXEeXQVeNoDQ=
 github.com/go-errors/errors v1.5.1 h1:ZwEMSLRCapFLflTpT7NKaAc7ukJ8ZPEjzlxt8rPN8bk=

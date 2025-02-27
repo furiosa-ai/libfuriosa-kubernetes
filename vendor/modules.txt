@@ -141,8 +141,8 @@ github.com/felixge/httpsnoop
 # github.com/fsnotify/fsnotify v1.7.0
 ## explicit; go 1.17
 github.com/fsnotify/fsnotify
-# github.com/furiosa-ai/furiosa-smi-go v0.2.1-0.20250226065007-1a0864c05aa2
-## explicit; go 1.24.0
+# github.com/furiosa-ai/furiosa-smi-go v0.2.1-0.20250227061826-271a8ae5d9b2
+## explicit; go 1.24
 github.com/furiosa-ai/furiosa-smi-go/pkg/smi
 github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding
 # github.com/fxamacker/cbor/v2 v2.7.0

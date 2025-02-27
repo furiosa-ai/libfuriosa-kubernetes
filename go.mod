@@ -4,7 +4,7 @@ go 1.24
 
 require (
 	github.com/bradfitz/iter v0.0.0-20191230175014-e8f45d346db8
-	github.com/furiosa-ai/furiosa-smi-go v0.2.1-0.20250226065007-1a0864c05aa2
+	github.com/furiosa-ai/furiosa-smi-go v0.2.1-0.20250227061826-271a8ae5d9b2
 	github.com/google/btree v1.1.3
 	github.com/google/uuid v1.6.0
 	github.com/mittwald/go-helm-client v0.12.16

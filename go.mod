@@ -1,6 +1,6 @@
 module github.com/furiosa-ai/libfuriosa-kubernetes
 
-go 1.24.0
+go 1.24
 
 require (
 	github.com/bradfitz/iter v0.0.0-20191230175014-e8f45d346db8

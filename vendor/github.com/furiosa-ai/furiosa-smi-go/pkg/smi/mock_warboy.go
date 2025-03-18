@@ -34,12 +34,30 @@ func (m *staticWarboyMockDevice) DeviceFiles() ([]DeviceFile, error) {
 	}, nil
 }
 
-func (m *staticWarboyMockDevice) CoreStatus() (map[uint32]CoreStatus, error) {
-	return map[uint32]CoreStatus{0: CoreStatusAvailable, 1: CoreStatusAvailable}, nil
+func (m *staticWarboyMockDevice) CoreStatus() (CoreStatuses, error) {
+	return staticMockCoreStatuses{
+		coreStatus: []PeStatus{
+			&staticMockPeStatus{core: 0, status: CoreStatusAvailable},
+			&staticMockPeStatus{core: 1, status: CoreStatusAvailable},
+		},
+	}, nil
 }
 
 func (m *staticWarboyMockDevice) Liveness() (bool, error) {
 	return true, nil
+}
+
+func (m *staticWarboyMockDevice) CoreFrequency() (CoreFrequency, error) {
+	return &staticMockCoreFrequency{
+		pe: []PeFrequency{
+			&staticMockPeFrequency{core: 0, frequency: 2000},
+			&staticMockPeFrequency{core: 1, frequency: 2000},
+		},
+	}, nil
+}
+
+func (m *staticWarboyMockDevice) MemoryFrequency() (MemoryFrequency, error) {
+	return &staticMockMemoryFrequency{frequency: 4266}, nil
 }
 
 func (m *staticWarboyMockDevice) CoreUtilization() (CoreUtilization, error) {
@@ -48,10 +66,6 @@ func (m *staticWarboyMockDevice) CoreUtilization() (CoreUtilization, error) {
 			&staticMockPeUtilization{core: 0, timeWindow: 1000, usage: 50},
 		},
 	}, nil
-}
-
-func (m *staticWarboyMockDevice) MemoryUtilization() (MemoryUtilization, error) {
-	return &staticMockMemoryUtilization{}, nil
 }
 
 func (m *staticWarboyMockDevice) PowerConsumption() (float64, error) {
@@ -80,6 +94,14 @@ func (m *staticWarboyMockDevice) P2PAccessible(_ Device) (bool, error) {
 
 func (m *staticWarboyMockDevice) DevicePerformanceCounter() (DevicePerformanceCounter, error) {
 	return &staticMockDevicePerformanceCounter{}, nil
+}
+
+func (m *staticWarboyMockDevice) GovernorProfile() (GovernorProfile, error) {
+	return GovernorProfileOnDemand, nil
+}
+
+func (m *staticWarboyMockDevice) SetGovernorProfile(profile GovernorProfile) error {
+	return nil
 }
 
 type staticWarboyMockDeviceInfo struct {

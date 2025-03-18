@@ -57,10 +57,20 @@ const (
 	FuriosaSmiDeviceToDeviceLinkTypeNoc          FuriosaSmiDeviceToDeviceLinkType = 70
 )
 
-// FuriosaSmiReturnCode as declared in smi/furiosa_smi.h:91
+// FuriosaSmiGovernorProfile as declared in smi/furiosa_smi.h:63
+type FuriosaSmiGovernorProfile int32
+
+// FuriosaSmiGovernorProfile enumeration from smi/furiosa_smi.h:63
+const (
+	FuriosaSmiGovernorProfileOnDemand    FuriosaSmiGovernorProfile = iota
+	FuriosaSmiGovernorProfilePerformance FuriosaSmiGovernorProfile = 1
+	FuriosaSmiGovernorProfilePowerSave   FuriosaSmiGovernorProfile = 2
+)
+
+// FuriosaSmiReturnCode as declared in smi/furiosa_smi.h:101
 type FuriosaSmiReturnCode int32
 
-// FuriosaSmiReturnCode enumeration from smi/furiosa_smi.h:91
+// FuriosaSmiReturnCode enumeration from smi/furiosa_smi.h:101
 const (
 	FuriosaSmiReturnCodeOk                       FuriosaSmiReturnCode = iota
 	FuriosaSmiReturnCodeInvalidArgumentError     FuriosaSmiReturnCode = 1

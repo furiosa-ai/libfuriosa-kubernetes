@@ -1,9 +1,10 @@
 package cdi_spec_gen
 
 import (
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/furiosa_device"
 	"os"
 	"sort"
+
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/furiosa_device"
 	"tags.cncf.io/container-device-interface/pkg/cdi"
 	"tags.cncf.io/container-device-interface/specs-go"
 )
@@ -13,7 +14,7 @@ const (
 	DefaultDynamicDir    = cdi.DefaultDynamicDir
 	DefaultSpecFileName  = "furiosa.yaml"
 	DefaultPermissions   = 0644
-	version              = "0.6.0"
+	version              = "1.0.0"
 	vendor               = "furiosa.ai"
 	class                = "npu"
 	aggregatedDeviceName = "all"

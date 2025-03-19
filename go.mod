@@ -4,7 +4,7 @@ go 1.24.1
 
 require (
 	github.com/bradfitz/iter v0.0.0-20191230175014-e8f45d346db8
-	github.com/furiosa-ai/furiosa-smi-go v0.3.0
+	github.com/furiosa-ai/furiosa-smi-go v0.3.1-0.20250319093648-8c50ee91f904
 	github.com/google/btree v1.1.3
 	github.com/google/uuid v1.6.0
 	github.com/mittwald/go-helm-client v0.12.16
@@ -88,7 +88,7 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mattn/go-runewidth v0.0.15 // indirect
+	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
@@ -111,7 +111,7 @@ require (
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.55.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
-	github.com/rivo/uniseg v0.4.4 // indirect
+	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rubenv/sql-migrate v1.7.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect

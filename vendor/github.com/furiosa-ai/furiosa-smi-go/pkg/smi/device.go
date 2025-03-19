@@ -39,13 +39,15 @@ type Device interface {
 	// DeviceFiles list device files under this device.
 	DeviceFiles() ([]DeviceFile, error)
 	// CoreStatus examine each core of the device, whether it is occupied or available.
-	CoreStatus() (map[uint32]CoreStatus, error)
+	CoreStatus() (CoreStatuses, error)
 	// Liveness returns a liveness state of the device.
 	Liveness() (bool, error)
+	// CoreFrequency returns a core frequency (MHz) of the device.
+	CoreFrequency() (CoreFrequency, error)
+	// MemoryFrequency returns a memory frequency (MHz) of the device.
+	MemoryFrequency() (MemoryFrequency, error)
 	// CoreUtilization returns a core utilization of the device.
 	CoreUtilization() (CoreUtilization, error)
-	// MemoryUtilization returns a memory utilization of the device.
-	MemoryUtilization() (MemoryUtilization, error)
 	// PowerConsumption returns a power consumption of the device.
 	PowerConsumption() (float64, error)
 	// DeviceTemperature returns a temperature of the device.
@@ -56,6 +58,10 @@ type Device interface {
 	P2PAccessible(target Device) (bool, error)
 	// DevicePerformanceCounter returns a performance counter of the device.
 	DevicePerformanceCounter() (DevicePerformanceCounter, error)
+	// GovernorProfile returns a governor profile of the device.
+	GovernorProfile() (GovernorProfile, error)
+	// SetGovernorProfile set a governor profile of the device.
+	SetGovernorProfile(governorProfile GovernorProfile) error
 }
 
 var _ Device = new(device)
@@ -96,19 +102,14 @@ func (d *device) DeviceFiles() ([]DeviceFile, error) {
 	return deviceFiles, nil
 }
 
-func (d *device) CoreStatus() (map[uint32]CoreStatus, error) {
+func (d *device) CoreStatus() (CoreStatuses, error) {
 	var out binding.FuriosaSmiCoreStatuses
 
 	if ret := binding.FuriosaSmiGetDeviceCoreStatus(d.handle, &out); ret != binding.FuriosaSmiReturnCodeOk {
 		return nil, toError(ret)
 	}
 
-	coreStatusMap := make(map[uint32]CoreStatus, out.Count)
-	for i := 0; i < int(out.Count); i++ {
-		coreStatusMap[uint32(i)] = CoreStatus(out.CoreStatus[i])
-	}
-
-	return coreStatusMap, nil
+	return newCoreStatuses(out), nil
 }
 
 func (d *device) Liveness() (bool, error) {
@@ -121,6 +122,26 @@ func (d *device) Liveness() (bool, error) {
 	return out, nil
 }
 
+func (d *device) CoreFrequency() (CoreFrequency, error) {
+	var out binding.FuriosaSmiCoreFrequency
+
+	if ret := binding.FuriosaSmiGetCoreFrequency(d.handle, &out); ret != binding.FuriosaSmiReturnCodeOk {
+		return nil, toError(ret)
+	}
+
+	return newCoreFrequency(out), nil
+}
+
+func (d *device) MemoryFrequency() (MemoryFrequency, error) {
+	var out binding.FuriosaSmiMemoryFrequency
+
+	if ret := binding.FuriosaSmiGetMemoryFrequency(d.handle, &out); ret != binding.FuriosaSmiReturnCodeOk {
+		return nil, toError(ret)
+	}
+
+	return newMemoryFrequency(out), nil
+}
+
 func (d *device) CoreUtilization() (CoreUtilization, error) {
 	var out binding.FuriosaSmiCoreUtilization
 
@@ -129,16 +150,6 @@ func (d *device) CoreUtilization() (CoreUtilization, error) {
 	}
 
 	return newCoreUtilization(out), nil
-}
-
-func (d *device) MemoryUtilization() (MemoryUtilization, error) {
-	var out binding.FuriosaSmiMemoryUtilization
-
-	if ret := binding.FuriosaSmiGetMemoryUtilization(d.handle, &out); ret != binding.FuriosaSmiReturnCodeOk {
-		return nil, toError(ret)
-	}
-
-	return newMemoryUtilization(out), nil
 }
 
 func (d *device) PowerConsumption() (float64, error) {
@@ -189,4 +200,23 @@ func (d *device) DevicePerformanceCounter() (DevicePerformanceCounter, error) {
 	}
 
 	return newDevicePerformanceCounter(out), nil
+}
+
+func (d *device) GovernorProfile() (GovernorProfile, error) {
+	var out binding.FuriosaSmiGovernorProfile
+
+	if ret := binding.FuriosaSmiGetGovernorProfile(d.handle, &out); ret != binding.FuriosaSmiReturnCodeOk {
+		return 0, toError(ret)
+	}
+
+	return newGovernorProfile(out), nil
+}
+
+func (d *device) SetGovernorProfile(profile GovernorProfile) error {
+	rawProfile := binding.FuriosaSmiGovernorProfile(profile)
+	if ret := binding.FuriosaSmiSetGovernorProfile(d.handle, rawProfile); ret != binding.FuriosaSmiReturnCodeOk {
+		return toError(ret)
+	}
+
+	return nil
 }

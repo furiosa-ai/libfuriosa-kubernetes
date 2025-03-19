@@ -52,6 +52,16 @@ typedef enum {
   FURIOSA_SMI_DEVICE_TO_DEVICE_LINK_TYPE_NOC = 70,
 } FuriosaSmiDeviceToDeviceLinkType;
 
+/// \brief Represent a governor profile
+typedef enum {
+  /// 'ondemand' governor profile
+  FURIOSA_SMI_GOVERNOR_PROFILE_ON_DEMAND = 0,
+  /// 'performance' governor profile
+  FURIOSA_SMI_GOVERNOR_PROFILE_PERFORMANCE,
+  /// 'powersave' governor profile
+  FURIOSA_SMI_GOVERNOR_PROFILE_POWER_SAVE,
+} FuriosaSmiGovernorProfile;
+
 /// \brief Represent a return status
 typedef enum {
   /// When a function call is successful.
@@ -137,10 +147,15 @@ typedef struct {
   FuriosaSmiDeviceFile device_files[FURIOSA_SMI_MAX_DEVICE_HANDLE_SIZE];
 } FuriosaSmiDeviceFiles;
 
+typedef struct {
+  uint32_t core;
+  FuriosaSmiCoreStatus status;
+} FuriosaSmiPeStatus;
+
 /// \brief Represent a core status list of device.
 typedef struct {
   uint32_t count;
-  FuriosaSmiCoreStatus core_status[FURIOSA_SMI_MAX_CORE_STATUS_SIZE];
+  FuriosaSmiPeStatus core_status[FURIOSA_SMI_MAX_CORE_STATUS_SIZE];
 } FuriosaSmiCoreStatuses;
 
 typedef FuriosaSmiObserver *FuriosaSmiObserverInstance;
@@ -158,15 +173,26 @@ typedef struct {
   FuriosaSmiPeUtilization pe[FURIOSA_SMI_MAX_PE_SIZE];
 } FuriosaSmiCoreUtilization;
 
-/// \brief Represent a memory utilization.
 typedef struct {
-  uint64_t total_bytes;
-  uint64_t in_use_bytes;
-} FuriosaSmiMemoryUtilization;
+  uint32_t core;
+  uint32_t frequency;
+} FuriosaSmiPeFrequency;
+
+/// \brief Represent a core frequency information (MHz).
+typedef struct {
+  uint32_t pe_count;
+  FuriosaSmiPeFrequency pe[FURIOSA_SMI_MAX_PE_SIZE];
+} FuriosaSmiCoreFrequency;
+
+/// \brief Represent a memory frequency information (Mhz).
+typedef struct {
+  uint32_t frequency;
+} FuriosaSmiMemoryFrequency;
 
 /// \brief Represent a PE performance counter.
 typedef struct {
   long timestamp;
+  uint32_t core;
   uint64_t cycle_count;
   uint64_t task_execution_cycle;
 } FuriosaSmiPePerformanceCounter;
@@ -331,13 +357,21 @@ FuriosaSmiReturnCode furiosa_smi_get_core_utilization(FuriosaSmiObserverInstance
                                                       FuriosaSmiDeviceHandle handle,
                                                       FuriosaSmiCoreUtilization *out_utilization_info);
 
-/// \brief Get a memory utilization of Furiosa NPU device.
+/// \brief Get a core frequency of Furiosa NPU device.
 ///
 /// @param handle handle of Furiosa NPU device.
-/// @param[out] out_utilization_info output buffer for pointer to FuriosaSmiMemoryUtilization.
+/// @param[out] out_core_frequency_info output buffer for pointer to FuriosaSmiCoreFrequency.
 /// @return FURIOSA_SMI_RETURN_CODE_OK if successful, see `FuriosaSmiReturnCode` for error cases.
-FuriosaSmiReturnCode furiosa_smi_get_memory_utilization(FuriosaSmiDeviceHandle handle,
-                                                        FuriosaSmiMemoryUtilization *out_utilization_info);
+FuriosaSmiReturnCode furiosa_smi_get_core_frequency(FuriosaSmiDeviceHandle handle,
+                                                    FuriosaSmiCoreFrequency *out_core_frequency_info);
+
+/// \brief Get a memory frequency of Furiosa NPU device.
+///
+/// @param handle handle of Furiosa NPU device.
+/// @param[out] out_memory_frequency_info output buffer for pointer to FuriosaSmiMemoryFrequency.
+/// @return FURIOSA_SMI_RETURN_CODE_OK if successful, see `FuriosaSmiReturnCode` for error cases.
+FuriosaSmiReturnCode furiosa_smi_get_memory_frequency(FuriosaSmiDeviceHandle handle,
+                                                      FuriosaSmiMemoryFrequency *out_memory_frequency_info);
 
 /// \brief Get a performance counter of Furiosa NPU device.
 ///
@@ -363,6 +397,22 @@ FuriosaSmiReturnCode furiosa_smi_get_device_power_consumption(FuriosaSmiDeviceHa
 /// @return FURIOSA_SMI_RETURN_CODE_OK if successful, see `FuriosaSmiReturnCode` for error cases.
 FuriosaSmiReturnCode furiosa_smi_get_device_temperature(FuriosaSmiDeviceHandle handle,
                                                         FuriosaSmiDeviceTemperature *out_temperature);
+
+/// \brief Get a governor state of Furiosa NPU device.
+///
+/// @param handle handle of Furiosa NPU device.
+/// @param[out] out_governor_profile output buffer for pointer to FuriosaSmiGovernorProfile.
+/// @return FURIOSA_SMI_RETURN_CODE_OK if successful, see `FuriosaSmiReturnCode` for error cases.
+FuriosaSmiReturnCode furiosa_smi_get_governor_profile(FuriosaSmiDeviceHandle handle,
+                                                      FuriosaSmiGovernorProfile *out_governor_profile);
+
+/// \brief Set a governor state into Furiosa NPU device.
+///
+/// @param handle handle of Furiosa NPU device.
+/// @param[in] governor_profile input buffer for pointer to FuriosaSmiGovernorProfile.
+/// @return FURIOSA_SMI_RETURN_CODE_OK if successful, see `FuriosaSmiReturnCode` for error cases.
+FuriosaSmiReturnCode furiosa_smi_set_governor_profile(FuriosaSmiDeviceHandle handle,
+                                                      FuriosaSmiGovernorProfile governor_profile);
 
 /// @}
 

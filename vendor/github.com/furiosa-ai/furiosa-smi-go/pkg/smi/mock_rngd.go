@@ -76,21 +76,42 @@ func (m *staticRngdMockDevice) DeviceFiles() ([]DeviceFile, error) {
 	}, nil
 }
 
-func (m *staticRngdMockDevice) CoreStatus() (map[uint32]CoreStatus, error) {
-	return map[uint32]CoreStatus{
-		0: CoreStatusAvailable,
-		1: CoreStatusAvailable,
-		2: CoreStatusAvailable,
-		3: CoreStatusAvailable,
-		4: CoreStatusAvailable,
-		5: CoreStatusAvailable,
-		6: CoreStatusAvailable,
-		7: CoreStatusAvailable,
+func (m *staticRngdMockDevice) CoreStatus() (CoreStatuses, error) {
+	return staticMockCoreStatuses{
+		coreStatus: []PeStatus{
+			&staticMockPeStatus{core: 0, status: CoreStatusAvailable},
+			&staticMockPeStatus{core: 1, status: CoreStatusAvailable},
+			&staticMockPeStatus{core: 2, status: CoreStatusAvailable},
+			&staticMockPeStatus{core: 3, status: CoreStatusAvailable},
+			&staticMockPeStatus{core: 4, status: CoreStatusAvailable},
+			&staticMockPeStatus{core: 5, status: CoreStatusAvailable},
+			&staticMockPeStatus{core: 6, status: CoreStatusAvailable},
+			&staticMockPeStatus{core: 7, status: CoreStatusAvailable},
+		},
 	}, nil
 }
 
 func (m *staticRngdMockDevice) Liveness() (bool, error) {
 	return true, nil
+}
+
+func (m *staticRngdMockDevice) CoreFrequency() (CoreFrequency, error) {
+	return &staticMockCoreFrequency{
+		pe: []PeFrequency{
+			&staticMockPeFrequency{core: 0, frequency: 500},
+			&staticMockPeFrequency{core: 1, frequency: 500},
+			&staticMockPeFrequency{core: 2, frequency: 500},
+			&staticMockPeFrequency{core: 3, frequency: 500},
+			&staticMockPeFrequency{core: 4, frequency: 500},
+			&staticMockPeFrequency{core: 5, frequency: 500},
+			&staticMockPeFrequency{core: 6, frequency: 500},
+			&staticMockPeFrequency{core: 7, frequency: 500},
+		},
+	}, nil
+}
+
+func (m *staticRngdMockDevice) MemoryFrequency() (MemoryFrequency, error) {
+	return &staticMockMemoryFrequency{frequency: 6000}, nil
 }
 
 func (m *staticRngdMockDevice) CoreUtilization() (CoreUtilization, error) {
@@ -106,10 +127,6 @@ func (m *staticRngdMockDevice) CoreUtilization() (CoreUtilization, error) {
 			&staticMockPeUtilization{core: 7, timeWindow: 1000, usage: 50},
 		},
 	}, nil
-}
-
-func (m *staticRngdMockDevice) MemoryUtilization() (MemoryUtilization, error) {
-	return &staticMockMemoryUtilization{}, nil
 }
 
 func (m *staticRngdMockDevice) PowerConsumption() (float64, error) {
@@ -131,6 +148,14 @@ func (m *staticRngdMockDevice) P2PAccessible(_ Device) (bool, error) {
 
 func (m *staticRngdMockDevice) DevicePerformanceCounter() (DevicePerformanceCounter, error) {
 	return &staticMockDevicePerformanceCounter{}, nil
+}
+
+func (m *staticRngdMockDevice) GovernorProfile() (GovernorProfile, error) {
+	return GovernorProfileOnDemand, nil
+}
+
+func (m *staticRngdMockDevice) SetGovernorProfile(profile GovernorProfile) error {
+	return nil
 }
 
 type staticRngdMockDeviceInfo struct {

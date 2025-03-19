@@ -2,6 +2,7 @@ package cdi_spec
 
 import (
 	"fmt"
+
 	"tags.cncf.io/container-device-interface/specs-go"
 
 	"github.com/bradfitz/iter"

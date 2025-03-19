@@ -3,8 +3,9 @@ package cdi_spec
 import (
 	"fmt"
 	"sort"
-	"tags.cncf.io/container-device-interface/specs-go"
 	"testing"
+
+	"tags.cncf.io/container-device-interface/specs-go"
 
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
 	"github.com/stretchr/testify/assert"

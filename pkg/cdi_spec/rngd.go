@@ -2,6 +2,7 @@ package cdi_spec
 
 import (
 	"fmt"
+
 	"github.com/bradfitz/iter"
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
 	"tags.cncf.io/container-device-interface/specs-go"

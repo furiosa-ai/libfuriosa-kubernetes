@@ -1,9 +1,10 @@
 package furiosa_device
 
 import (
+	"testing"
+
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestBuildFuriosaDevices(t *testing.T) {

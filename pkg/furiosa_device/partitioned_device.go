@@ -2,8 +2,9 @@ package furiosa_device
 
 import (
 	"fmt"
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/cdi_spec"
 	"strconv"
+
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/cdi_spec"
 	"tags.cncf.io/container-device-interface/specs-go"
 
 	"github.com/bradfitz/iter"

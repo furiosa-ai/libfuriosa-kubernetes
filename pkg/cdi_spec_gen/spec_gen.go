@@ -1,9 +1,10 @@
 package cdi_spec_gen
 
 import (
-	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/furiosa_device"
 	"os"
 	"sort"
+
+	"github.com/furiosa-ai/libfuriosa-kubernetes/pkg/furiosa_device"
 	"tags.cncf.io/container-device-interface/pkg/cdi"
 	"tags.cncf.io/container-device-interface/specs-go"
 )

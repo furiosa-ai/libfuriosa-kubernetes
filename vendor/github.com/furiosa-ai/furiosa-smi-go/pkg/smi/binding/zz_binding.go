@@ -158,11 +158,21 @@ func FuriosaSmiGetCoreUtilization(observerInstance *FuriosaSmiObserver, handle F
 	return __v
 }
 
-func FuriosaSmiGetMemoryUtilization(handle FuriosaSmiDeviceHandle, outUtilizationInfo *FuriosaSmiMemoryUtilization) FuriosaSmiReturnCode {
+func FuriosaSmiGetCoreFrequency(handle FuriosaSmiDeviceHandle, outCoreFrequencyInfo *FuriosaSmiCoreFrequency) FuriosaSmiReturnCode {
 	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
-	coutUtilizationInfo, coutUtilizationInfoAllocMap := (*C.FuriosaSmiMemoryUtilization)(unsafe.Pointer(outUtilizationInfo)), cgoAllocsUnknown
-	__ret := C.furiosa_smi_get_memory_utilization(chandle, coutUtilizationInfo)
-	runtime.KeepAlive(coutUtilizationInfoAllocMap)
+	coutCoreFrequencyInfo, coutCoreFrequencyInfoAllocMap := (*C.FuriosaSmiCoreFrequency)(unsafe.Pointer(outCoreFrequencyInfo)), cgoAllocsUnknown
+	__ret := C.furiosa_smi_get_core_frequency(chandle, coutCoreFrequencyInfo)
+	runtime.KeepAlive(coutCoreFrequencyInfoAllocMap)
+	runtime.KeepAlive(chandleAllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}
+
+func FuriosaSmiGetMemoryFrequency(handle FuriosaSmiDeviceHandle, outMemoryFrequencyInfo *FuriosaSmiMemoryFrequency) FuriosaSmiReturnCode {
+	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
+	coutMemoryFrequencyInfo, coutMemoryFrequencyInfoAllocMap := (*C.FuriosaSmiMemoryFrequency)(unsafe.Pointer(outMemoryFrequencyInfo)), cgoAllocsUnknown
+	__ret := C.furiosa_smi_get_memory_frequency(chandle, coutMemoryFrequencyInfo)
+	runtime.KeepAlive(coutMemoryFrequencyInfoAllocMap)
 	runtime.KeepAlive(chandleAllocMap)
 	__v := (FuriosaSmiReturnCode)(__ret)
 	return __v
@@ -193,6 +203,26 @@ func FuriosaSmiGetDeviceTemperature(handle FuriosaSmiDeviceHandle, outTemperatur
 	coutTemperature, coutTemperatureAllocMap := (*C.FuriosaSmiDeviceTemperature)(unsafe.Pointer(outTemperature)), cgoAllocsUnknown
 	__ret := C.furiosa_smi_get_device_temperature(chandle, coutTemperature)
 	runtime.KeepAlive(coutTemperatureAllocMap)
+	runtime.KeepAlive(chandleAllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}
+
+func FuriosaSmiGetGovernorProfile(handle FuriosaSmiDeviceHandle, outGovernorProfile *FuriosaSmiGovernorProfile) FuriosaSmiReturnCode {
+	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
+	coutGovernorProfile, coutGovernorProfileAllocMap := (*C.FuriosaSmiGovernorProfile)(unsafe.Pointer(outGovernorProfile)), cgoAllocsUnknown
+	__ret := C.furiosa_smi_get_governor_profile(chandle, coutGovernorProfile)
+	runtime.KeepAlive(coutGovernorProfileAllocMap)
+	runtime.KeepAlive(chandleAllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}
+
+func FuriosaSmiSetGovernorProfile(handle FuriosaSmiDeviceHandle, governorProfile FuriosaSmiGovernorProfile) FuriosaSmiReturnCode {
+	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
+	cgovernorProfile, cgovernorProfileAllocMap := (C.FuriosaSmiGovernorProfile)(governorProfile), cgoAllocsUnknown
+	__ret := C.furiosa_smi_set_governor_profile(chandle, cgovernorProfile)
+	runtime.KeepAlive(cgovernorProfileAllocMap)
 	runtime.KeepAlive(chandleAllocMap)
 	__v := (FuriosaSmiReturnCode)(__ret)
 	return __v

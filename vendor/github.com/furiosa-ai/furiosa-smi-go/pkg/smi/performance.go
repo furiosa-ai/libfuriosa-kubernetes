@@ -40,34 +40,6 @@ func (p *peUtilization) PeUsagePercentage() float64 {
 	return p.raw.PeUsagePercentage
 }
 
-// MemoryUtilization represents a memory utilization.
-type MemoryUtilization interface {
-	// TotalBytes returns the total bytes of memory.
-	TotalBytes() uint64
-	// InUseBytes returns the memory bytes currently in use.
-	InUseBytes() uint64
-}
-
-var _ MemoryUtilization = new(memoryUtilization)
-
-func newMemoryUtilization(raw binding.FuriosaSmiMemoryUtilization) MemoryUtilization {
-	return &memoryUtilization{
-		raw: raw,
-	}
-}
-
-type memoryUtilization struct {
-	raw binding.FuriosaSmiMemoryUtilization
-}
-
-func (m *memoryUtilization) TotalBytes() uint64 {
-	return m.raw.TotalBytes
-}
-
-func (m *memoryUtilization) InUseBytes() uint64 {
-	return m.raw.InUseBytes
-}
-
 // CoreUtilization represents a core utilization.
 type CoreUtilization interface {
 	// PeUtilization returns the list of utilizations for each PE cores.
@@ -154,6 +126,8 @@ func (d *devicePerformanceCounter) PerformanceCounter() []PerformanceCounter {
 type PerformanceCounter interface {
 	// Timestamp returns timestamp.
 	Timestamp() time.Time
+	// Core returns a core index.
+	Core() uint32
 	// CycleCount returns total cycle count in 64-bit unsigned int.
 	CycleCount() uint64
 	// TaskExecutionCycle returns cycle count used for task execution in 64-bit unsigned int.
@@ -176,10 +150,30 @@ func (p *performanceCounter) Timestamp() time.Time {
 	return time.Unix(p.raw.Timestamp, 0)
 }
 
+func (p *performanceCounter) Core() uint32 {
+	return p.raw.Core
+}
+
 func (p *performanceCounter) CycleCount() uint64 {
 	return p.raw.CycleCount
 }
 
 func (p *performanceCounter) TaskExecutionCycle() uint64 {
 	return p.raw.TaskExecutionCycle
+}
+
+func newGovernorProfile(profile binding.FuriosaSmiGovernorProfile) GovernorProfile {
+	switch profile {
+	case binding.FuriosaSmiGovernorProfileOnDemand:
+		return GovernorProfileOnDemand
+
+	case binding.FuriosaSmiGovernorProfilePerformance:
+		return GovernorProfilePerformance
+
+	case binding.FuriosaSmiGovernorProfilePowerSave:
+		return GovernorProfilePowerSave
+
+	default:
+		return GovernorProfileOnDemand
+	}
 }

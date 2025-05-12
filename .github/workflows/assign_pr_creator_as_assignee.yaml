@@ -1,0 +1,26 @@
+name: Assign PR creator as assignee
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+    branches:
+      - main
+
+jobs:
+  assign:
+    name: Detect PR creator and assign as assignee
+    runs-on: ubuntu-latest
+    steps:
+      - name: Detect PR creator
+        id: detect-pr-creator
+        run: |
+          echo "pr_creator=${{ github.event.pull_request.user.login }}" >> "$GITHUB_OUTPUT"
+      - name: Assign it as assignee
+        run: |
+          gh pr edit "$PR_URL" --add-assignee "$ASSIGNEE"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          ASSIGNEE: ${{ steps.detect-pr-creator.outputs.pr_creator }}

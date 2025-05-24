@@ -1,6 +1,7 @@
 package smi
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/bradfitz/iter"
@@ -234,6 +235,10 @@ func (m *staticMockVersionInfo) Patch() uint32 {
 
 func (m *staticMockVersionInfo) Metadata() string {
 	return m.metadata
+}
+
+func (m *staticMockVersionInfo) String() string {
+	return fmt.Sprintf("%d.%d.%d+%s", m.Major(), m.Minor(), m.Patch(), m.Metadata())
 }
 
 func getDeviceToDeviceLinkType(src, dst Device) (LinkType, error) {

@@ -32,6 +32,16 @@ func ListDevices() ([]Device, error) {
 	return devices, nil
 }
 
+// DriverInfo return a driver information of the device.
+func DriverInfo() (VersionInfo, error) {
+	var outDriverInfo binding.FuriosaSmiVersion
+	if ret := binding.FuriosaSmiGetDriverInfo(&outDriverInfo); ret != binding.FuriosaSmiReturnCodeOk {
+		return nil, toError(ret)
+	}
+
+	return newVersionInfo(outDriverInfo), nil
+}
+
 // Device represents the abstraction for a single Furiosa NPU device.
 type Device interface {
 	// DeviceInfo returns `DeviceInfo` which contains information about NPU device. (e.g. arch, serial, ...)

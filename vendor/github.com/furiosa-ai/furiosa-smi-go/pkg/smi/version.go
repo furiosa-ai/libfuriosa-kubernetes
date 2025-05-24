@@ -1,9 +1,15 @@
 package smi
 
-import "github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
+import (
+	"fmt"
+
+	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
+)
 
 // VersionInfo represents a version information.
 type VersionInfo interface {
+	fmt.Stringer // added for `String() string` method
+
 	// Major returns a major part of version.
 	Major() uint32
 	// Minor returns a minor part of version.
@@ -38,4 +44,8 @@ func (v *versionInfo) Patch() uint32 {
 
 func (v *versionInfo) Metadata() string {
 	return byteBufferToString(v.raw.Metadata[:])
+}
+
+func (v *versionInfo) String() string {
+	return fmt.Sprintf("%d.%d.%d+%s", v.Major(), v.Minor(), v.Patch(), v.Metadata())
 }

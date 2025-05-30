@@ -380,7 +380,7 @@ func TestPopulateTopologyMatrix(t *testing.T) {
 	}{
 		{
 			description: "test 8 npu configuration",
-			input:       smi.GetStaticMockDevices(smi.ArchWarboy),
+			input:       smi.GetStaticMockDevices(smi.ArchRngd),
 			expected: TopologyHintMatrix{
 				"27": {"27": 70, "2a": 30, "51": 20, "57": 20, "9e": 10, "a4": 10, "c7": 10, "ca": 10},
 				"2a": {"2a": 70, "51": 20, "57": 20, "9e": 10, "a4": 10, "c7": 10, "ca": 10},

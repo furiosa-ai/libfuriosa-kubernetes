@@ -15,7 +15,7 @@ func TestDeviceID(t *testing.T) {
 	}{
 		{
 			description:    "test device id",
-			mockDevice:     smi.GetStaticMockDevices(smi.ArchWarboy)[0],
+			mockDevice:     smi.GetStaticMockDevices(smi.ArchRngd)[0],
 			expectedResult: "A76AAD68-6855-40B1-9E86-D080852D1C80",
 		},
 	}
@@ -39,12 +39,12 @@ func TestPCIBusID(t *testing.T) {
 	}{
 		{
 			description:    "test pci bus id1",
-			mockDevice:     smi.GetStaticMockDevices(smi.ArchWarboy)[0],
+			mockDevice:     smi.GetStaticMockDevices(smi.ArchRngd)[0],
 			expectedResult: "27",
 		},
 		{
 			description:    "test pci bus id2",
-			mockDevice:     smi.GetStaticMockDevices(smi.ArchWarboy)[1],
+			mockDevice:     smi.GetStaticMockDevices(smi.ArchRngd)[1],
 			expectedResult: "2a",
 		},
 	}
@@ -69,13 +69,13 @@ func TestNUMANode(t *testing.T) {
 	}{
 		{
 			description:    "test numa node 1",
-			mockDevice:     smi.GetStaticMockDevices(smi.ArchWarboy)[0],
+			mockDevice:     smi.GetStaticMockDevices(smi.ArchRngd)[0],
 			expectedResult: 0,
 			expectError:    false,
 		},
 		{
 			description:    "test numa node 2",
-			mockDevice:     smi.GetStaticMockDevices(smi.ArchWarboy)[4],
+			mockDevice:     smi.GetStaticMockDevices(smi.ArchRngd)[4],
 			expectedResult: 1,
 			expectError:    false,
 		},
@@ -102,13 +102,13 @@ func TestIsHealthy(t *testing.T) {
 	}{
 		{
 			description:    "test healthy device",
-			mockDevice:     smi.GetStaticMockDevices(smi.ArchWarboy)[0],
+			mockDevice:     smi.GetStaticMockDevices(smi.ArchRngd)[0],
 			isDisabled:     false,
 			expectedResult: true,
 		},
 		{
 			description:    "test unhealthy device",
-			mockDevice:     smi.GetStaticMockDevices(smi.ArchWarboy)[0],
+			mockDevice:     smi.GetStaticMockDevices(smi.ArchRngd)[0],
 			isDisabled:     true,
 			expectedResult: false,
 		},
@@ -135,7 +135,7 @@ func TestID(t *testing.T) {
 	}{
 		{
 			description:    "test id",
-			mockDevice:     smi.GetStaticMockDevices(smi.ArchWarboy)[0],
+			mockDevice:     smi.GetStaticMockDevices(smi.ArchRngd)[0],
 			expectedResult: "A76AAD68-6855-40B1-9E86-D080852D1C80",
 		},
 	}

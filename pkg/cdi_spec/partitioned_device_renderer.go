@@ -1,7 +1,6 @@
 package cdi_spec
 
 import (
-	"fmt"
 	"regexp"
 	"strconv"
 
@@ -10,19 +9,7 @@ import (
 )
 
 func NewPartitionedDeviceSpecRenderer(device smi.Device, coreStart int, coreEnd int) (Renderer, error) {
-	deviceInfo, err := device.DeviceInfo()
-	if err != nil {
-		return nil, err
-	}
-
-	var deviceSpec CDISpec = nil
-	switch deviceInfo.Arch() {
-	case smi.ArchWarboy:
-		return nil, fmt.Errorf("partitioned device is not supported for Warboy")
-	case smi.ArchRngd:
-		deviceSpec, err = newRngdDeviceSpec(device)
-	}
-
+	deviceSpec, err := newRngdDeviceSpec(device)
 	if err != nil {
 		return nil, err
 	}

@@ -15,15 +15,15 @@ type FuriosaSmiObserver C.FuriosaSmiObserver
 type FuriosaSmiDeviceHandle uint32
 
 type FuriosaSmiDeviceHandles struct {
-	Count         uint32
-	DeviceHandles [64]FuriosaSmiDeviceHandle
+	Count          uint32
+	DeviceHandles  [64]FuriosaSmiDeviceHandle
 }
 
 type FuriosaSmiVersion struct {
-	Major    uint32
-	Minor    uint32
-	Patch    uint32
-	Metadata [96]byte
+	Major          uint32
+	Minor          uint32
+	Patch          uint32
+	Metadata       [96]byte
 }
 
 type FuriosaSmiDeviceInfo struct {
@@ -42,24 +42,24 @@ type FuriosaSmiDeviceInfo struct {
 }
 
 type FuriosaSmiDeviceFile struct {
-	CoreStart uint32
-	CoreEnd   uint32
-	Path      [256]byte
+	CoreStart      uint32
+	CoreEnd        uint32
+	Path           [256]byte
 }
 
 type FuriosaSmiDeviceFiles struct {
-	Count       uint32
-	DeviceFiles [64]FuriosaSmiDeviceFile
+	Count          uint32
+	DeviceFiles    [64]FuriosaSmiDeviceFile
 }
 
 type FuriosaSmiPeStatus struct {
-	Core   uint32
-	Status FuriosaSmiCoreStatus
+	Core           uint32
+	Status         FuriosaSmiCoreStatus
 }
 
 type FuriosaSmiCoreStatuses struct {
-	Count      uint32
-	CoreStatus [128]FuriosaSmiPeStatus
+	Count          uint32
+	CoreStatus     [128]FuriosaSmiPeStatus
 }
 
 type FuriosaSmiPeUtilization struct {
@@ -69,22 +69,22 @@ type FuriosaSmiPeUtilization struct {
 }
 
 type FuriosaSmiCoreUtilization struct {
-	PeCount uint32
-	Pe      [64]FuriosaSmiPeUtilization
+	PeCount        uint32
+	Pe             [64]FuriosaSmiPeUtilization
 }
 
 type FuriosaSmiPeFrequency struct {
-	Core      uint32
-	Frequency uint32
+	Core           uint32
+	Frequency      uint32
 }
 
 type FuriosaSmiCoreFrequency struct {
-	PeCount uint32
-	Pe      [64]FuriosaSmiPeFrequency
+	PeCount        uint32
+	Pe             [64]FuriosaSmiPeFrequency
 }
 
 type FuriosaSmiMemoryFrequency struct {
-	Frequency uint32
+	Frequency      uint32
 }
 
 type FuriosaSmiPePerformanceCounter struct {
@@ -100,10 +100,10 @@ type FuriosaSmiDevicePerformanceCounter struct {
 }
 
 type FuriosaSmiDevicePowerConsumption struct {
-	RmsTotal float64
+	RmsTotal       float64
 }
 
 type FuriosaSmiDeviceTemperature struct {
-	SocPeak float64
-	Ambient float64
+	SocPeak        float64
+	Ambient        float64
 }

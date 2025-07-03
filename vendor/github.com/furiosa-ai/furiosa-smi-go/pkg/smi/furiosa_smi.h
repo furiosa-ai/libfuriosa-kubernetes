@@ -54,10 +54,8 @@ typedef enum {
 
 /// \brief Represent a governor profile
 typedef enum {
-  /// 'ondemand' governor profile
-  FURIOSA_SMI_GOVERNOR_PROFILE_ON_DEMAND = 0,
   /// 'performance' governor profile
-  FURIOSA_SMI_GOVERNOR_PROFILE_PERFORMANCE,
+  FURIOSA_SMI_GOVERNOR_PROFILE_PERFORMANCE = 0,
   /// 'powersave' governor profile
   FURIOSA_SMI_GOVERNOR_PROFILE_POWER_SAVE,
 } FuriosaSmiGovernorProfile;
@@ -184,7 +182,7 @@ typedef struct {
   FuriosaSmiPeFrequency pe[FURIOSA_SMI_MAX_PE_SIZE];
 } FuriosaSmiCoreFrequency;
 
-/// \brief Represent a memory frequency information (Mhz).
+/// \brief Represent a memory frequency information (MHz).
 typedef struct {
   uint32_t frequency;
 } FuriosaSmiMemoryFrequency;

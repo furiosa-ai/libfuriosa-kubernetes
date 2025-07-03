@@ -97,7 +97,7 @@ func (m *staticWarboyMockDevice) DevicePerformanceCounter() (DevicePerformanceCo
 }
 
 func (m *staticWarboyMockDevice) GovernorProfile() (GovernorProfile, error) {
-	return GovernorProfileOnDemand, nil
+	return GovernorProfilePerformance, nil
 }
 
 func (m *staticWarboyMockDevice) SetGovernorProfile(profile GovernorProfile) error {

@@ -151,7 +151,7 @@ func (m *staticRngdMockDevice) DevicePerformanceCounter() (DevicePerformanceCoun
 }
 
 func (m *staticRngdMockDevice) GovernorProfile() (GovernorProfile, error) {
-	return GovernorProfileOnDemand, nil
+	return GovernorProfilePerformance, nil
 }
 
 func (m *staticRngdMockDevice) SetGovernorProfile(profile GovernorProfile) error {

@@ -13,8 +13,6 @@ TRANSLATOR:
       - {action: accept, from: ^FURIOSA}
       - {action: accept, from: ^Furiosa}
       - {action: accept, from: ^furiosa}
-      # fixme(bg): FuriosaSmiObserverInstance should be ignored to avoid the issue that c-for-go doesn't interpret the struct correctly.
-      - { action: ignore, from: FuriosaSmiObserverInstance }
     const:
       - {transform: lower}
     private:
@@ -24,6 +22,7 @@ TRANSLATOR:
       - {load: snakecase}
   MemTips:
     - { target: "^furiosa_smi_", default: "raw" }
+    - { target: "^FuriosaSmiDisabledDevices$", self: "raw" }
   PtrTips:
     function:
       - {target: furiosa_smi_get_device_handles, tips: [ref]}
@@ -35,9 +34,6 @@ TRANSLATOR:
       - {target: furiosa_smi_get_device_core_status, tips: [0,ref]}
       - {target: furiosa_smi_get_device_liveness, tips: [0,ref]}
       - {target: furiosa_smi_get_driver_info, tips: [ref]}
-      - {target: furiosa_smi_create_observer, tips: [sref]}
-      - {target: furiosa_smi_destroy_observer, tips: [sref]}
-      - {target: furiosa_smi_get_core_utilization, tips: [ref,0,ref]}
       - {target: furiosa_smi_get_core_frequency, tips: [0,ref]}
       - {target: furiosa_smi_get_memory_frequency, tips: [0,ref]}
       - {target: furiosa_smi_get_device_performance_counter, tips: [0,ref]}
@@ -47,3 +43,12 @@ TRANSLATOR:
       - {target: furiosa_smi_set_governor_profile, tips: [0,0] }
       - {target: furiosa_smi_get_device_to_device_link_type, tips: [0,0,ref]}
       - {target: furiosa_smi_get_p2p_accessible, tips: [0,0,ref]}
+      - {target: furiosa_smi_enable_device, tips: [ref]}
+      - {target: furiosa_smi_disable_device, tips: [ref]}
+      - {target: furiosa_smi_get_disabled_devices, tips: [ref]}
+      - {target: furiosa_smi_get_pcie_device_info, tips: [0,ref]}
+      - {target: furiosa_smi_get_pcie_link_info, tips: [0,ref]}
+      - {target: furiosa_smi_get_sriov_info, tips: [0,ref]}
+      - {target: furiosa_smi_get_pcie_root_complex_info, tips: [0,ref]}
+      - {target: furiosa_smi_get_pcie_switch_info, tips: [0,ref]}
+

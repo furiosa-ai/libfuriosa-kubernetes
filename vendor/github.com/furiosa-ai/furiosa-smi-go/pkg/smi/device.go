@@ -1,12 +1,8 @@
 package smi
 
 import (
-	"runtime"
-
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
 )
-
-type furiosaSmiObserverInstance = *binding.FuriosaSmiObserver
 
 // ListDevices lists all Furiosa NPU devices in the system.
 func ListDevices() ([]Device, error) {
@@ -15,21 +11,60 @@ func ListDevices() ([]Device, error) {
 		return nil, toError(ret)
 	}
 
-	var outObserverInstance = new(furiosaSmiObserverInstance)
-	if ret := binding.FuriosaSmiCreateObserver(outObserverInstance); ret != binding.FuriosaSmiReturnCodeOk {
-		return nil, toError(ret)
-	}
-
-	defer runtime.SetFinalizer(outObserverInstance, func(observerInstance *furiosaSmiObserverInstance) {
-		_ = binding.FuriosaSmiDestroyObserver(observerInstance)
-	})
-
 	var devices []Device
 	for i := 0; i < int(outDeviceHandle.Count); i++ {
-		devices = append(devices, newDevice(outDeviceHandle.DeviceHandles[i], outObserverInstance))
+		devices = append(devices, newDevice(outDeviceHandle.DeviceHandles[i]))
 	}
 
 	return devices, nil
+}
+
+// ListDisabledDevices lists all disabled Furiosa NPU devices in the system. It returns a list of BDF strings representing the disabled devices.
+func ListDisabledDevices() ([]string, error) {
+	var outDisabledDevice binding.FuriosaSmiDisabledDevices
+	if ret := binding.FuriosaSmiGetDisabledDevices(&outDisabledDevice); ret != binding.FuriosaSmiReturnCodeOk {
+		return nil, toError(ret)
+	}
+
+	convertedDisabledDevice := binding.ConvertDisabledDevices(&outDisabledDevice)
+
+	var disabledDevices []string
+	for i := 0; i < int(convertedDisabledDevice.Count); i++ {
+		var bdf = convertedDisabledDevice.Bdfs[i][:]
+		disabledDevices = append(disabledDevices, byteBufferToString(bdf))
+	}
+
+	return disabledDevices, nil
+}
+
+// EnableDevice enables a Furiosa NPU device by bdf. This requires root privileges.
+func EnableDevice(bdf string) error {
+	var handle binding.FuriosaSmiDeviceHandle
+
+	if ret := binding.FuriosaSmiGetDeviceHandleByBdf(bdf, &handle); ret != binding.FuriosaSmiReturnCodeOk {
+		return toError(ret)
+	}
+
+	if ret := binding.FuriosaSmiEnableDevice(handle); ret != binding.FuriosaSmiReturnCodeOk {
+		return toError(ret)
+	}
+
+	return nil
+}
+
+// DisableDevice disables a Furiosa NPU device by bdf. This requires root privileges.
+func DisableDevice(bdf string) error {
+	var handle binding.FuriosaSmiDeviceHandle
+
+	if ret := binding.FuriosaSmiGetDeviceHandleByBdf(bdf, &handle); ret != binding.FuriosaSmiReturnCodeOk {
+		return toError(ret)
+	}
+
+	if ret := binding.FuriosaSmiDisableDevice(handle); ret != binding.FuriosaSmiReturnCodeOk {
+		return toError(ret)
+	}
+
+	return nil
 }
 
 // DriverInfo return a driver information of the device.
@@ -56,8 +91,6 @@ type Device interface {
 	CoreFrequency() (CoreFrequency, error)
 	// MemoryFrequency returns a memory frequency (MHz) of the device.
 	MemoryFrequency() (MemoryFrequency, error)
-	// CoreUtilization returns a core utilization of the device.
-	CoreUtilization() (CoreUtilization, error)
 	// PowerConsumption returns a power consumption of the device.
 	PowerConsumption() (float64, error)
 	// DeviceTemperature returns a temperature of the device.
@@ -72,19 +105,19 @@ type Device interface {
 	GovernorProfile() (GovernorProfile, error)
 	// SetGovernorProfile set a governor profile of the device.
 	SetGovernorProfile(governorProfile GovernorProfile) error
+	// PcieInfo returns a PCIe information of the device.
+	PcieInfo() (PcieInfo, error)
 }
 
 var _ Device = new(device)
 
 type device struct {
-	observerInstance *furiosaSmiObserverInstance
-	handle           binding.FuriosaSmiDeviceHandle
+	handle binding.FuriosaSmiDeviceHandle
 }
 
-func newDevice(handle binding.FuriosaSmiDeviceHandle, observerInstance *furiosaSmiObserverInstance) Device {
+func newDevice(handle binding.FuriosaSmiDeviceHandle) Device {
 	return &device{
-		observerInstance: observerInstance,
-		handle:           handle,
+		handle: handle,
 	}
 }
 
@@ -150,16 +183,6 @@ func (d *device) MemoryFrequency() (MemoryFrequency, error) {
 	}
 
 	return newMemoryFrequency(out), nil
-}
-
-func (d *device) CoreUtilization() (CoreUtilization, error) {
-	var out binding.FuriosaSmiCoreUtilization
-
-	if ret := binding.FuriosaSmiGetCoreUtilization(*d.observerInstance, d.handle, &out); ret != binding.FuriosaSmiReturnCodeOk {
-		return nil, toError(ret)
-	}
-
-	return newCoreUtilization(out), nil
 }
 
 func (d *device) PowerConsumption() (float64, error) {
@@ -229,4 +252,40 @@ func (d *device) SetGovernorProfile(profile GovernorProfile) error {
 	}
 
 	return nil
+}
+
+func (d *device) PcieInfo() (PcieInfo, error) {
+	var outPcieDeviceInfo binding.FuriosaSmiPcieDeviceInfo
+	var outPcieLinkInfo binding.FuriosaSmiPcieLinkInfo
+	var outSriovInfo binding.FuriosaSmiSriovInfo
+	var outPcieRootComplexInfo binding.FuriosaSmiPcieRootComplexInfo
+	var outPcieSwitchInfo binding.FuriosaSmiPcieSwitchInfo
+
+	if ret := binding.FuriosaSmiGetPcieDeviceInfo(d.handle, &outPcieDeviceInfo); ret != binding.FuriosaSmiReturnCodeOk {
+		return nil, toError(ret)
+	}
+
+	if ret := binding.FuriosaSmiGetPcieLinkInfo(d.handle, &outPcieLinkInfo); ret != binding.FuriosaSmiReturnCodeOk {
+		return nil, toError(ret)
+	}
+
+	if ret := binding.FuriosaSmiGetSriovInfo(d.handle, &outSriovInfo); ret != binding.FuriosaSmiReturnCodeOk {
+		return nil, toError(ret)
+	}
+
+	if ret := binding.FuriosaSmiGetPcieRootComplexInfo(d.handle, &outPcieRootComplexInfo); ret != binding.FuriosaSmiReturnCodeOk {
+		return nil, toError(ret)
+	}
+
+	if ret := binding.FuriosaSmiGetPcieSwitchInfo(d.handle, &outPcieSwitchInfo); ret != binding.FuriosaSmiReturnCodeOk {
+		return nil, toError(ret)
+	}
+
+	pcieDeviceInfo := newPcieDeviceInfo(outPcieDeviceInfo)
+	pcieLinkInfo := newPcieLinkInfo(outPcieLinkInfo)
+	sriovInfo := newSriovInfo(outSriovInfo)
+	pcieRootComplexInfo := newPcieRootComplexInfo(outPcieRootComplexInfo)
+	pcieSwitchInfo := newPcieSwitchInfo(outPcieSwitchInfo)
+
+	return newPcieInfo(pcieDeviceInfo, pcieLinkInfo, sriovInfo, pcieRootComplexInfo, pcieSwitchInfo), nil
 }

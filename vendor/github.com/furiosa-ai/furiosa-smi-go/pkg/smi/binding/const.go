@@ -66,26 +66,27 @@ const (
 	FuriosaSmiGovernorProfilePowerSave   FuriosaSmiGovernorProfile = 1
 )
 
-// FuriosaSmiReturnCode as declared in smi/furiosa_smi.h:99
+// FuriosaSmiReturnCode as declared in smi/furiosa_smi.h:101
 type FuriosaSmiReturnCode int32
 
-// FuriosaSmiReturnCode enumeration from smi/furiosa_smi.h:99
+// FuriosaSmiReturnCode enumeration from smi/furiosa_smi.h:101
 const (
 	FuriosaSmiReturnCodeOk                       FuriosaSmiReturnCode = iota
 	FuriosaSmiReturnCodeInvalidArgumentError     FuriosaSmiReturnCode = 1
 	FuriosaSmiReturnCodeNullPointerError         FuriosaSmiReturnCode = 2
 	FuriosaSmiReturnCodeMaxBufferSizeExceedError FuriosaSmiReturnCode = 3
 	FuriosaSmiReturnCodeDeviceNotFoundError      FuriosaSmiReturnCode = 4
-	FuriosaSmiReturnCodeDeviceBusyError          FuriosaSmiReturnCode = 5
-	FuriosaSmiReturnCodeIoError                  FuriosaSmiReturnCode = 6
-	FuriosaSmiReturnCodePermissionDeniedError    FuriosaSmiReturnCode = 7
-	FuriosaSmiReturnCodeUnknownArchError         FuriosaSmiReturnCode = 8
-	FuriosaSmiReturnCodeIncompatibleDriverError  FuriosaSmiReturnCode = 9
-	FuriosaSmiReturnCodeUnexpectedValueError     FuriosaSmiReturnCode = 10
-	FuriosaSmiReturnCodeParseError               FuriosaSmiReturnCode = 11
-	FuriosaSmiReturnCodeUnknownError             FuriosaSmiReturnCode = 12
-	FuriosaSmiReturnCodeInternalError            FuriosaSmiReturnCode = 13
-	FuriosaSmiReturnCodeUninitializedError       FuriosaSmiReturnCode = 14
-	FuriosaSmiReturnCodeContextError             FuriosaSmiReturnCode = 15
-	FuriosaSmiReturnCodeNotSupportedError        FuriosaSmiReturnCode = 16
+	FuriosaSmiReturnCodeDeviceLostError          FuriosaSmiReturnCode = 5
+	FuriosaSmiReturnCodeDeviceBusyError          FuriosaSmiReturnCode = 6
+	FuriosaSmiReturnCodeIoError                  FuriosaSmiReturnCode = 7
+	FuriosaSmiReturnCodePermissionDeniedError    FuriosaSmiReturnCode = 8
+	FuriosaSmiReturnCodeUnknownArchError         FuriosaSmiReturnCode = 9
+	FuriosaSmiReturnCodeIncompatibleDriverError  FuriosaSmiReturnCode = 10
+	FuriosaSmiReturnCodeUnexpectedValueError     FuriosaSmiReturnCode = 11
+	FuriosaSmiReturnCodeParseError               FuriosaSmiReturnCode = 12
+	FuriosaSmiReturnCodeUnknownError             FuriosaSmiReturnCode = 13
+	FuriosaSmiReturnCodeInternalError            FuriosaSmiReturnCode = 14
+	FuriosaSmiReturnCodeUninitializedError       FuriosaSmiReturnCode = 15
+	FuriosaSmiReturnCodeContextError             FuriosaSmiReturnCode = 16
+	FuriosaSmiReturnCodeNotSupportedError        FuriosaSmiReturnCode = 17
 )

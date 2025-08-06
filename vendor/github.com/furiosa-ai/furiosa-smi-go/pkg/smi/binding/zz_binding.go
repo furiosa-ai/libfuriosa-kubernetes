@@ -130,34 +130,6 @@ func FuriosaSmiGetDriverInfo(outDriverInfo *FuriosaSmiVersion) FuriosaSmiReturnC
 	return __v
 }
 
-func FuriosaSmiCreateObserver(outObserverInstance **FuriosaSmiObserver) FuriosaSmiReturnCode {
-	coutObserverInstance, coutObserverInstanceAllocMap := (*C.FuriosaSmiObserverInstance)(unsafe.Pointer(outObserverInstance)), cgoAllocsUnknown
-	__ret := C.furiosa_smi_create_observer(coutObserverInstance)
-	runtime.KeepAlive(coutObserverInstanceAllocMap)
-	__v := (FuriosaSmiReturnCode)(__ret)
-	return __v
-}
-
-func FuriosaSmiDestroyObserver(pObserverInstance **FuriosaSmiObserver) FuriosaSmiReturnCode {
-	cpObserverInstance, cpObserverInstanceAllocMap := (*C.FuriosaSmiObserverInstance)(unsafe.Pointer(pObserverInstance)), cgoAllocsUnknown
-	__ret := C.furiosa_smi_destroy_observer(cpObserverInstance)
-	runtime.KeepAlive(cpObserverInstanceAllocMap)
-	__v := (FuriosaSmiReturnCode)(__ret)
-	return __v
-}
-
-func FuriosaSmiGetCoreUtilization(observerInstance *FuriosaSmiObserver, handle FuriosaSmiDeviceHandle, outUtilizationInfo *FuriosaSmiCoreUtilization) FuriosaSmiReturnCode {
-	cobserverInstance, cobserverInstanceAllocMap := (*C.FuriosaSmiObserver)(unsafe.Pointer(observerInstance)), cgoAllocsUnknown
-	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
-	coutUtilizationInfo, coutUtilizationInfoAllocMap := (*C.FuriosaSmiCoreUtilization)(unsafe.Pointer(outUtilizationInfo)), cgoAllocsUnknown
-	__ret := C.furiosa_smi_get_core_utilization(cobserverInstance, chandle, coutUtilizationInfo)
-	runtime.KeepAlive(coutUtilizationInfoAllocMap)
-	runtime.KeepAlive(chandleAllocMap)
-	runtime.KeepAlive(cobserverInstanceAllocMap)
-	__v := (FuriosaSmiReturnCode)(__ret)
-	return __v
-}
-
 func FuriosaSmiGetCoreFrequency(handle FuriosaSmiDeviceHandle, outCoreFrequencyInfo *FuriosaSmiCoreFrequency) FuriosaSmiReturnCode {
 	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
 	coutCoreFrequencyInfo, coutCoreFrequencyInfoAllocMap := (*C.FuriosaSmiCoreFrequency)(unsafe.Pointer(outCoreFrequencyInfo)), cgoAllocsUnknown
@@ -223,6 +195,80 @@ func FuriosaSmiSetGovernorProfile(handle FuriosaSmiDeviceHandle, governorProfile
 	cgovernorProfile, cgovernorProfileAllocMap := (C.FuriosaSmiGovernorProfile)(governorProfile), cgoAllocsUnknown
 	__ret := C.furiosa_smi_set_governor_profile(chandle, cgovernorProfile)
 	runtime.KeepAlive(cgovernorProfileAllocMap)
+	runtime.KeepAlive(chandleAllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}
+
+func FuriosaSmiEnableDevice(handle FuriosaSmiDeviceHandle) FuriosaSmiReturnCode {
+	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
+	__ret := C.furiosa_smi_enable_device(chandle)
+	runtime.KeepAlive(chandleAllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}
+
+func FuriosaSmiDisableDevice(handle FuriosaSmiDeviceHandle) FuriosaSmiReturnCode {
+	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
+	__ret := C.furiosa_smi_disable_device(chandle)
+	runtime.KeepAlive(chandleAllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}
+
+func FuriosaSmiGetDisabledDevices(outDisabledDevices *FuriosaSmiDisabledDevices) FuriosaSmiReturnCode {
+	coutDisabledDevices, coutDisabledDevicesAllocMap := (*C.FuriosaSmiDisabledDevices)(unsafe.Pointer(outDisabledDevices)), cgoAllocsUnknown
+	__ret := C.furiosa_smi_get_disabled_devices(coutDisabledDevices)
+	runtime.KeepAlive(coutDisabledDevicesAllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}
+
+func FuriosaSmiGetPcieDeviceInfo(handle FuriosaSmiDeviceHandle, outPcieDeviceInfo *FuriosaSmiPcieDeviceInfo) FuriosaSmiReturnCode {
+	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
+	coutPcieDeviceInfo, coutPcieDeviceInfoAllocMap := (*C.FuriosaSmiPcieDeviceInfo)(unsafe.Pointer(outPcieDeviceInfo)), cgoAllocsUnknown
+	__ret := C.furiosa_smi_get_pcie_device_info(chandle, coutPcieDeviceInfo)
+	runtime.KeepAlive(coutPcieDeviceInfoAllocMap)
+	runtime.KeepAlive(chandleAllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}
+
+func FuriosaSmiGetPcieLinkInfo(handle FuriosaSmiDeviceHandle, outPcieLinkInfo *FuriosaSmiPcieLinkInfo) FuriosaSmiReturnCode {
+	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
+	coutPcieLinkInfo, coutPcieLinkInfoAllocMap := (*C.FuriosaSmiPcieLinkInfo)(unsafe.Pointer(outPcieLinkInfo)), cgoAllocsUnknown
+	__ret := C.furiosa_smi_get_pcie_link_info(chandle, coutPcieLinkInfo)
+	runtime.KeepAlive(coutPcieLinkInfoAllocMap)
+	runtime.KeepAlive(chandleAllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}
+
+func FuriosaSmiGetSriovInfo(handle FuriosaSmiDeviceHandle, outSriovInfo *FuriosaSmiSriovInfo) FuriosaSmiReturnCode {
+	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
+	coutSriovInfo, coutSriovInfoAllocMap := (*C.FuriosaSmiSriovInfo)(unsafe.Pointer(outSriovInfo)), cgoAllocsUnknown
+	__ret := C.furiosa_smi_get_sriov_info(chandle, coutSriovInfo)
+	runtime.KeepAlive(coutSriovInfoAllocMap)
+	runtime.KeepAlive(chandleAllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}
+
+func FuriosaSmiGetPcieRootComplexInfo(handle FuriosaSmiDeviceHandle, outRootComplexInfo *FuriosaSmiPcieRootComplexInfo) FuriosaSmiReturnCode {
+	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
+	coutRootComplexInfo, coutRootComplexInfoAllocMap := (*C.FuriosaSmiPcieRootComplexInfo)(unsafe.Pointer(outRootComplexInfo)), cgoAllocsUnknown
+	__ret := C.furiosa_smi_get_pcie_root_complex_info(chandle, coutRootComplexInfo)
+	runtime.KeepAlive(coutRootComplexInfoAllocMap)
+	runtime.KeepAlive(chandleAllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}
+
+func FuriosaSmiGetPcieSwitchInfo(handle FuriosaSmiDeviceHandle, outPcieSwitchInfo *FuriosaSmiPcieSwitchInfo) FuriosaSmiReturnCode {
+	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
+	coutPcieSwitchInfo, coutPcieSwitchInfoAllocMap := (*C.FuriosaSmiPcieSwitchInfo)(unsafe.Pointer(outPcieSwitchInfo)), cgoAllocsUnknown
+	__ret := C.furiosa_smi_get_pcie_switch_info(chandle, coutPcieSwitchInfo)
+	runtime.KeepAlive(coutPcieSwitchInfoAllocMap)
 	runtime.KeepAlive(chandleAllocMap)
 	__v := (FuriosaSmiReturnCode)(__ret)
 	return __v

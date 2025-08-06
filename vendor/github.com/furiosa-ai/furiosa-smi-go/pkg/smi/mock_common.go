@@ -71,16 +71,12 @@ func GetStaticMockDevices(arch Arch) (mockDevices []Device) {
 // GetStaticMockDevice returns single mock device with given Arch and idx number for test purpose.
 func GetStaticMockDevice(arch Arch, nodeIdx int) Device {
 	switch arch {
-	case ArchWarboy:
-		return &staticWarboyMockDevice{
-			arch:    ArchWarboy,
-			nodeIdx: nodeIdx,
-		}
 	case ArchRngd:
 		return &staticRngdMockDevice{
 			arch:    ArchRngd,
 			nodeIdx: nodeIdx,
 		}
+		// TODO: add more arch
 	}
 
 	panic("unknown arch")
@@ -151,26 +147,6 @@ func (m *staticMockPeStatus) Status() CoreStatus {
 	return m.status
 }
 
-type staticMockPeUtilization struct {
-	core       uint32
-	timeWindow uint32
-	usage      float64
-}
-
-var _ PeUtilization = new(staticMockPeUtilization)
-
-func (m *staticMockPeUtilization) Core() uint32 {
-	return m.core
-}
-
-func (m *staticMockPeUtilization) TimeWindowMill() uint32 {
-	return m.timeWindow
-}
-
-func (m *staticMockPeUtilization) PeUsagePercentage() float64 {
-	return m.usage
-}
-
 type staticMockMemoryFrequency struct {
 	frequency uint32
 }
@@ -179,16 +155,6 @@ var _ MemoryFrequency = new(staticMockMemoryFrequency)
 
 func (m *staticMockMemoryFrequency) Frequency() uint32 {
 	return m.frequency
-}
-
-type staticMockCoreUtilization struct {
-	pe []PeUtilization
-}
-
-var _ CoreUtilization = new(staticMockCoreUtilization)
-
-func (m *staticMockCoreUtilization) PeUtilization() []PeUtilization {
-	return m.pe
 }
 
 type staticMockDeviceTemperature struct{}
@@ -283,4 +249,124 @@ func (s staticMockPerformanceCounter) CycleCount() uint64 {
 
 func (s staticMockPerformanceCounter) TaskExecutionCycle() uint64 {
 	return 0
+}
+
+type staticMockPcieInfo struct{}
+
+var _ PcieInfo = new(staticMockPcieInfo)
+
+func (s *staticMockPcieInfo) DeviceInfo() PcieDeviceInfo {
+	return &staticMockPcieDeviceInfo{}
+}
+
+func (s *staticMockPcieInfo) LinkInfo() PcieLinkInfo {
+	return &staticMockPcieLinkInfo{}
+}
+
+func (s *staticMockPcieInfo) SriovInfo() SriovInfo {
+	return &staticMockSriovInfo{}
+}
+
+func (s *staticMockPcieInfo) RootComplexInfo() PcieRootComplexInfo {
+	return &staticMockPcieRootComplexInfo{}
+}
+
+func (s *staticMockPcieInfo) SwitchInfo() PcieSwitchInfo {
+	return &staticMockPcieSwitchInfo{}
+}
+
+type staticMockPcieDeviceInfo struct{}
+
+var _ PcieDeviceInfo = new(staticMockPcieDeviceInfo)
+
+func (s *staticMockPcieDeviceInfo) DeviceId() uint16 {
+	return 0x0001
+}
+
+func (s *staticMockPcieDeviceInfo) VendorId() uint16 {
+	return 0x1ed2
+}
+
+func (s *staticMockPcieDeviceInfo) SubsystemId() uint16 {
+	return 0x0001
+}
+
+func (s *staticMockPcieDeviceInfo) RevisionId() uint8 {
+	return 0x0001
+}
+
+func (s *staticMockPcieDeviceInfo) ClassId() uint8 {
+	return 0x12
+}
+
+func (s *staticMockPcieDeviceInfo) SubClassId() uint8 {
+	return 0x00
+}
+
+type staticMockPcieLinkInfo struct{}
+
+var _ PcieLinkInfo = new(staticMockPcieLinkInfo)
+
+func (s *staticMockPcieLinkInfo) PcieGenStatus() uint8 {
+	return 5
+}
+
+func (s *staticMockPcieLinkInfo) LinkWidthStatus() uint32 {
+	return 16
+}
+
+func (s *staticMockPcieLinkInfo) LinkSpeedStatus() float64 {
+	return 32.0
+}
+
+func (s *staticMockPcieLinkInfo) MaxLinkWidthCapability() uint32 {
+	return 16
+}
+
+func (s *staticMockPcieLinkInfo) MaxLinkSpeedCapability() float64 {
+	return 32.0
+}
+
+type staticMockSriovInfo struct{}
+
+var _ SriovInfo = new(staticMockSriovInfo)
+
+func (s *staticMockSriovInfo) SriovTotalVfs() uint32 {
+	return 4
+}
+
+func (s *staticMockSriovInfo) SriovEnabledVfs() uint32 {
+	return 0
+}
+
+type staticMockPcieRootComplexInfo struct{}
+
+var _ PcieRootComplexInfo = new(staticMockPcieRootComplexInfo)
+
+func (s *staticMockPcieRootComplexInfo) Domain() uint16 {
+	return 0x0000
+}
+
+func (s *staticMockPcieRootComplexInfo) Bus() uint8 {
+	return 0x42
+}
+
+type staticMockPcieSwitchInfo struct{}
+
+var _ PcieSwitchInfo = new(staticMockPcieSwitchInfo)
+
+func (s *staticMockPcieSwitchInfo) Domain() uint16 {
+	return 0x0000
+}
+
+func (s *staticMockPcieSwitchInfo) Bus() uint8 {
+	return 0x41
+}
+
+func (s *staticMockPcieSwitchInfo) Device() uint8 {
+	return 0x00
+}
+
+func (s *staticMockPcieSwitchInfo) Function() uint8 {
+	return 0x00
 }

@@ -114,21 +114,6 @@ func (m *staticRngdMockDevice) MemoryFrequency() (MemoryFrequency, error) {
 	return &staticMockMemoryFrequency{frequency: 6000}, nil
 }
 
-func (m *staticRngdMockDevice) CoreUtilization() (CoreUtilization, error) {
-	return &staticMockCoreUtilization{
-		pe: []PeUtilization{
-			&staticMockPeUtilization{core: 0, timeWindow: 1000, usage: 50},
-			&staticMockPeUtilization{core: 1, timeWindow: 1000, usage: 50},
-			&staticMockPeUtilization{core: 2, timeWindow: 1000, usage: 50},
-			&staticMockPeUtilization{core: 3, timeWindow: 1000, usage: 50},
-			&staticMockPeUtilization{core: 4, timeWindow: 1000, usage: 50},
-			&staticMockPeUtilization{core: 5, timeWindow: 1000, usage: 50},
-			&staticMockPeUtilization{core: 6, timeWindow: 1000, usage: 50},
-			&staticMockPeUtilization{core: 7, timeWindow: 1000, usage: 50},
-		},
-	}, nil
-}
-
 func (m *staticRngdMockDevice) PowerConsumption() (float64, error) {
 	return float64(100), nil
 }
@@ -155,6 +140,14 @@ func (m *staticRngdMockDevice) GovernorProfile() (GovernorProfile, error) {
 }
 
 func (m *staticRngdMockDevice) SetGovernorProfile(profile GovernorProfile) error {
+	return nil
+}
+
+func (m *staticRngdMockDevice) EnableDevice() error {
+	return nil
+}
+
+func (m *staticRngdMockDevice) DisableDevice() error {
 	return nil
 }
 
@@ -211,4 +204,8 @@ func (m *staticRngdMockDeviceInfo) FirmwareVersion() VersionInfo {
 
 func (m *staticRngdMockDeviceInfo) PertVersion() VersionInfo {
 	return newStaticMockVersionInfo(0, 0, 0, "")
+}
+
+func (m *staticRngdMockDevice) PcieInfo() (PcieInfo, error) {
+	return &staticMockPcieInfo{}, nil
 }

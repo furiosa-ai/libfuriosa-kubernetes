@@ -9,8 +9,8 @@ github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/fsnotify/fsnotify v1.7.0 h1:8JEhPFa5W2WU7YfeZzPNqzMP6Lwt7L2715Ggo0nosvA=
 github.com/fsnotify/fsnotify v1.7.0/go.mod h1:40Bi/Hjc2AVfZrqy+aj+yEI+/bRxZnMJyTJwOpGvigM=
-github.com/furiosa-ai/furiosa-smi-go v0.3.3 h1:uu2l5G2JQ0LbiC7bfY+e6JOgbi53fZ8sF9r4oaphqVA=
-github.com/furiosa-ai/furiosa-smi-go v0.3.3/go.mod h1:VT0ppptMWZbU5Q/7iJtk4Jk0Ff7bNnUt8Nw24NIsS+g=
+github.com/furiosa-ai/furiosa-smi-go v0.4.0 h1:eVIMoxQp9ywl7nQu0+UATmOsgGDvefBlYZmqUiA49U8=
+github.com/furiosa-ai/furiosa-smi-go v0.4.0/go.mod h1:VT0ppptMWZbU5Q/7iJtk4Jk0Ff7bNnUt8Nw24NIsS+g=
 github.com/google/btree v1.1.3 h1:CVpQJjYgC4VbzxeGVHfvZrv1ctoYCAI8vbl07Fcxlyg=
 github.com/google/btree v1.1.3/go.mod h1:qOPhT0dTNdNzV6Z/lhRX0YXUafgPLFUh+gZMl761Gm4=
 github.com/google/go-cmp v0.5.9/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=

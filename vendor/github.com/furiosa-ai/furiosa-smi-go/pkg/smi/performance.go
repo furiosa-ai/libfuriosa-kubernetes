@@ -6,66 +6,6 @@ import (
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
 )
 
-// PeUtilization represents a PE utilization.
-type PeUtilization interface {
-	// Core returns a PE core index.
-	Core() uint32
-	// TimeWindowMill returns time window for utilization.
-	TimeWindowMill() uint32
-	// PeUsagePercentage returns PE usage percentage.
-	PeUsagePercentage() float64
-}
-
-var _ PeUtilization = new(peUtilization)
-
-type peUtilization struct {
-	raw binding.FuriosaSmiPeUtilization
-}
-
-func newPeUtilization(raw binding.FuriosaSmiPeUtilization) PeUtilization {
-	return &peUtilization{
-		raw: raw,
-	}
-}
-
-func (p *peUtilization) Core() uint32 {
-	return p.raw.Core
-}
-
-func (p *peUtilization) TimeWindowMill() uint32 {
-	return p.raw.TimeWindowMil
-}
-
-func (p *peUtilization) PeUsagePercentage() float64 {
-	return p.raw.PeUsagePercentage
-}
-
-// CoreUtilization represents a core utilization.
-type CoreUtilization interface {
-	// PeUtilization returns the list of utilizations for each PE cores.
-	PeUtilization() []PeUtilization
-}
-
-var _ CoreUtilization = new(coreUtilization)
-
-type coreUtilization struct {
-	raw binding.FuriosaSmiCoreUtilization
-}
-
-func newCoreUtilization(raw binding.FuriosaSmiCoreUtilization) CoreUtilization {
-	return &coreUtilization{
-		raw: raw,
-	}
-}
-
-func (d *coreUtilization) PeUtilization() (ret []PeUtilization) {
-	for i := uint32(0); i < d.raw.PeCount; i++ {
-		ret = append(ret, newPeUtilization(d.raw.Pe[i]))
-	}
-
-	return
-}
-
 // DeviceTemperature represents a temperature information of the device.
 type DeviceTemperature interface {
 	// SocPeak returns the highest temperature observed from SoC sensors.

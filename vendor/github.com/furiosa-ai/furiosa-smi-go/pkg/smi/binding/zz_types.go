@@ -10,8 +10,6 @@ package binding
 */
 import "C"
 
-type FuriosaSmiObserver C.FuriosaSmiObserver
-
 type FuriosaSmiDeviceHandle uint32
 
 type FuriosaSmiDeviceHandles struct {
@@ -62,17 +60,6 @@ type FuriosaSmiCoreStatuses struct {
 	CoreStatus     [128]FuriosaSmiPeStatus
 }
 
-type FuriosaSmiPeUtilization struct {
-	Core              uint32
-	TimeWindowMil     uint32
-	PeUsagePercentage float64
-}
-
-type FuriosaSmiCoreUtilization struct {
-	PeCount        uint32
-	Pe             [64]FuriosaSmiPeUtilization
-}
-
 type FuriosaSmiPeFrequency struct {
 	Core           uint32
 	Frequency      uint32
@@ -106,4 +93,42 @@ type FuriosaSmiDevicePowerConsumption struct {
 type FuriosaSmiDeviceTemperature struct {
 	SocPeak        float64
 	Ambient        float64
+}
+
+type FuriosaSmiBdf [96]byte
+
+type FuriosaSmiDisabledDevices C.FuriosaSmiDisabledDevices
+
+type FuriosaSmiPcieDeviceInfo struct {
+	DeviceId          uint16
+	SubsystemVendorId uint16
+	SubsystemDeviceId uint16
+	RevisionId        byte
+	ClassId           byte
+	SubClassId        byte
+}
+
+type FuriosaSmiPcieLinkInfo struct {
+	PcieGenStatus          byte
+	LinkWidthStatus        uint32
+	LinkSpeedStatus        float64
+	MaxLinkWidthCapability uint32
+	MaxLinkSpeedCapability float64
+}
+
+type FuriosaSmiSriovInfo struct {
+	SriovTotalVfs   uint32
+	SriovEnabledVfs uint32
+}
+
+type FuriosaSmiPcieRootComplexInfo struct {
+	Domain        uint16
+	Bus           byte
+}
+
+type FuriosaSmiPcieSwitchInfo struct {
+	Domain         uint16
+	Bus            byte
+	Device         byte
+	Function       byte
 }

@@ -6,19 +6,7 @@ import (
 )
 
 func NewExclusiveDeviceSpecRenderer(device smi.Device) (Renderer, error) {
-	deviceInfo, err := device.DeviceInfo()
-	if err != nil {
-		return nil, err
-	}
-
-	var deviceSpec CDISpec = nil
-	switch deviceInfo.Arch() {
-	case smi.ArchWarboy:
-		deviceSpec, err = newWarboyDeviceSpec(device)
-	case smi.ArchRngd:
-		deviceSpec, err = newRngdDeviceSpec(device)
-	}
-
+	deviceSpec, err := newRngdDeviceSpec(device)
 	if err != nil {
 		return nil, err
 	}

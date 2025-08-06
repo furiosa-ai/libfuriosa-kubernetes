@@ -8,8 +8,6 @@ import (
 type Arch uint32
 
 const (
-	// ArchWarboy represents Warboy architecture.
-	ArchWarboy = Arch(binding.FuriosaSmiArchWarboy)
 	// ArchRngd represents RNGD architecture.
 	ArchRngd = Arch(binding.FuriosaSmiArchRngd)
 	// ArchRngdMax represents RNGD-Max architecture.
@@ -21,8 +19,6 @@ const (
 // ToString converts given arch into the string representation.
 func (a Arch) ToString() string {
 	switch a {
-	case ArchWarboy:
-		return "warboy"
 	case ArchRngd:
 		return "rngd"
 	case ArchRngdMax:

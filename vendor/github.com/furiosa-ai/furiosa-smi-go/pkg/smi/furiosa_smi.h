@@ -129,7 +129,6 @@ typedef struct {
   uint16_t major;
   uint16_t minor;
   FuriosaSmiVersion firmware_version;
-  FuriosaSmiVersion pert_version;
 } FuriosaSmiDeviceInfo;
 
 /// \brief Represent a device file information.
@@ -242,6 +241,36 @@ typedef struct {
   uint8_t device;
   uint8_t function;
 } FuriosaSmiPcieSwitchInfo;
+
+/// \brief Represent a reason for throttling
+typedef uint32_t FuriosaSmiThrottleReason;
+
+/// Throttling not active
+#define FURIOSA_SMI_THROTTLE_REASON_NONE 0
+
+/// Throttling in idle or unused state
+#define FURIOSA_SMI_THROTTLE_REASON_IDLE (1 << 0)
+
+/// Throttling triggered by high temperature
+#define FURIOSA_SMI_THROTTLE_REASON_THERMAL_SLOWDOWN (1 << 1)
+
+/// Throttling due to host-defined power limit
+#define FURIOSA_SMI_THROTTLE_REASON_APP_POWER_CAP (1 << 2)
+
+/// Throttling due to host-defined clock limit
+#define FURIOSA_SMI_THROTTLE_REASON_APP_CLOCK_CAP (1 << 3)
+
+/// Throttling from device-internal clock limit
+#define FURIOSA_SMI_THROTTLE_REASON_HW_CLOCK_CAP (1 << 4)
+
+/// Throttling from internal bus/NoC bandwidth limit
+#define FURIOSA_SMI_THROTTLE_REASON_HW_BUS_LIMIT (1 << 5)
+
+/// Throttling from device-enforced power limit
+#define FURIOSA_SMI_THROTTLE_REASON_HW_POWER_CAP (1 << 6)
+
+/// Throttling due to other undefined reasons
+#define FURIOSA_SMI_THROTTLE_REASON_OTHER_REASON (1 << 7)
 
 /// @defgroup Initialize Initialize
 /// @brief Initialize module for Furiosa smi.
@@ -472,6 +501,14 @@ FuriosaSmiReturnCode furiosa_smi_get_pcie_root_complex_info(FuriosaSmiDeviceHand
 /// @return FURIOSA_SMI_RETURN_CODE_OK if successful, see `FuriosaSmiReturnCode` for error cases.
 FuriosaSmiReturnCode furiosa_smi_get_pcie_switch_info(FuriosaSmiDeviceHandle handle,
                                                       FuriosaSmiPcieSwitchInfo *out_pcie_switch_info);
+
+/// \brief Get a throttle reason of Furiosa NPU device.
+///
+/// @param handle handle of Furiosa NPU device.
+/// @param[out] out_throttle_reason output buffer for pointer to FuriosaSmiThrottleReason.
+/// @return FURIOSA_SMI_RETURN_CODE_OK if successful, see `FuriosaSmiReturnCode` for error cases.
+FuriosaSmiReturnCode furiosa_smi_get_throttle_reason(FuriosaSmiDeviceHandle handle,
+                                                     FuriosaSmiThrottleReason *out_throttle_reason);
 
 /// @}
 

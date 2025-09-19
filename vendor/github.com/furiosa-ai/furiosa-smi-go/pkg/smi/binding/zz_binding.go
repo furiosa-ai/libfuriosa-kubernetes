@@ -273,3 +273,13 @@ func FuriosaSmiGetPcieSwitchInfo(handle FuriosaSmiDeviceHandle, outPcieSwitchInf
 	__v := (FuriosaSmiReturnCode)(__ret)
 	return __v
 }
+
+func FuriosaSmiGetThrottleReason(handle FuriosaSmiDeviceHandle, outThrottleReason *FuriosaSmiThrottleReason) FuriosaSmiReturnCode {
+	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
+	coutThrottleReason, coutThrottleReasonAllocMap := (*C.FuriosaSmiThrottleReason)(unsafe.Pointer(outThrottleReason)), cgoAllocsUnknown
+	__ret := C.furiosa_smi_get_throttle_reason(chandle, coutThrottleReason)
+	runtime.KeepAlive(coutThrottleReasonAllocMap)
+	runtime.KeepAlive(chandleAllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}

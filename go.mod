@@ -4,7 +4,7 @@ go 1.24.2
 
 require (
 	github.com/bradfitz/iter v0.0.0-20191230175014-e8f45d346db8
-	github.com/furiosa-ai/furiosa-smi-go v0.4.0
+	github.com/furiosa-ai/furiosa-smi-go v0.4.3
 	github.com/google/btree v1.1.3
 	github.com/google/uuid v1.6.0
 	github.com/stretchr/testify v1.10.0

@@ -351,6 +351,10 @@ func (s *staticMockPcieRootComplexInfo) Bus() uint8 {
 	return 0x42
 }
 
+func (s *staticMockPcieRootComplexInfo) String() string {
+	return fmt.Sprintf("%04x:%02x", s.Domain(), s.Bus())
+}
+
 type staticMockPcieSwitchInfo struct{}
 
 var _ PcieSwitchInfo = new(staticMockPcieSwitchInfo)
@@ -369,4 +373,8 @@ func (s *staticMockPcieSwitchInfo) Device() uint8 {
 
 func (s *staticMockPcieSwitchInfo) Function() uint8 {
 	return 0x00
+}
+
+func (s *staticMockPcieSwitchInfo) String() string {
+	return fmt.Sprintf("%04x:%02x:%02x.%d", s.Domain(), s.Bus(), s.Device(), s.Function())
 }

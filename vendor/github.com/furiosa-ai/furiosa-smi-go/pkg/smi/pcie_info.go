@@ -1,6 +1,7 @@
 package smi
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding"
@@ -194,6 +195,8 @@ type PcieRootComplexInfo interface {
 	Domain() uint16
 	// Bus returns bus information.
 	Bus() uint8
+	// String returns a string representation of the PCIe root complex information in BDF format.
+	String() string
 }
 
 var _ PcieRootComplexInfo = new(pcieRootComplexInfo)
@@ -216,6 +219,10 @@ func (p *pcieRootComplexInfo) Bus() uint8 {
 	return p.raw.Bus
 }
 
+func (p *pcieRootComplexInfo) String() string {
+	return fmt.Sprintf("%04x:%02x", p.Domain(), p.Bus())
+}
+
 type PcieSwitchInfo interface {
 	// Domain returns domain information.
 	Domain() uint16
@@ -225,6 +232,8 @@ type PcieSwitchInfo interface {
 	Device() uint8
 	// Function returns function information.
 	Function() uint8
+	// String returns a string representation of the PCIe switch information in BDF format.
+	String() string
 }
 
 var _ PcieSwitchInfo = new(pcieSwitchInfo)
@@ -257,4 +266,13 @@ func (p *pcieSwitchInfo) Device() uint8 {
 
 func (p *pcieSwitchInfo) Function() uint8 {
 	return p.raw.Function
+}
+
+func (p *pcieSwitchInfo) String() string {
+	return fmt.Sprintf("%04x:%02x:%02x.%d",
+		p.Domain(),
+		p.Bus(),
+		p.Device(),
+		p.Function(),
+	)
 }

@@ -26,8 +26,6 @@ type DeviceInfo interface {
 	Minor() uint16
 	// FirmwareVersion returns a firmware version of device.
 	FirmwareVersion() VersionInfo
-	// PertVersion returns a PERT version of device.
-	PertVersion() VersionInfo
 }
 
 var _ DeviceInfo = new(deviceInfo)
@@ -84,8 +82,4 @@ func (d *deviceInfo) Minor() uint16 {
 
 func (d *deviceInfo) FirmwareVersion() VersionInfo {
 	return newVersionInfo(d.raw.FirmwareVersion)
-}
-
-func (d *deviceInfo) PertVersion() VersionInfo {
-	return newVersionInfo(d.raw.PertVersion)
 }

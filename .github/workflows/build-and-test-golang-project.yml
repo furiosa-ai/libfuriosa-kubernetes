@@ -39,14 +39,6 @@ jobs:
           token: '${{ steps.app-token.outputs.token }}'
           path: furiosa-smi
 
-      - name: Create `furiosa-smi` dependencies related directories
-        shell: bash
-        run: |
-          sudo mkdir -p /usr/local/lib
-          sudo mkdir -p /usr/local/include/furiosa
-          sudo chown -R $(id -u -n):$(id -g -n) /usr/local/lib
-          sudo chown -R $(id -u -n):$(id -g -n) /usr/local/include/furiosa
-
       - name: Build & Install `furiosa-smi`
         shell: bash
         run: |

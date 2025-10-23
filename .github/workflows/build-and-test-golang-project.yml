@@ -2,29 +2,43 @@ name: Build & Test Golang Project
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+
 jobs:
   build:
-    runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         go-version: [ '1.24.2' ]
+    runs-on: ubuntu-latest
 
     steps:
+      - name: Create token via GitHub App
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: 2157275
+          private-key: ${{ secrets.CLOUD_NATIVE_WG_CI_GH_APP_PRIVKEY }}
+          repositories: |
+            furiosa-smi
+
       - name: Checkout `furiosa-smi`
-        id: furiosa-smi-checkout
         uses: actions/checkout@v4
         with:
           repository: furiosa-ai/furiosa-smi
-          token: '${{ secrets.TOKEN_FOR_CLONE_ANOTHER_REPO }}'
+          token: '${{ steps.app-token.outputs.token }}'
           path: furiosa-smi
+
       - name: Create `furiosa-smi` dependencies related directories
         shell: bash
         run: |
@@ -32,26 +46,22 @@ jobs:
           sudo mkdir -p /usr/local/include/furiosa
           sudo chown -R $(id -u -n):$(id -g -n) /usr/local/lib
           sudo chown -R $(id -u -n):$(id -g -n) /usr/local/include/furiosa
-      - name: Cache & Restore `furiosa-smi` build results
-        id: cache-furiosa-smi
-        uses: actions/cache@v4
-        with:
-          key: 'furiosa-smi-${{ steps.furiosa-smi-checkout.outputs.commit }}'
-          path: |
-            /usr/local/lib/libfuriosa_smi.so
-            /usr/local/include/furiosa/furiosa_smi.h
+
       - name: Build & Install `furiosa-smi`
-        if: steps.cache-furiosa-smi.outputs.cache-hit != 'true'
         shell: bash
         run: |
           cd furiosa-smi
           cargo build
           make install
+
       - name: Run `sudo ldconfig`
         shell: bash
         run: |
           sudo ldconfig
-      - uses: actions/checkout@v4
+
+      - name: Checkout this project
+        uses: actions/checkout@v4
+
       - name: Setup Go ${{ matrix.go-version }}
         uses: actions/setup-go@v4
         with:

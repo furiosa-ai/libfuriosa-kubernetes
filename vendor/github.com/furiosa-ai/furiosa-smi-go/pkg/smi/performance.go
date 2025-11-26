@@ -120,16 +120,16 @@ func newGovernorProfile(profile binding.FuriosaSmiGovernorProfile) GovernorProfi
 
 type performanceCounterMap struct {
 	mu   sync.RWMutex
-	data map[binding.FuriosaSmiDeviceHandle]PerformanceCounterInfo
+	data map[binding.FuriosaSmiDeviceHandle]performanceCounterInfo
 }
 
 func newPerformanceCounterMap() performanceCounterMap {
 	return performanceCounterMap{
-		data: make(map[binding.FuriosaSmiDeviceHandle]PerformanceCounterInfo),
+		data: make(map[binding.FuriosaSmiDeviceHandle]performanceCounterInfo),
 	}
 }
 
-func (pcm *performanceCounterMap) get(dev Device) (PerformanceCounterInfo, bool) {
+func (pcm *performanceCounterMap) get(dev Device) (performanceCounterInfo, bool) {
 	pcm.mu.RLock()
 	defer pcm.mu.RUnlock()
 
@@ -137,13 +137,13 @@ func (pcm *performanceCounterMap) get(dev Device) (PerformanceCounterInfo, bool)
 	return info, exists
 }
 
-func (pcm *performanceCounterMap) set(dev Device, info PerformanceCounterInfo) {
+func (pcm *performanceCounterMap) set(dev Device, info performanceCounterInfo) {
 	pcm.mu.Lock()
 	defer pcm.mu.Unlock()
 	pcm.data[dev.(*device).handle] = info
 }
 
-type PerformanceCounterInfo struct {
+type performanceCounterInfo struct {
 	beforeCounter DevicePerformanceCounter
 	afterCounter  DevicePerformanceCounter
 }
@@ -182,6 +182,7 @@ type observer struct {
 
 var _ Observer = new(observer)
 
+// Observer represents an observer instance to collect device information.
 type Observer interface {
 	// GetCoreUtilization returns the core utilization for the given device.
 	GetCoreUtilization(device Device) ([]CoreUtilization, error)
@@ -266,11 +267,11 @@ func (o *observer) updateUtilization(devices []Device) {
 		pc, exists := o.performanceCounterMap.get(device)
 
 		if exists {
-			o.performanceCounterMap.set(device, PerformanceCounterInfo{
+			o.performanceCounterMap.set(device, performanceCounterInfo{
 				beforeCounter: pc.afterCounter,
 				afterCounter:  performanceCounter})
 		} else {
-			o.performanceCounterMap.set(device, PerformanceCounterInfo{
+			o.performanceCounterMap.set(device, performanceCounterInfo{
 				beforeCounter: performanceCounter,
 				afterCounter:  performanceCounter})
 		}
@@ -281,10 +282,42 @@ func (o *observer) updateUtilization(devices []Device) {
 	}
 }
 
-type CoreUtilization struct {
-	Core              uint32
-	TimeWindowMil     uint32
-	PeUsagePercentage float64
+// CoreUtilization represents a core utilization information.
+type CoreUtilization interface {
+	// Core returns a core index.
+	Core() uint32
+	// TimeWindowMil returns a time window in milliseconds.
+	TimeWindowMil() uint32
+	// PeUsagePercentage returns a percentage of PE usage.
+	PeUsagePercentage() float64
+}
+
+var _ CoreUtilization = new(coreUtilization)
+
+type coreUtilization struct {
+	core              uint32
+	timeWindowMil     uint32
+	peUsagePercentage float64
+}
+
+func newCoreUtilization(core uint32, timeWindowMil uint32, peUsagePercentage float64) CoreUtilization {
+	return &coreUtilization{
+		core:              core,
+		timeWindowMil:     timeWindowMil,
+		peUsagePercentage: peUsagePercentage,
+	}
+}
+
+func (c *coreUtilization) Core() uint32 {
+	return c.core
+}
+
+func (c *coreUtilization) TimeWindowMil() uint32 {
+	return c.timeWindowMil
+}
+
+func (c *coreUtilization) PeUsagePercentage() float64 {
+	return c.peUsagePercentage
 }
 
 func (o *observer) CalculateUtilization(device Device) ([]CoreUtilization, error) {
@@ -306,11 +339,7 @@ func (o *observer) CalculateUtilization(device Device) ([]CoreUtilization, error
 		afterPeCounter := afterPerfCounter[i]
 
 		if afterPeCounter.CycleCount() < beforePeCounter.CycleCount() {
-			utilization := CoreUtilization{
-				Core:              beforePeCounter.Core(),
-				TimeWindowMil:     0,
-				PeUsagePercentage: 0.0,
-			}
+			utilization := newCoreUtilization(beforePeCounter.Core(), 0, 0.0)
 
 			utilizationResult = append(utilizationResult, utilization)
 			continue
@@ -321,11 +350,7 @@ func (o *observer) CalculateUtilization(device Device) ([]CoreUtilization, error
 
 		peUsagePercentage := safeUsizeDivide(taskExecutionCycleDiff, cycleCountDiff) * 100.0
 
-		utilization := CoreUtilization{
-			Core:              beforePeCounter.Core(),
-			TimeWindowMil:     uint32(afterPeCounter.Timestamp().Sub(beforePeCounter.Timestamp()).Milliseconds()),
-			PeUsagePercentage: peUsagePercentage,
-		}
+		utilization := newCoreUtilization(beforePeCounter.Core(), uint32(afterPeCounter.Timestamp().Sub(beforePeCounter.Timestamp()).Milliseconds()), peUsagePercentage)
 
 		utilizationResult = append(utilizationResult, utilization)
 	}

@@ -1,7 +1,7 @@
 ARG BASE_IMAGE=registry.corp.furiosa.ai/furiosa/furiosa-smi:latest
 FROM $BASE_IMAGE as smi
 
-FROM golang:1.24.2-bookworm
+FROM golang:1.25.4-bookworm
 
 # Copy hwloc binaries and libraries from the builder stage
 COPY --from=smi /usr/lib/x86_64-linux-gnu/libfuriosa_smi.so /usr/lib/x86_64-linux-gnu/libfuriosa_smi.so

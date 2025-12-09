@@ -122,6 +122,8 @@ type Device interface {
 	PcieInfo() (PcieInfo, error)
 	// ThrottleReason returns a throttle reason of the device.
 	ThrottleReason() (ThrottleReason, error)
+	// MemoryUtilization returns a memory utilization of the device.
+	MemoryUtilization() (MemoryUtilization, error)
 }
 
 var _ Device = new(device)
@@ -313,4 +315,14 @@ func (d *device) ThrottleReason() (ThrottleReason, error) {
 	}
 
 	return ThrottleReason(out), nil
+}
+
+func (d *device) MemoryUtilization() (MemoryUtilization, error) {
+	var out binding.FuriosaSmiMemoryUtilization
+
+	if ret := binding.FuriosaSmiGetMemoryUtilization(d.handle, &out); ret != binding.FuriosaSmiReturnCodeOk {
+		return nil, toError(ret)
+	}
+
+	return newMemoryUtilization(out), nil
 }

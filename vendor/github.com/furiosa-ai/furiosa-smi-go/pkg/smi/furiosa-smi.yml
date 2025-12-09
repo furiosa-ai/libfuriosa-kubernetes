@@ -52,4 +52,5 @@ TRANSLATOR:
       - {target: furiosa_smi_get_pcie_root_complex_info, tips: [0,ref]}
       - {target: furiosa_smi_get_pcie_switch_info, tips: [0,ref]}
       - {target: furiosa_smi_get_throttle_reason, tips: [0,ref]}
+      - {target: furiosa_smi_get_memory_utilization, tips: [0,ref]}
 

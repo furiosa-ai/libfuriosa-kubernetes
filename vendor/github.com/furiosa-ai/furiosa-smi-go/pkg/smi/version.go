@@ -18,6 +18,8 @@ type VersionInfo interface {
 	Patch() uint32
 	// Metadata returns a metadata of version.
 	Metadata() string
+	// Prerelease returns a prerelease of version.
+	Prerelease() string
 }
 
 var _ VersionInfo = new(versionInfo)
@@ -46,6 +48,16 @@ func (v *versionInfo) Metadata() string {
 	return byteBufferToString(v.raw.Metadata[:])
 }
 
+func (v *versionInfo) Prerelease() string {
+	return byteBufferToString(v.raw.Prerelease[:])
+}
+
 func (v *versionInfo) String() string {
-	return fmt.Sprintf("%d.%d.%d+%s", v.Major(), v.Minor(), v.Patch(), v.Metadata())
+	prerelease := v.Prerelease()
+
+	if prerelease == "" {
+		return fmt.Sprintf("%d.%d.%d, %s", v.Major(), v.Minor(), v.Patch(), v.Metadata())
+	}
+
+	return fmt.Sprintf("%d.%d.%d(%s), %s", v.Major(), v.Minor(), v.Patch(), prerelease, v.Metadata())
 }

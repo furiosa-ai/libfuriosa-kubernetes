@@ -18,17 +18,18 @@ type FuriosaSmiDeviceHandles struct {
 }
 
 type FuriosaSmiVersion struct {
-	Major    uint32
-	Minor    uint32
-	Patch    uint32
-	Metadata [96]byte
+	Major      uint32
+	Minor      uint32
+	Patch      uint32
+	Metadata   [96]byte
+	Prerelease [96]byte
 }
 
 type FuriosaSmiDeviceInfo struct {
 	Index           uint32
 	Arch            FuriosaSmiArch
 	CoreNum         uint32
-	NumaNode        uint32
+	NumaNode        int32
 	Name            [96]byte
 	Serial          [96]byte
 	Uuid            [96]byte
@@ -133,3 +134,22 @@ type FuriosaSmiPcieSwitchInfo struct {
 }
 
 type FuriosaSmiThrottleReason uint32
+
+type FuriosaSmiMemoryBlock struct {
+	Count      uint32
+	Core       [64]uint32
+	TotalBytes uint64
+	InUseBytes uint64
+}
+
+type FuriosaSmiMemory struct {
+	Count  uint32
+	Memory [64]FuriosaSmiMemoryBlock
+}
+
+type FuriosaSmiMemoryUtilization struct {
+	Dram        FuriosaSmiMemory
+	DramShared  FuriosaSmiMemory
+	Sram        FuriosaSmiMemory
+	Instruction FuriosaSmiMemory
+}

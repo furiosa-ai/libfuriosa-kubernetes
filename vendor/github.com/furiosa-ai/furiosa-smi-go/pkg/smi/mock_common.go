@@ -169,20 +169,22 @@ func (m *staticMockDeviceTemperature) Ambient() float64 {
 	return 10
 }
 
-func newStaticMockVersionInfo(major, minor, patch uint32, metadata string) VersionInfo {
+func newStaticMockVersionInfo(major, minor, patch uint32, metadata string, prerelease string) VersionInfo {
 	return &staticMockVersionInfo{
-		major:    major,
-		minor:    minor,
-		patch:    patch,
-		metadata: metadata,
+		major:      major,
+		minor:      minor,
+		patch:      patch,
+		metadata:   metadata,
+		prerelease: prerelease,
 	}
 }
 
 type staticMockVersionInfo struct {
-	major    uint32
-	minor    uint32
-	patch    uint32
-	metadata string
+	major      uint32
+	minor      uint32
+	patch      uint32
+	metadata   string
+	prerelease string
 }
 
 var _ VersionInfo = new(staticMockVersionInfo)
@@ -203,8 +205,18 @@ func (m *staticMockVersionInfo) Metadata() string {
 	return m.metadata
 }
 
+func (m *staticMockVersionInfo) Prerelease() string {
+	return m.prerelease
+}
+
 func (m *staticMockVersionInfo) String() string {
-	return fmt.Sprintf("%d.%d.%d+%s", m.Major(), m.Minor(), m.Patch(), m.Metadata())
+	prerelease := m.Prerelease()
+
+	if prerelease == "" {
+		return fmt.Sprintf("%d.%d.%d, %s", m.Major(), m.Minor(), m.Patch(), m.Metadata())
+	}
+
+	return fmt.Sprintf("%d.%d.%d(%s), %s", m.Major(), m.Minor(), m.Patch(), prerelease, m.Metadata())
 }
 
 func getDeviceToDeviceLinkType(src, dst Device) (LinkType, error) {

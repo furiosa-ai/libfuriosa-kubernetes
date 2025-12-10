@@ -283,3 +283,13 @@ func FuriosaSmiGetThrottleReason(handle FuriosaSmiDeviceHandle, outThrottleReaso
 	__v := (FuriosaSmiReturnCode)(__ret)
 	return __v
 }
+
+func FuriosaSmiGetMemoryUtilization(handle FuriosaSmiDeviceHandle, outMemoryUtilization *FuriosaSmiMemoryUtilization) FuriosaSmiReturnCode {
+	chandle, chandleAllocMap := (C.FuriosaSmiDeviceHandle)(handle), cgoAllocsUnknown
+	coutMemoryUtilization, coutMemoryUtilizationAllocMap := (*C.FuriosaSmiMemoryUtilization)(unsafe.Pointer(outMemoryUtilization)), cgoAllocsUnknown
+	__ret := C.furiosa_smi_get_memory_utilization(chandle, coutMemoryUtilization)
+	runtime.KeepAlive(coutMemoryUtilizationAllocMap)
+	runtime.KeepAlive(chandleAllocMap)
+	__v := (FuriosaSmiReturnCode)(__ret)
+	return __v
+}

@@ -171,8 +171,8 @@ func (m *staticRngdMockDeviceInfo) CoreNum() uint32 {
 	return 8
 }
 
-func (m *staticRngdMockDeviceInfo) NumaNode() uint32 {
-	return uint32(staticMockHintMap[m.nodeIdx].numaNode)
+func (m *staticRngdMockDeviceInfo) NumaNode() int32 {
+	return int32(staticMockHintMap[m.nodeIdx].numaNode)
 }
 
 func (m *staticRngdMockDeviceInfo) Name() string {
@@ -201,7 +201,7 @@ func (m *staticRngdMockDeviceInfo) Minor() uint16 {
 
 // FirmwareVersion e.g. version: 1.6.0, c1bebfd
 func (m *staticRngdMockDeviceInfo) FirmwareVersion() VersionInfo {
-	return newStaticMockVersionInfo(1, 6, 0, "c1bebfd")
+	return newStaticMockVersionInfo(1, 6, 0, "c1bebfd", "dev0")
 }
 
 func (m *staticRngdMockDevice) PcieInfo() (PcieInfo, error) {
@@ -214,4 +214,8 @@ func (staticRngdMockDevice) CoreUtilization(observer Observer) ([]CoreUtilizatio
 
 func (staticRngdMockDevice) ThrottleReason() (ThrottleReason, error) {
 	return 0, nil
+}
+
+func (staticRngdMockDevice) MemoryUtilization() (MemoryUtilization, error) {
+	return nil, nil
 }

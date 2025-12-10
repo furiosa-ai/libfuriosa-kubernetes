@@ -11,7 +11,7 @@ type DeviceInfo interface {
 	// CoreNum returns the number of PE cores.
 	CoreNum() uint32
 	// NumaNode returns a numa node of device.
-	NumaNode() uint32
+	NumaNode() int32
 	// Name returns a name of device.
 	Name() string
 	// Serial returns a serial of device.
@@ -52,7 +52,7 @@ func (d *deviceInfo) CoreNum() uint32 {
 	return d.raw.CoreNum
 }
 
-func (d *deviceInfo) NumaNode() uint32 {
+func (d *deviceInfo) NumaNode() int32 {
 	return d.raw.NumaNode
 }
 

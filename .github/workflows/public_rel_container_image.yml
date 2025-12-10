@@ -1,36 +1,44 @@
 name: Build & Push container image to public registry
 
 on:
+  pull_request:
+    branches:
+      - '*'
   push:
     tags:
       - '*'
 
 jobs:
   public_build_push:
-    runs-on: "ubuntu-latest"
+    runs-on: ubuntu-24.04
     env:
-      PUBLIC_REGISTRY_URL: "registry.corp.furiosa.ai"
-      PUBLIC_IMAGE_NAME: "furiosa/libfuriosa-kubernetes"
+      REGISTRY_URL: "asia-northeast3-docker.pkg.dev"
+      REGISTRY_PATH: "next-gen-infra/furiosa-ai"
+      IMAGE_NAME: "libfuriosa-kubernetes"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+
       - uses: docker/setup-buildx-action@v3
+
       - name: public registry login
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.PUBLIC_REGISTRY_URL }}
-          username: ${{ secrets.PUBLIC_REGISTRY_USERNAME }}
-          password: ${{ secrets.PUBLIC_REGISTRY_PASSWORD }}
+          registry: ${{ env.REGISTRY_URL }}
+          username: "_json_key"
+          password: ${{ secrets.GAR_JSON_KEY }}
+
       - name: Build and publish a image with latest tag
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
           push: true
-          tags: '${{ env.PUBLIC_REGISTRY_URL }}/${{ env.PUBLIC_IMAGE_NAME }}:latest'
+          tags: '${{ env.REGISTRY_URL }}/${{ env.REGISTRY_PATH }}/${{ env.IMAGE_NAME }}:latest'
+
       - name: Build and publish a image with release tag
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
           push: true
-          tags: '${{ env.PUBLIC_REGISTRY_URL }}/${{ env.PUBLIC_IMAGE_NAME }}:${{github.ref_name}}'
+          tags: '${{ env.REGISTRY_URL }}/${{ env.REGISTRY_PATH }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}'

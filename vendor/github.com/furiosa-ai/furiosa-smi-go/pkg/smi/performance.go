@@ -357,6 +357,104 @@ func (o *observer) CalculateUtilization(device Device) ([]CoreUtilization, error
 	return utilizationResult, nil
 }
 
+// MemoryUtilization represents a memory utilization information.
+type MemoryUtilization interface {
+	Dram() Memory
+	DramShared() Memory
+	Sram() Memory
+	Instruction() Memory
+}
+
+var _ MemoryUtilization = new(memoryUtilization)
+
+type memoryUtilization struct {
+	raw binding.FuriosaSmiMemoryUtilization
+}
+
+func newMemoryUtilization(raw binding.FuriosaSmiMemoryUtilization) MemoryUtilization {
+	return &memoryUtilization{
+		raw: raw,
+	}
+}
+
+func (m *memoryUtilization) Dram() Memory {
+	return newMemory(m.raw.Dram)
+}
+
+func (m *memoryUtilization) DramShared() Memory {
+	return newMemory(m.raw.DramShared)
+}
+
+func (m *memoryUtilization) Sram() Memory {
+	return newMemory(m.raw.Sram)
+}
+
+func (m *memoryUtilization) Instruction() Memory {
+	return newMemory(m.raw.Instruction)
+}
+
+// Memory represent a total memory information.
+type Memory interface {
+	Memory() []MemoryBlock
+}
+
+var _ Memory = new(memory)
+
+type memory struct {
+	raw binding.FuriosaSmiMemory
+}
+
+func newMemory(raw binding.FuriosaSmiMemory) Memory {
+	return &memory{
+		raw: raw,
+	}
+}
+
+func (m *memory) Memory() []MemoryBlock {
+	var ret []MemoryBlock
+
+	for i := uint32(0); i < m.raw.Count; i++ {
+		ret = append(ret, newMemoryBlock(m.raw.Memory[i]))
+	}
+
+	return ret
+}
+
+// MemoryBlock represent a (fusioned) memory information.
+type MemoryBlock interface {
+	Core() []uint32
+	TotalBytes() uint64
+	InUseBytes() uint64
+}
+
+var _ MemoryBlock = new(memoryBlock)
+
+type memoryBlock struct {
+	raw binding.FuriosaSmiMemoryBlock
+}
+
+func newMemoryBlock(raw binding.FuriosaSmiMemoryBlock) MemoryBlock {
+	return &memoryBlock{
+		raw: raw,
+	}
+}
+
+func (m *memoryBlock) Core() []uint32 {
+	var ret []uint32
+	for i := uint32(0); i < m.raw.Count; i++ {
+		ret = append(ret, m.raw.Core[i])
+	}
+	return ret
+}
+
+func (m *memoryBlock) TotalBytes() uint64 {
+	return m.raw.TotalBytes
+}
+
+func (m *memoryBlock) InUseBytes() uint64 {
+	return m.raw.InUseBytes
+}
+
 func safeUsizeDivide(fst, snd uint64) float64 {
 	if snd == 0 {
 		return 0.0

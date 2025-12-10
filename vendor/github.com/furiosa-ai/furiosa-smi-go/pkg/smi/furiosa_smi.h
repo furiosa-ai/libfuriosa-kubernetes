@@ -114,6 +114,7 @@ typedef struct {
   uint32_t minor;
   uint32_t patch;
   char metadata[FURIOSA_SMI_MAX_CSTR_SIZE];
+  char prerelease[FURIOSA_SMI_MAX_CSTR_SIZE];
 } FuriosaSmiVersion;
 
 /// \brief Represent a device information
@@ -121,7 +122,7 @@ typedef struct {
   uint32_t index;
   FuriosaSmiArch arch;
   uint32_t core_num;
-  uint32_t numa_node;
+  int32_t numa_node;
   char name[FURIOSA_SMI_MAX_CSTR_SIZE];
   char serial[FURIOSA_SMI_MAX_CSTR_SIZE];
   char uuid[FURIOSA_SMI_MAX_CSTR_SIZE];
@@ -244,6 +245,28 @@ typedef struct {
 
 /// \brief Represent a reason for throttling
 typedef uint32_t FuriosaSmiThrottleReason;
+
+/// \brief Represent a (fusioned) memory information.
+typedef struct {
+  uint32_t count;
+  uint32_t core[FURIOSA_SMI_MAX_PE_SIZE];
+  uint64_t total_bytes;
+  uint64_t in_use_bytes;
+} FuriosaSmiMemoryBlock;
+
+/// \brief Represent a total memory information of NPU.
+typedef struct {
+  uint32_t count;
+  FuriosaSmiMemoryBlock memory[FURIOSA_SMI_MAX_PE_SIZE];
+} FuriosaSmiMemory;
+
+/// \brief Represent a memory utilization of NPU.
+typedef struct {
+  FuriosaSmiMemory dram;
+  FuriosaSmiMemory dram_shared;
+  FuriosaSmiMemory sram;
+  FuriosaSmiMemory instruction;
+} FuriosaSmiMemoryUtilization;
 
 /// Throttling not active
 #define FURIOSA_SMI_THROTTLE_REASON_NONE 0
@@ -509,6 +532,14 @@ FuriosaSmiReturnCode furiosa_smi_get_pcie_switch_info(FuriosaSmiDeviceHandle han
 /// @return FURIOSA_SMI_RETURN_CODE_OK if successful, see `FuriosaSmiReturnCode` for error cases.
 FuriosaSmiReturnCode furiosa_smi_get_throttle_reason(FuriosaSmiDeviceHandle handle,
                                                      FuriosaSmiThrottleReason *out_throttle_reason);
+
+/// \brief Get a memory utilization of Furiosa NPU device.
+///
+/// @param handle handle of Furiosa NPU device.
+/// @param[out] out_memory_utilization output buffer for pointer to FuriosaSmiMemoryUtilization.
+/// @return FURIOSA_SMI_RETURN_CODE_OK if successful, see `FuriosaSmiReturnCode` for error cases.
+FuriosaSmiReturnCode furiosa_smi_get_memory_utilization(FuriosaSmiDeviceHandle handle,
+                                                        FuriosaSmiMemoryUtilization *out_memory_utilization);
 
 /// @}
 

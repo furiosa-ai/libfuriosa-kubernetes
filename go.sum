@@ -9,6 +9,8 @@ github.com/fsnotify/fsnotify v1.5.1 h1:mZcQUHVQUQWoPXXtuf9yuEXKudkV2sx1E06UadKWp
 github.com/fsnotify/fsnotify v1.5.1/go.mod h1:T3375wBYaZdLLcVNkcVbzGHY7f1l/uK5T5Ai1i3InKU=
 github.com/furiosa-ai/furiosa-smi-go v0.4.4 h1:HCxwimwBGQMpR+TxN9qCi8M6prWngXE4ZGg0A78SNms=
 github.com/furiosa-ai/furiosa-smi-go v0.4.4/go.mod h1:VT0ppptMWZbU5Q/7iJtk4Jk0Ff7bNnUt8Nw24NIsS+g=
+github.com/furiosa-ai/furiosa-smi-go v0.6.0 h1:a7LBruC33DXkeREgJjzwyOBlgAkgD3BOkcypo2Rfc5M=
+github.com/furiosa-ai/furiosa-smi-go v0.6.0/go.mod h1:VT0ppptMWZbU5Q/7iJtk4Jk0Ff7bNnUt8Nw24NIsS+g=
 github.com/google/btree v1.1.3 h1:CVpQJjYgC4VbzxeGVHfvZrv1ctoYCAI8vbl07Fcxlyg=
 github.com/google/btree v1.1.3/go.mod h1:qOPhT0dTNdNzV6Z/lhRX0YXUafgPLFUh+gZMl761Gm4=
 github.com/google/go-cmp v0.5.9/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=

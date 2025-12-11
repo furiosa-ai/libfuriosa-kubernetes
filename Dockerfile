@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=registry.corp.furiosa.ai/furiosa/furiosa-smi:latest
+ARG BASE_IMAGE=asia-northeast3-docker.pkg.dev/next-gen-infra/furiosa-ai/furiosa-smi:v0.6.1
 FROM $BASE_IMAGE as smi
 
 FROM golang:1.25.4-bookworm
@@ -11,7 +11,7 @@ RUN ldconfig
 ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo \
     PATH=/usr/local/cargo/bin:$PATH \
-    RUST_VERSION="nightly-2024-09-01"
+    RUST_VERSION="nightly-2025-03-24"
 
 RUN set -eux; \
     dpkgArch="$(dpkg --print-architecture)"; \

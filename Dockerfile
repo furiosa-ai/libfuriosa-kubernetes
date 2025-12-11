@@ -11,7 +11,7 @@ RUN ldconfig
 ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo \
     PATH=/usr/local/cargo/bin:$PATH \
-    RUST_VERSION="nightly-2024-09-01"
+    RUST_VERSION="nightly-2025-03-24"
 
 RUN set -eux; \
     dpkgArch="$(dpkg --print-architecture)"; \
@@ -24,7 +24,7 @@ RUN set -eux; \
         s390x) rustArch='s390x-unknown-linux-gnu'; rustupSha256='e7f89da453c8ce5771c28279d1a01d5e83541d420695c74ec81a7ec5d287c51c' ;; \
         *) echo >&2 "unsupported architecture: ${dpkgArch}"; exit 1 ;; \
     esac; \
-    url="https://static.rust-lang.org/rustup/archive/1.27.1/${rustArch}/rustup-init"; \
+    url="https://static.rust-lang.org/rustup/archive/1.28.2/${rustArch}/rustup-init"; \
     wget "$url"; \
     echo "${rustupSha256} *rustup-init" | sha256sum -c -; \
     chmod +x rustup-init; \

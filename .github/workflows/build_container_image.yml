@@ -1,9 +1,6 @@
-name: Build & Push container image to public registry
+name: Build & Push container image to GCP Artifact Registry
 
 on:
-  pull_request:
-    branches:
-      - '*'
   push:
     tags:
       - '*'
@@ -26,14 +23,6 @@ jobs:
           registry: ${{ env.REGISTRY_URL }}
           username: "_json_key"
           password: ${{ secrets.GAR_JSON_KEY }}
-
-      - name: Build and publish a image with latest tag
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: '${{ env.REGISTRY_URL }}/${{ env.REGISTRY_PATH }}/${{ env.IMAGE_NAME }}:latest'
 
       - name: Build and publish a image with release tag
         uses: docker/build-push-action@v6

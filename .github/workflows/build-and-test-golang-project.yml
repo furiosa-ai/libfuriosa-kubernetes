@@ -34,6 +34,7 @@ jobs:
           repository: furiosa-ai/furiosa-smi
           token: '${{ steps.app-token.outputs.token }}'
           path: furiosa-smi
+          ref: v0.6.2
 
       - name: Build & Install `furiosa-smi`
         shell: bash

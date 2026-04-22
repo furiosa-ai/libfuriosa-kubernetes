@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=asia-northeast3-docker.pkg.dev/next-gen-infra/furiosa-ai/furiosa-smi:2026.1.0
+ARG BASE_IMAGE=asia-northeast3-docker.pkg.dev/next-gen-infra/furiosa-ai/furiosa-smi:2026.1.1
 FROM $BASE_IMAGE as smi
 
 FROM golang:1.25.4-bookworm

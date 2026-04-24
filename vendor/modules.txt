@@ -7,7 +7,7 @@ github.com/davecgh/go-spew/spew
 # github.com/fsnotify/fsnotify v1.5.1
 ## explicit; go 1.13
 github.com/fsnotify/fsnotify
-# github.com/furiosa-ai/furiosa-smi-go v0.6.0
+# github.com/furiosa-ai/furiosa-smi-go v0.6.1-0.20260423053636-b0ca0981e92f
 ## explicit; go 1.24.2
 github.com/furiosa-ai/furiosa-smi-go/pkg/smi
 github.com/furiosa-ai/furiosa-smi-go/pkg/smi/binding

@@ -14,6 +14,8 @@ const (
 	ArchRngdMax = Arch(binding.FuriosaSmiArchRngdMax)
 	// ArchRngdS represents RNGD-S architecture.
 	ArchRngdS = Arch(binding.FuriosaSmiArchRngdS)
+	// ArchRngdPlus represents RNGD+ architecture.
+	ArchRngdPlus = Arch(binding.FuriosaSmiArchRngdPlus)
 )
 
 // ToString converts given arch into the string representation.
@@ -25,6 +27,8 @@ func (a Arch) ToString() string {
 		return "rngd-max"
 	case ArchRngdS:
 		return "rngd-s"
+	case ArchRngdPlus:
+		return "rngd+"
 	default:
 		return "unknown"
 	}

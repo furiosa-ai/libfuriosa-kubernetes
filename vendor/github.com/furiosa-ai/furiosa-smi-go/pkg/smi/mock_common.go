@@ -76,7 +76,11 @@ func GetStaticMockDevice(arch Arch, nodeIdx int) Device {
 			arch:    ArchRngd,
 			nodeIdx: nodeIdx,
 		}
-		// TODO: add more arch
+	case ArchRngdPlus:
+		return &staticRngdPlusMockDevice{
+			arch:    ArchRngdPlus,
+			nodeIdx: nodeIdx,
+		}
 	}
 
 	panic("unknown arch")

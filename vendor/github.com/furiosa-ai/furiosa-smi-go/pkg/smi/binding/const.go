@@ -23,50 +23,51 @@ const (
 	FuriosaSmiMaxDeviceHandleSize = 64
 	// FuriosaSmiMaxCstrSize as defined in smi/furiosa_smi.h:19
 	FuriosaSmiMaxCstrSize = 96
-	// FuriosaSmiThrottleReasonNone as defined in smi/furiosa_smi.h:272
+	// FuriosaSmiThrottleReasonNone as defined in smi/furiosa_smi.h:279
 	FuriosaSmiThrottleReasonNone = 0
-	// FuriosaSmiThrottleReasonIdle as defined in smi/furiosa_smi.h:275
+	// FuriosaSmiThrottleReasonIdle as defined in smi/furiosa_smi.h:282
 	FuriosaSmiThrottleReasonIdle = (1 << 0)
-	// FuriosaSmiThrottleReasonThermalSlowdown as defined in smi/furiosa_smi.h:278
+	// FuriosaSmiThrottleReasonThermalSlowdown as defined in smi/furiosa_smi.h:285
 	FuriosaSmiThrottleReasonThermalSlowdown = (1 << 1)
-	// FuriosaSmiThrottleReasonAppPowerCap as defined in smi/furiosa_smi.h:281
+	// FuriosaSmiThrottleReasonAppPowerCap as defined in smi/furiosa_smi.h:288
 	FuriosaSmiThrottleReasonAppPowerCap = (1 << 2)
-	// FuriosaSmiThrottleReasonAppClockCap as defined in smi/furiosa_smi.h:284
+	// FuriosaSmiThrottleReasonAppClockCap as defined in smi/furiosa_smi.h:291
 	FuriosaSmiThrottleReasonAppClockCap = (1 << 3)
-	// FuriosaSmiThrottleReasonHwClockCap as defined in smi/furiosa_smi.h:287
+	// FuriosaSmiThrottleReasonHwClockCap as defined in smi/furiosa_smi.h:294
 	FuriosaSmiThrottleReasonHwClockCap = (1 << 4)
-	// FuriosaSmiThrottleReasonHwBusLimit as defined in smi/furiosa_smi.h:290
+	// FuriosaSmiThrottleReasonHwBusLimit as defined in smi/furiosa_smi.h:297
 	FuriosaSmiThrottleReasonHwBusLimit = (1 << 5)
-	// FuriosaSmiThrottleReasonHwPowerCap as defined in smi/furiosa_smi.h:293
+	// FuriosaSmiThrottleReasonHwPowerCap as defined in smi/furiosa_smi.h:300
 	FuriosaSmiThrottleReasonHwPowerCap = (1 << 6)
-	// FuriosaSmiThrottleReasonOtherReason as defined in smi/furiosa_smi.h:296
+	// FuriosaSmiThrottleReasonOtherReason as defined in smi/furiosa_smi.h:303
 	FuriosaSmiThrottleReasonOtherReason = (1 << 7)
 )
 
-// FuriosaSmiArch as declared in smi/furiosa_smi.h:31
+// FuriosaSmiArch as declared in smi/furiosa_smi.h:33
 type FuriosaSmiArch int32
 
-// FuriosaSmiArch enumeration from smi/furiosa_smi.h:31
+// FuriosaSmiArch enumeration from smi/furiosa_smi.h:33
 const (
-	FuriosaSmiArchWarboy  FuriosaSmiArch = iota
-	FuriosaSmiArchRngd    FuriosaSmiArch = 1
-	FuriosaSmiArchRngdMax FuriosaSmiArch = 2
-	FuriosaSmiArchRngdS   FuriosaSmiArch = 3
+	FuriosaSmiArchWarboy   FuriosaSmiArch = iota
+	FuriosaSmiArchRngd     FuriosaSmiArch = 1
+	FuriosaSmiArchRngdMax  FuriosaSmiArch = 2
+	FuriosaSmiArchRngdS    FuriosaSmiArch = 3
+	FuriosaSmiArchRngdPlus FuriosaSmiArch = 4
 )
 
-// FuriosaSmiCoreStatus as declared in smi/furiosa_smi.h:39
+// FuriosaSmiCoreStatus as declared in smi/furiosa_smi.h:41
 type FuriosaSmiCoreStatus int32
 
-// FuriosaSmiCoreStatus enumeration from smi/furiosa_smi.h:39
+// FuriosaSmiCoreStatus enumeration from smi/furiosa_smi.h:41
 const (
 	FuriosaSmiCoreStatusAvailable FuriosaSmiCoreStatus = iota
 	FuriosaSmiCoreStatusOccupied  FuriosaSmiCoreStatus = 1
 )
 
-// FuriosaSmiDeviceToDeviceLinkType as declared in smi/furiosa_smi.h:53
+// FuriosaSmiDeviceToDeviceLinkType as declared in smi/furiosa_smi.h:55
 type FuriosaSmiDeviceToDeviceLinkType int32
 
-// FuriosaSmiDeviceToDeviceLinkType enumeration from smi/furiosa_smi.h:53
+// FuriosaSmiDeviceToDeviceLinkType enumeration from smi/furiosa_smi.h:55
 const (
 	FuriosaSmiDeviceToDeviceLinkTypeUnknown      FuriosaSmiDeviceToDeviceLinkType = iota
 	FuriosaSmiDeviceToDeviceLinkTypeInterconnect FuriosaSmiDeviceToDeviceLinkType = 10
@@ -75,19 +76,19 @@ const (
 	FuriosaSmiDeviceToDeviceLinkTypeNoc          FuriosaSmiDeviceToDeviceLinkType = 70
 )
 
-// FuriosaSmiGovernorProfile as declared in smi/furiosa_smi.h:61
+// FuriosaSmiGovernorProfile as declared in smi/furiosa_smi.h:63
 type FuriosaSmiGovernorProfile int32
 
-// FuriosaSmiGovernorProfile enumeration from smi/furiosa_smi.h:61
+// FuriosaSmiGovernorProfile enumeration from smi/furiosa_smi.h:63
 const (
 	FuriosaSmiGovernorProfilePerformance FuriosaSmiGovernorProfile = iota
 	FuriosaSmiGovernorProfilePowerSave   FuriosaSmiGovernorProfile = 1
 )
 
-// FuriosaSmiReturnCode as declared in smi/furiosa_smi.h:101
+// FuriosaSmiReturnCode as declared in smi/furiosa_smi.h:105
 type FuriosaSmiReturnCode int32
 
-// FuriosaSmiReturnCode enumeration from smi/furiosa_smi.h:101
+// FuriosaSmiReturnCode enumeration from smi/furiosa_smi.h:105
 const (
 	FuriosaSmiReturnCodeOk                       FuriosaSmiReturnCode = iota
 	FuriosaSmiReturnCodeInvalidArgumentError     FuriosaSmiReturnCode = 1
@@ -99,12 +100,13 @@ const (
 	FuriosaSmiReturnCodeIoError                  FuriosaSmiReturnCode = 7
 	FuriosaSmiReturnCodePermissionDeniedError    FuriosaSmiReturnCode = 8
 	FuriosaSmiReturnCodeUnknownArchError         FuriosaSmiReturnCode = 9
-	FuriosaSmiReturnCodeIncompatibleDriverError  FuriosaSmiReturnCode = 10
-	FuriosaSmiReturnCodeUnexpectedValueError     FuriosaSmiReturnCode = 11
-	FuriosaSmiReturnCodeParseError               FuriosaSmiReturnCode = 12
-	FuriosaSmiReturnCodeUnknownError             FuriosaSmiReturnCode = 13
-	FuriosaSmiReturnCodeInternalError            FuriosaSmiReturnCode = 14
-	FuriosaSmiReturnCodeUninitializedError       FuriosaSmiReturnCode = 15
-	FuriosaSmiReturnCodeContextError             FuriosaSmiReturnCode = 16
-	FuriosaSmiReturnCodeNotSupportedError        FuriosaSmiReturnCode = 17
+	FuriosaSmiReturnCodeNotSupportedArchError    FuriosaSmiReturnCode = 10
+	FuriosaSmiReturnCodeIncompatibleDriverError  FuriosaSmiReturnCode = 11
+	FuriosaSmiReturnCodeUnexpectedValueError     FuriosaSmiReturnCode = 12
+	FuriosaSmiReturnCodeParseError               FuriosaSmiReturnCode = 13
+	FuriosaSmiReturnCodeUnknownError             FuriosaSmiReturnCode = 14
+	FuriosaSmiReturnCodeInternalError            FuriosaSmiReturnCode = 15
+	FuriosaSmiReturnCodeUninitializedError       FuriosaSmiReturnCode = 16
+	FuriosaSmiReturnCodeContextError             FuriosaSmiReturnCode = 17
+	FuriosaSmiReturnCodeNotSupportedError        FuriosaSmiReturnCode = 18
 )

@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=asia-northeast3-docker.pkg.dev/next-gen-infra/furiosa-ai/furiosa-smi:2026.1.1
+ARG BASE_IMAGE=asia-northeast3-docker.pkg.dev/next-gen-infra/furiosa-ai/furiosa-smi:244537c-test
 FROM $BASE_IMAGE as smi
 ARG TARGETARCH
 RUN set -eux; \

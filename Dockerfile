@@ -1,7 +1,7 @@
 ARG BASE_IMAGE=asia-northeast3-docker.pkg.dev/next-gen-infra/furiosa-ai/furiosa-smi:v2026.1.1
 FROM $BASE_IMAGE as smi
 ARG TARGETARCH
-RUN set -eux; \
+RUN set -e; \
     case "$TARGETARCH" in \
         amd64) libDir='x86_64-linux-gnu' ;; \
         arm64) libDir='aarch64-linux-gnu' ;; \
@@ -15,7 +15,7 @@ ARG TARGETARCH
 # Copy hwloc binaries and libraries from the builder stage
 COPY --from=smi /tmp/libfuriosa_smi.so /tmp/libfuriosa_smi.so
 COPY --from=smi /usr/include/furiosa/furiosa_smi.h /usr/include/furiosa/furiosa_smi.h
-RUN set -eux; \
+RUN set -e; \
     case "$TARGETARCH" in \
         amd64) libDir='x86_64-linux-gnu' ;; \
         arm64) libDir='aarch64-linux-gnu' ;; \

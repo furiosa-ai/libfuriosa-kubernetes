@@ -5,13 +5,24 @@ on:
     tags:
       - '*'
 
+env:
+  REGISTRY_URL: "asia-northeast3-docker.pkg.dev"
+  REGISTRY_PATH: "next-gen-infra/furiosa-ai"
+  IMAGE_NAME: "libfuriosa-kubernetes"
+
 jobs:
-  public_build_push:
-    runs-on: ubuntu-24.04
-    env:
-      REGISTRY_URL: "asia-northeast3-docker.pkg.dev"
-      REGISTRY_PATH: "next-gen-infra/furiosa-ai"
-      IMAGE_NAME: "libfuriosa-kubernetes"
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            platform: linux/amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            platform: linux/arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v6
 
@@ -24,10 +35,56 @@ jobs:
           username: "_json_key"
           password: ${{ secrets.GAR_JSON_KEY }}
 
-      - name: Build and publish a image with release tag
+      - name: Build and push by digest
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
-          push: true
-          tags: '${{ env.REGISTRY_URL }}/${{ env.REGISTRY_PATH }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}'
+          platforms: ${{ matrix.platform }}
+          outputs: type=image,name=${{ env.REGISTRY_URL }}/${{ env.REGISTRY_PATH }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
+
+      - name: Export digest
+        run: |
+          mkdir -p ${{ runner.temp }}/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    runs-on: ubuntu-24.04
+    needs: [build]
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: public registry login
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY_URL }}
+          username: "_json_key"
+          password: ${{ secrets.GAR_JSON_KEY }}
+
+      - name: Create manifest list and push
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create \
+            -t ${{ env.REGISTRY_URL }}/${{ env.REGISTRY_PATH }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }} \
+            $(printf '${{ env.REGISTRY_URL }}/${{ env.REGISTRY_PATH }}/${{ env.IMAGE_NAME }}@sha256:%s ' *)
+
+      - name: Inspect
+        run: |
+          docker buildx imagetools inspect ${{ env.REGISTRY_URL }}/${{ env.REGISTRY_PATH }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}

@@ -28,6 +28,8 @@ typedef enum {
   FURIOSA_SMI_ARCH_RNGD_MAX,
   /// RNGD-S architecture
   FURIOSA_SMI_ARCH_RNGD_S,
+  /// RNGD+ architecture
+  FURIOSA_SMI_ARCH_RNGD_PLUS,
 } FuriosaSmiArch;
 
 /// \brief Represent a core status
@@ -82,6 +84,8 @@ typedef enum {
   FURIOSA_SMI_RETURN_CODE_PERMISSION_DENIED_ERROR,
   /// When an arch is unknown.
   FURIOSA_SMI_RETURN_CODE_UNKNOWN_ARCH_ERROR,
+  /// When an arch is deprecated.
+  FURIOSA_SMI_RETURN_CODE_NOT_SUPPORTED_ARCH_ERROR,
   /// When a driver is incompatible.
   FURIOSA_SMI_RETURN_CODE_INCOMPATIBLE_DRIVER_ERROR,
   /// When a retrieved value is invalid.
@@ -145,6 +149,7 @@ typedef struct {
   FuriosaSmiDeviceFile device_files[FURIOSA_SMI_MAX_DEVICE_HANDLE_SIZE];
 } FuriosaSmiDeviceFiles;
 
+/// \brief Represent a core status of device.
 typedef struct {
   uint32_t core;
   FuriosaSmiCoreStatus status;
@@ -156,6 +161,7 @@ typedef struct {
   FuriosaSmiPeStatus core_status[FURIOSA_SMI_MAX_CORE_STATUS_SIZE];
 } FuriosaSmiCoreStatuses;
 
+/// \brief Represent a core frequency information (MHz).
 typedef struct {
   uint32_t core;
   uint32_t frequency;
@@ -199,6 +205,7 @@ typedef struct {
 
 typedef char FuriosaSmiBdf[FURIOSA_SMI_MAX_CSTR_SIZE];
 
+/// \brief Represent a disabled device list.
 typedef struct {
   uint32_t count;
   FuriosaSmiBdf bdfs[FURIOSA_SMI_MAX_DEVICE_HANDLE_SIZE];
